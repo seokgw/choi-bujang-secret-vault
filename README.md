@@ -53,11 +53,11 @@ Vercel Production의 SUPABASE_URL과 SUPABASE_SECRET_KEY를 서버 환경변수�
 
 2026-10-06 읽기 전용 실제 조회에서 기존 메모 4건의 ID 1·2·3·4 및 초기 원본 일치를 확인했다. 기존 정책은 0개, role_table_grants의 PUBLIC/anon/authenticated 명시적 권한은 없었고 has_table_privilege에서도 anon/authenticated의 네 권한이 모두 false였다. 이후 사용자 명시적 SQL 실행 요청에 따라 RLS/최소 권한 SQL 실행이 성공했다. 적용 후 has_table_privilege에서 anon 네 권한 false, authenticated 네 권한 true를 확인했고 role_table_grants에서는 authenticated에 DELETE/INSERT/SELECT/UPDATE 네 권한만 나타났다. 네 정책의 auth.uid()=owner_id 조건 및 UPDATE의 USING/WITH CHECK를 실제 재조회했다. 다른 테이블은 변경하지 않았다.
 
-**2026-10-06 사용자 B 계정 생성 후 소유자 연결 SQL 실행이 성공했다.** 기존 계정을 A, 새 계정을 B로 식별하고 이메일로 auth.users를 조회했다. 재조회 결과 서로 다른 계정임을 확인했고 ID 1·2·3의 A 소유자 일치 3건, B 시험 메모 1건을 확인했다. 전체 메모는 5건이며 ID 4의 원본 내용과 가상 소유자도 보존됐다. 실제 이메일·UUID·비밀번호를 파일·Git·제출 묶음에 기록하지 않았다. 실제 A/B 로그인 화면 및 API의 허용/거부 시험은 사용자 직접 확인 항목으로 남긴다.
+**2026-10-06 사용자 B 계정 생성 후 소유자 연결 SQL 실행이 성공했다.** 기존 계정을 A, 새 계정을 B로 식별하고 이메일로 auth.users를 조회했다. 재조회 결과 서로 다른 계정임을 확인했고 ID 1·2·3의 A 소유자 일치 3건, B 시험 메모 1건을 확인했다. 전체 메모는 5건이며 ID 4의 원본 내용과 가상 소유자도 보존됐다. 실제 이메일·UUID·비밀번호를 파일·Git·제출 묶음에 기록하지 않았다. 이 기록 당시 실제 A/B 시험은 미확인이었다. 이후 화면 CRUD 결과는 아래 후속 기록을 따른다. 상세 API 및 타인 ID 직접 요청 시험은 미확인이다.
 
 ## 현재 보안 한계
 
-API가 이제 로그인 여부와 서버에서 검증한 ID에 따른 owner_id를 함께 검사한다. URL/쿼리/본문의 owner_id·userId·role은 권한에 사용하지 않는다. POST 소유자는 서버 지정이며 PUT/PATCH 소유자 변경 입력은 무시하고 DELETE도 자기 행만 대상으로 한다. A/B가 자기 자료만 접근하도록 코드가 바뀌었으며 실제 A/B 계정 시험은 아직 미확인이다.
+API가 이제 로그인 여부와 서버에서 검증한 ID에 따른 owner_id를 함께 검사한다. URL/쿼리/본문의 owner_id·userId·role은 권한에 사용하지 않는다. POST 소유자는 서버 지정이며 PUT/PATCH 소유자 변경 입력은 무시하고 DELETE도 자기 행만 대상으로 한다. A/B가 자기 자료만 접근하도록 코드가 바뀌었으며 실제 화면 목록 분리·CRUD는 아래 후속 기록에서 확인했고, 타인 ID 직접 API 요청은 아직 미확인이다.
 
 서버 전용 service_role은 RLS를 우회하므로 API의 소유자 검사도 반드시 유지해야 한다. DB 정책은 authenticated 직접 요청에 같은 규칙을 적용한다. [Supabase RLS 공식 설명](https://supabase.com/docs/guides/database/postgres/row-level-security)을 참고한다. 실제 DB 역할별 동작과 외부 A/B 요청 검증을 로컬 모의 시험으로 대신하지 않는다. 서버 키의 프로젝트 수준 권한, 토큰 즉시 무효화·자동 갱신 미구현, 과거 노출 이력의 한계는 남아 있다.
 
@@ -107,7 +107,7 @@ foreach ($file in (git ls-files)) {
 
 SQL 연결 확인과 실제 A/B 계정 요청 시험을 구분하며 심판 판정을 추측하지 않는다. 제목처럼 짧은 일반 단어 검색은 기존 XDR fixture 설명에서도 일치할 수 있으므로 전체 본문 일치와 구분하며 기존 연습 자료를 보존한다. [AGENTS.md](AGENTS.md)의 저장점 규칙을 따른다.
 
-이번 저장점의 로컬 실행 결과는 최종 보고와 제출 묶음에 기록한다. 실제 A/B 계정 시험은 미실행이며 5단계 권한 회수 SQL은 아래 후속 적용 기록을 따른다.
+이번 저장점의 로컬 실행 결과는 최종 보고와 제출 묶음에 기록한다. 실제 A/B 화면 시험 및 5단계 권한 회수 SQL은 아래 후속 기록을 따른다.
 
 ## 5단계 서버 경로 집중과 권한 회수 제안
 
@@ -149,4 +149,10 @@ originalApiUrl: **https://icvjlbkcyrqquoqhabdy.supabase.co/rest/v1/training_note
 
 2026-10-06 사용자의 SQL 실행 요청으로 vault_api.training_notes의 REVOKE 트랜잭션이 성공했다. 적용 후 has_table_privilege 재조회에서 anon/authenticated의 SELECT·INSERT·UPDATE·DELETE 모두 false, service_role의 네 CRUD는 모두 true였다. information_schema.role_table_grants의 PUBLIC/anon/authenticated 명시적 권한 0건, PUBLIC ACL 0건, 해당 역할의 별도 열 권한 0건을 확인했다. RLS true, 정책 4개, 전체 자료 5건 유지도 재조회했다. 다른 테이블은 적용 SQL의 대상이 아니다.
 
-현재 배포 읽기 전용 확인에서는 /data.json 404, /api/notes 401, /aleph.json 200이며 아직 4단계 증명이다. HTML·app.js·aleph.json 기존 메모 패턴 일치 0건이다. 5단계 커밋을 push/배포하지 않았으므로 5단계 배포 완료로 기록하지 않는다. A/B 실제 로그인 CRUD·타인 접근 거부와 공개 키를 사용한 원본 REST 요청은 아직 미확인이다.
+현재 배포 읽기 전용 확인에서는 /data.json 404, /api/notes 401, /aleph.json 200이며 아직 4단계 증명이다. HTML·app.js·aleph.json 기존 메모 패턴 일치 0건이다. 5단계 커밋을 push/배포하지 않았으므로 5단계 배포 완료로 기록하지 않는다. 실제 A/B 화면 CRUD는 아래 후속 기록에서 확인했다. 타인 ID 직접 API 요청과 공개 키를 사용한 원본 REST 요청은 아직 미확인이다.
+
+### A/B 실제 화면 후속 검증
+
+2026-10-06 사용자가 각각 A/B로 직접 로그인한 실제 배포 화면에서 확인했다. A는 기존 자기 카드 3개, B는 기존 자기 카드 1개를 조회했고 B 목록에 A 카드 3개가 없었다. 각각 새 가상 시험 메모를 생성하고 제목·본문 수정 후 그 시험 메모만 삭제했다. 종료 시 A 기존 3개/B 기존 1개는 보존됐다. A 로그아웃 후 자료가 숨겨지고 로그인 폼으로 전환됐다. 실제 계정 정보·키·토큰·메모 본문을 결과 파일이나 제출 JSON에 기록하지 않았다.
+
+화면 목록 분리 확인은 타인 ID 직접 GET/PUT/PATCH/DELETE 거부 검증과 구분한다. 브라우저 도구가 직접 API 주소 열기를 차단해 실제 상세·타인 ID API 시험은 미확인이다. 로컬 타인 접근 거부 모의 시험 결과로 이를 대신하지 않는다. 공개 키 원본 REST 요청과 5단계 커밋 배포도 여전히 확인이 남아 있다.
