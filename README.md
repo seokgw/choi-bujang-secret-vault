@@ -149,10 +149,14 @@ originalApiUrl: **https://icvjlbkcyrqquoqhabdy.supabase.co/rest/v1/training_note
 
 2026-10-06 사용자의 SQL 실행 요청으로 vault_api.training_notes의 REVOKE 트랜잭션이 성공했다. 적용 후 has_table_privilege 재조회에서 anon/authenticated의 SELECT·INSERT·UPDATE·DELETE 모두 false, service_role의 네 CRUD는 모두 true였다. information_schema.role_table_grants의 PUBLIC/anon/authenticated 명시적 권한 0건, PUBLIC ACL 0건, 해당 역할의 별도 열 권한 0건을 확인했다. RLS true, 정책 4개, 전체 자료 5건 유지도 재조회했다. 다른 테이블은 적용 SQL의 대상이 아니다.
 
-현재 배포 읽기 전용 확인에서는 /data.json 404, /api/notes 401, /aleph.json 200이며 아직 4단계 증명이다. HTML·app.js·aleph.json 기존 메모 패턴 일치 0건이다. 5단계 커밋을 push/배포하지 않았으므로 5단계 배포 완료로 기록하지 않는다. 실제 A/B 화면 CRUD는 아래 후속 기록에서 확인했다. 타인 ID 직접 API 요청과 공개 키를 사용한 원본 REST 요청은 아직 미확인이다.
+SQL 적용 직후 배포 읽기 전용 확인에서는 /data.json 404, /api/notes 401, /aleph.json 200이며 아직 4단계 증명이다. HTML·app.js·aleph.json 기존 메모 패턴 일치 0건이다. 당시에는 5단계 커밋을 push/배포하지 않아 배포 완료로 기록하지 않았다. 실제 A/B 화면 CRUD는 아래 후속 기록에서 확인했다. 타인 ID 직접 API 요청과 공개 키를 사용한 원본 REST 요청은 아직 미확인이다.
 
 ### A/B 실제 화면 후속 검증
 
 2026-10-06 사용자가 각각 A/B로 직접 로그인한 실제 배포 화면에서 확인했다. A는 기존 자기 카드 3개, B는 기존 자기 카드 1개를 조회했고 B 목록에 A 카드 3개가 없었다. 각각 새 가상 시험 메모를 생성하고 제목·본문 수정 후 그 시험 메모만 삭제했다. 종료 시 A 기존 3개/B 기존 1개는 보존됐다. A 로그아웃 후 자료가 숨겨지고 로그인 폼으로 전환됐다. 실제 계정 정보·키·토큰·메모 본문을 결과 파일이나 제출 JSON에 기록하지 않았다.
 
-화면 목록 분리 확인은 타인 ID 직접 GET/PUT/PATCH/DELETE 거부 검증과 구분한다. 브라우저 도구가 직접 API 주소 열기를 차단해 실제 상세·타인 ID API 시험은 미확인이다. 로컬 타인 접근 거부 모의 시험 결과로 이를 대신하지 않는다. 공개 키 원본 REST 요청과 5단계 커밋 배포도 여전히 확인이 남아 있다.
+화면 목록 분리 확인은 타인 ID 직접 GET/PUT/PATCH/DELETE 거부 검증과 구분한다. 브라우저 도구가 직접 API 주소 열기를 차단해 실제 상세·타인 ID API 시험은 미확인이다. 로컬 타인 접근 거부 모의 시험 결과로 이를 대신하지 않는다. 당시 공개 키 원본 REST 요청과 5단계 배포 확인이 남아 있었다. 배포 후속 확인은 아래 기록을 따른다.
+
+### 5단계 실제 배포 후속 확인
+
+2026-10-06 사용자 배포 요청으로 GitHub main에 push했고 실제 Vercel /aleph.json에서 step 5 및 push한 저장점 커밋 일치를 확인했다. /data.json 404, 비로그인 /api/notes·/api/notes/1·/api/session 401 application/json 및 자료 없는 unauthorized 오류, 첫 화면 nosniff를 재확인했다. 배포 HTML·app.js·aleph.json에서 기존 메모 패턴 0건, app.js의 공개 키/서버 키 참조 0건을 확인했고 GitHub 최신 파일 48개에서도 기존 전체 메모 본문 0건이었다. 과거 공개 커밋/배포 제거를 의미하지 않는다. 타인 ID 직접 API 요청 및 공개 키 원본 REST 요청은 여전히 미확인이다. 실제 A/B 화면 CRUD는 앞 기록처럼 권한 회수 후 수행했으며 최종 배포 후 별도 재시험으로 가장하지 않는다.
