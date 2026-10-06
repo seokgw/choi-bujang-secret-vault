@@ -15,38 +15,37 @@
     ul { list-style: none; display: grid; gap: 12px; padding: 0; }
     li { border: 1px solid #51667c; border-radius: 14px; padding: 17px 19px; background: #1a2a3d; }
     strong { display: block; font-size: 18px; margin-bottom: 5px; }
-    li span { color: #bfd0e5; }
+    li span { color: #bfd0e5; white-space: pre-wrap; }
+    [hidden] { display: none !important; }
+    label { display: block; margin: 12px 0; }
+    input, textarea { box-sizing: border-box; width: 100%; padding: 12px; margin-top: 6px; border: 1px solid #51667c; border-radius: 8px; background: #1a2a3d; color: #ecf4ff; font: inherit; }
+    button { padding: 10px 15px; margin: 8px 8px 0 0; border: 1px solid #8ad8df; border-radius: 8px; background: #203f50; color: #ecf4ff; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: wait; }
   </style>
 </head>
 <body>
   <main>
-    <div class="eyebrow">BYTE BACK · 2단계 자료 이전</div>
+    <div class="eyebrow">BYTE BACK · 3단계 로그인</div>
     <h1>점령된 자료실</h1>
-    <p>지금은 보호 장치가 없는 상태입니다. 아래 기록은 모두 실습을 위해 만든 가상 자료입니다.</p>
-    <div class="notice">로그인하지 않은 방문자도 자료를 볼 수 있습니다. 공개 범위를 확인하고, 다음 제작 단계에서 접근을 차례로 막아 주세요.</div>
-    <ul id="notes" aria-live="polite"><li>가상 자료를 불러오는 중입니다.</li></ul>
+    <p>아래 기록은 모두 실습을 위해 만든 가상 자료입니다. 로그인 후 자료를 조회하고 편집할 수 있습니다.</p>
+    <div class="notice">로그인으로 접근을 제한합니다. 로그인 사용자 간 메모 소유권 보호는 다음 단계에서 구현합니다.</div>
+    <p id="status" role="status" aria-live="polite"></p>
+    <form id="login">
+      <label>이메일<input name="email" type="email" autocomplete="username" required maxlength="320"></label>
+      <label>비밀번호<input name="password" type="password" autocomplete="current-password" required maxlength="1024"></label>
+      <button type="submit">로그인</button>
+    </form>
+    <section id="workspace" hidden>
+      <button id="logout" type="button">로그아웃</button>
+      <form id="editor">
+        <h2 id="editor-heading">메모 추가</h2>
+        <label>제목<input name="title" required maxlength="200"></label>
+        <label>본문<textarea name="content" rows="4" required maxlength="10000"></textarea></label>
+        <button type="submit">저장</button><button id="cancel" type="button">새 메모 작성</button>
+      </form>
+      <ul id="notes" aria-live="polite"></ul>
+    </section>
   </main>
-  <script type="module">
-    const list = document.querySelector('#notes');
-    try {
-      const response = await fetch('/api/notes', { cache: 'no-store' });
-      if (!response.ok) throw new Error('공개 자료를 읽을 수 없습니다.');
-      const data = await response.json();
-      if (!Array.isArray(data.notes)) throw new Error('자료 형식이 맞지 않습니다.');
-      list.replaceChildren(...data.notes.map(note => {
-        const item = document.createElement('li');
-        const title = document.createElement('strong');
-        const content = document.createElement('span');
-        title.textContent = note.title;
-        content.textContent = note.content;
-        item.append(title, content);
-        return item;
-      }));
-    } catch (error) {
-      const item = document.createElement('li');
-      item.textContent = '자료를 불러올 수 없습니다. 잠시 후 다시 시도해 주세요.';
-      list.replaceChildren(item);
-    }
-  </script>
+  <script type="module" src="/app.js"></script>
 </body>
 </html>
