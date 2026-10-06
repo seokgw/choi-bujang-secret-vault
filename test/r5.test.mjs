@@ -21,6 +21,7 @@ const env = {
 
 test('build identity uses Vercel Git and deployment metadata', () => {
   assert.equal(deploymentIdentity(env, { ...config, step: 2 }).step, 2);
+  assert.equal(deploymentIdentity(env, { ...config, step: 5 }).step, 5);
   assert.deepEqual(deploymentIdentity(env, config), {
     schema: 'aleph.defense.deployment.v1',
     step: 1,

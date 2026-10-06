@@ -1,4 +1,4 @@
-# BYTE BACK 자료실 · 4단계 저장점
+# BYTE BACK 자료실 · 5단계 저장점
 
 현재 구조: **브라우저 → Vercel 인증 API 서버 함수 → Supabase Auth / vault_api.training_notes**.
 기존 가상 메모는 4건이며 사용자가 지정한 A 대상은 ID 1·2·3이다. ID 4는 삭제하거나 소유자를 바꾸지 않는다. 어두운 화면 디자인과 텍스트 카드 렌더링을 유지하면서 이메일/비밀번호 로그인, 로그아웃, 메모 추가·수정·삭제를 구현했다. 비로그인 화면에는 메모가 없고 메모 API는 401 JSON 오류를 반환한다. 기존 정책·탐지 연습과 미구현 서버 뼈대는 유지한다.
@@ -29,11 +29,11 @@ POST /api/session은 이메일/비밀번호를 Supabase Auth 이메일 로그인
 - 비로그인 자료 요청: 401, application/json, `{ "error": "unauthorized" }`. HTML·자료·JWT·키·스택을 반환하지 않음.
 - 쿠키를 쓰는 변경 요청은 배포 주소의 Origin을 확인한다. 잘못된 입력은 400, 거부는 403, 없는 대상은 404, 내부 실패는 일반 503 JSON.
 
-aleph.config.json은 step 4이며 identityProvider는 aleph-plan-do-see의 Auth 발급자, audience authenticated, 해당 JWKS 주소다. allowedRoutes는 /api/notes의 GET·POST·PUT·PATCH·DELETE, /api/notes/:id의 GET·PUT·PATCH·DELETE, /api/session의 GET·POST·DELETE를 메서드와 함께 기록한다. root 수정·삭제에는 id 쿼리가 필요하다. judgeIssuer와 기존 RULE_IDS는 변경하지 않는다.
+aleph.config.json은 step 5이며 identityProvider는 aleph-plan-do-see의 Auth 발급자, audience authenticated, 해당 JWKS 주소다. allowedRoutes는 /api/notes의 GET·POST·PUT·PATCH·DELETE, /api/notes/:id의 GET·PUT·PATCH·DELETE, /api/session의 GET·POST·DELETE를 메서드와 함께 기록한다. root 수정·삭제에는 id 쿼리가 필요하다. judgeIssuer와 기존 RULE_IDS는 변경하지 않는다.
 
 ## DB와 서버 설정
 
-기존 이전 SQL artifacts/supabase-stage2.sql과 원문 검색 패턴은 사용자 선택에 따라 Git·정적 배포·제출 JSON에서 제외한다. 별도 보관한다. 이미 만들어진 DB에 초기 SQL을 반복 실행하지 않는다. 가상 메모 owner_id uuid에는 auth.users 외래키가 없다. RLS를 켜고 PUBLIC·anon·authenticated의 자료실 직접 읽기 권한을 회수한 구조를 유지한다.
+기존 이전 SQL artifacts/supabase-stage2.sql과 원문 검색 패턴은 사용자 선택에 따라 Git·정적 배포·제출 JSON에서 제외한다. 별도 보관한다. 이미 만들어진 DB에 초기 SQL을 반복 실행하지 않는다. 가상 메모 owner_id uuid에는 auth.users 외래키가 없다. RLS와 owner_id 정책을 유지한다. 4단계 적용 상태에서 anon/PUBLIC 권한은 없고 authenticated에는 네 CRUD 권한이 있다. 5단계 권한 회수 SQL은 작성만 했으며 사용자 실행 전에는 이 권한이 남아 있다.
 
 3단계 추가 SQL artifacts/supabase-stage3.sql은 기존 4건을 보존하면서 자료실 ID 자동 생성 시퀀스를 만들고 service_role에 이 테이블의 INSERT·UPDATE·DELETE 및 시퀀스 권한을 준다. 다른 기존 테이블은 변경하지 않는다. 실행 결과는 최종 보고와 캡처로 구분해 기록하며 SQL 작성 자체를 DB 실행 성공으로 취급하지 않는다.
 
@@ -61,7 +61,7 @@ API가 이제 로그인 여부와 서버에서 검증한 ID에 따른 owner_id�
 
 서버 전용 service_role은 RLS를 우회하므로 API의 소유자 검사도 반드시 유지해야 한다. DB 정책은 authenticated 직접 요청에 같은 규칙을 적용한다. [Supabase RLS 공식 설명](https://supabase.com/docs/guides/database/postgres/row-level-security)을 참고한다. 실제 DB 역할별 동작과 외부 A/B 요청 검증을 로컬 모의 시험으로 대신하지 않는다. 서버 키의 프로젝트 수준 권한, 토큰 즉시 무효화·자동 갱신 미구현, 과거 노출 이력의 한계는 남아 있다.
 
-루트/public의 data.json을 제거한 2단계 구조를 유지한다. 빌드는 오래된 public/data.json도 제거하고 다시 생성하지 않는다. /data.json의 의도한 결과는 404다. Vercel build/output 설정과 첫 화면 X-Content-Type-Options: nosniff를 유지한다. 배포 식별 정보 검증을 유지하며 4단계 public/aleph.json도 자동 생성한다.
+루트/public의 data.json을 제거한 2단계 구조를 유지한다. 빌드는 오래된 public/data.json도 제거하고 다시 생성하지 않는다. /data.json의 의도한 결과는 404다. Vercel build/output 설정과 첫 화면 X-Content-Type-Options: nosniff를 유지한다. 배포 식별 정보 검증을 유지하며 5단계 public/aleph.json도 자동 생성한다.
 
 ## 가상 메모 노출 검색 절차
 
@@ -100,11 +100,47 @@ foreach ($file in (git ls-files)) {
 - A와 B 각각 자기 목록·한 건 조회·추가·수정·삭제 가능 여부.
 - A의 B 행 접근/수정/삭제 및 B의 A 행 접근/수정/삭제가 자료 없는 404로 거부되는지.
 - POST/PUT/PATCH의 owner_id 변경 시도가 무시되며 자기 소유가 유지되는지.
-- anon 권한 없음, authenticated에는 테이블 네 CRUD 권한만 있음.
-- 네 RLS 정책의 USING/WITH CHECK가 auth.uid()=owner_id 규칙인지 및 DB 직접 요청도 자기 행만 허용하는지.
-- 비로그인 메모 요청 401 JSON, /data.json 404, /aleph.json의 4단계 저장점과 첫 화면 nosniff.
+- 5단계 SQL 적용 후 PUBLIC 직접 권한 없음, anon/authenticated 테이블 네 CRUD 권한 모두 false. 적용 전후 결과를 구분한다.
+- 네 RLS 정책의 USING/WITH CHECK가 auth.uid()=owner_id 규칙인지 및 5단계 적용 후 일반 역할의 DB 직접 요청이 거부되는지.
+- 비로그인 메모 요청 401 JSON, /data.json 404, /aleph.json의 5단계 저장점과 첫 화면 nosniff.
 - 서버 키 비노출과 최신 GitHub/정적 배포의 기존 메모 본문 부재.
 
 SQL 연결 확인과 실제 A/B 계정 요청 시험을 구분하며 심판 판정을 추측하지 않는다. 제목처럼 짧은 일반 단어 검색은 기존 XDR fixture 설명에서도 일치할 수 있으므로 전체 본문 일치와 구분하며 기존 연습 자료를 보존한다. [AGENTS.md](AGENTS.md)의 저장점 규칙을 따른다.
 
-이번 저장점 실제 로컬 실행: test:r5 16건, test:package 3건 통과. build -- --local 및 모의 Vercel 메타데이터를 제공한 build 성공, 4단계 aleph.json 생성과 data.json 부재 확인. 최신 파일의 기존 메모 본문·비밀값 패턴 및 정적 메모/서버 키 참조 검색은 0건이다. 실제 A/B 계정 시험은 미실행이다.
+이번 저장점의 로컬 실행 결과는 최종 보고와 제출 묶음에 기록한다. 실제 A/B 계정 시험과 5단계 권한 회수 SQL 실행은 미실행이다.
+
+## 5단계 서버 경로 집중과 권한 회수 제안
+
+브라우저 메모 DB 직접 호출 점검 결과: **없음**. 이 점검 때문에 화면/API 파일을 수정하지 않았다. 모든 메모 요청은 /api/notes 또는 /api/notes/:id 서버 함수로 간다. 기존 Auth 역시 /api/session 서버 함수를 거치며 로그인·로그아웃·세션 확인 UI를 보존한다. 최신 과제 24항의 공개 키 제거 기준을 우선한다. 브라우저 공식 Supabase SDK 직접 Auth 방식으로 되돌리지 않는다. 화면에 Supabase URL/key 초기화 값, publishable/anon 키가 없다.
+
+현재 구조: 브라우저 → Vercel 서버 함수/API → 서버 전용 Supabase 설정 → vault_api.training_notes. 기존 src/verify-login.mjs 검증과 owner_id 필터를 그대로 유지한다. 서버는 검증된 사용자 ID만 사용하고 브라우저 userId/role/owner_id를 신뢰하지 않는다. service_role 서버 접근은 일반 역할의 테이블 권한 회수와 별개이며 기존 CRUD 권한과 시퀀스 권한을 유지한다. 실제 A CRUD, B의 A 자료 접근 거부, 비로그인 거부는 사용자 캡처 확인 사항이다. B 자기 자료 CRUD는 허용되는 구조다.
+
+**아직 DB에 5단계 REVOKE를 적용하지 않았다.** 사용자가 아래 SQL을 검토하고 Supabase SQL Editor에서 순서대로 직접 실행한다. 파일은 기존 선택대로 Git·정적 배포·제출 JSON에서 제외한 artifacts에 보관한다.
+
+1. artifacts/supabase-stage5-before.sql: role_table_grants로 PUBLIC/anon/authenticated의 모든 명시적 권한을 조회하고 has_table_privilege로 anon/authenticated의 네 CRUD 및 service_role의 네 CRUD를 각각 확인한다. PUBLIC은 ACL grantee=0으로 확인한다. 별도 열 권한, RLS 및 기존 정책도 조회한다.
+2. artifacts/supabase-stage5-revoke.sql: 아래 한 테이블의 모든 직접 권한만 회수한다. 별도 열 권한이 있으면 먼저 중단한다. 데이터·RLS·owner_id 정책·service_role·다른 테이블은 변경하지 않는다.
+3. artifacts/supabase-stage5-after.sql: 같은 조회를 반복한다. anon/authenticated 네 값 모두 false, PUBLIC 명시 권한 0행, role_table_grants 대상 세 역할 0행, 별도 열 권한 0행이 기대값이다. service_role 네 CRUD true 및 RLS/네 정책 유지도 확인한다. 상속 등으로 권한이 남으면 완료로 표시하지 말고 결과를 검토한다.
+
+```sql
+REVOKE ALL ON TABLE vault_api.training_notes FROM PUBLIC, anon, authenticated;
+```
+
+PUBLIC은 로그인 역할이 아니므로 has_table_privilege('PUBLIC', ...) 대신 ACL을 사용한다. [PostgreSQL 권한 조회 공식 문서](https://www.postgresql.org/docs/current/functions-info.html)를 참고한다. 4단계 authenticated CRUD 부여와 5단계 회수는 서로 다른 적용 상태이며 정책을 삭제하지 않는다.
+
+originalApiUrl: **https://icvjlbkcyrqquoqhabdy.supabase.co/rest/v1/training_notes**. 실제 프로젝트와 확인된 테이블에 맞는 HTTPS 경로이며 query/fragment/자격증명이 없다. 커스텀 스키마는 Accept-Profile: vault_api 및 기존 pgrst.db_schemas=vault_api override를 사용한다. 원본 API의 공개 키 직접 요청 차단 시험은 실행하지 않았다. 사용자는 공식 도구의 비밀 입력란에서만 공개 키를 사용해 원본 GET을 요청하고 본문 없는 거부를 캡처한다. 키·JWT를 URL/채팅/로그에 적지 않는다.
+
+실제 라우트와 allowedRoutes 대조(쿼리는 경로가 아닌 입력):
+
+| 경로 | 실제 허용 메서드 = allowedRoutes |
+| --- | --- |
+| /api/notes | GET, POST, PUT, PATCH, DELETE |
+| /api/notes/:id | GET, PUT, PATCH, DELETE |
+| /api/session | GET, POST, DELETE |
+
+/api/notes의 PUT/PATCH/DELETE에는 id 쿼리가 필요하다. 미구현 /api/ai 및 /api/threat-intel은 501 뼈대이므로 허용 목록에 넣지 않는다. 첫 화면 nosniff와 aleph.json 자동 생성 구조를 유지하며 5단계 설정을 빌드/자기 점검이 인식하게 했다.
+
+사용자 직접 확인 기록: A 목록·한 건 조회/추가/수정/삭제, 기존 UI, 브라우저 Network의 메모 요청이 서버 API뿐인지, B의 A 자료 접근 거부, 무로그인 401 JSON, anon/authenticated SELECT 거부 및 INSERT/UPDATE/DELETE false, PUBLIC 권한 없음, 서버 CRUD/로그인/owner_id 검사, originalApiUrl 실제 경로 및 query 부재, 공개 키 원본 요청 차단, 서버 키의 브라우저/응답/로그 비노출을 각각 캡처한다. /aleph.json 저장점 및 첫 화면 nosniff도 확인한다. SQL 실행·실제 배포 검증·심판 판정은 사용자 확인 필요이며 로컬 모의 시험으로 대신하지 않는다.
+
+이번 5단계 실제 로컬 실행: test:r5 16건 및 test:package 3건 통과. build -- --local과 모의 Vercel 시스템 메타데이터를 제공한 build 성공; 5단계 aleph.json 생성 및 data.json 부재 확인. 실제 배포 빌드 성공으로 기록하지 않는다. API가 반환한 Allow 메서드와 allowedRoutes 12개가 일치하고 원본 URL 구조 검증도 통과했다. 최신 추적 파일 48개/정적 파일의 기존 본문·비밀값 패턴 및 클라이언트 공개 키/서버 키 참조 검색 0건이다.
+
+2026-10-06 5단계 적용 전 실제 읽기 전용 조회: vault_api.training_notes RLS true, 정책 4개; anon 네 CRUD false, authenticated 및 service_role 네 CRUD true. REVOKE는 실행하지 않았으므로 authenticated 직접 권한이 제거됐다고 보고하지 않는다.

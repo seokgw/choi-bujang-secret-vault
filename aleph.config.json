@@ -1,5 +1,5 @@
 {
-  "step": 4,
+  "step": 5,
   "repoUrl": "https://github.com/seokgw/choi-bujang-secret-vault",
   "publicAppUrl": "https://choi-bujang-secret-vault-vert.vercel.app",
   "sampleMarker": "SAMPLE_NOTE_1",
@@ -23,6 +23,6 @@
     "POST /api/session",
     "DELETE /api/session"
   ],
-  "originalApiUrl": null,
+  "originalApiUrl": "https://icvjlbkcyrqquoqhabdy.supabase.co/rest/v1/training_notes",
   "restoreRoute": null
 }
