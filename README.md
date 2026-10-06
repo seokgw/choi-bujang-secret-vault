@@ -53,7 +53,7 @@ Vercel Production의 SUPABASE_URL과 SUPABASE_SECRET_KEY를 서버 환경변수�
 
 2026-10-06 읽기 전용 실제 조회에서 기존 메모 4건의 ID 1·2·3·4 및 초기 원본 일치를 확인했다. 기존 정책은 0개, role_table_grants의 PUBLIC/anon/authenticated 명시적 권한은 없었고 has_table_privilege에서도 anon/authenticated의 네 권한이 모두 false였다. 이후 사용자 명시적 SQL 실행 요청에 따라 RLS/최소 권한 SQL 실행이 성공했다. 적용 후 has_table_privilege에서 anon 네 권한 false, authenticated 네 권한 true를 확인했고 role_table_grants에서는 authenticated에 DELETE/INSERT/SELECT/UPDATE 네 권한만 나타났다. 네 정책의 auth.uid()=owner_id 조건 및 UPDATE의 USING/WITH CHECK를 실제 재조회했다. 다른 테이블은 변경하지 않았다.
 
-**소유자 연결 SQL은 B 계정이 없어 아직 실행하지 않았다.** 현재 Auth 이메일 계정은 1개뿐이다. B 계정 생성과 A/B 이메일 지정 후 소유자 연결을 완료해야 기존 A 카드와 B 시험 카드를 실제 계정으로 확인할 수 있다. 새 비밀번호 설정은 사용자가 공식 화면에서 직접 수행한다. 이 준비가 끝나기 전 기존 가상 소유자의 메모는 4단계 API에서 현재 로그인 계정에 보이지 않을 수 있다.
+**2026-10-06 사용자 B 계정 생성 후 소유자 연결 SQL 실행이 성공했다.** 기존 계정을 A, 새 계정을 B로 식별하고 이메일로 auth.users를 조회했다. 재조회 결과 서로 다른 계정임을 확인했고 ID 1·2·3의 A 소유자 일치 3건, B 시험 메모 1건을 확인했다. 전체 메모는 5건이며 ID 4의 원본 내용과 가상 소유자도 보존됐다. 실제 이메일·UUID·비밀번호를 파일·Git·제출 묶음에 기록하지 않았다. 실제 A/B 로그인 화면 및 API의 허용/거부 시험은 사용자 직접 확인 항목으로 남긴다.
 
 ## 현재 보안 한계
 
@@ -105,6 +105,6 @@ foreach ($file in (git ls-files)) {
 - 비로그인 메모 요청 401 JSON, /data.json 404, /aleph.json의 4단계 저장점과 첫 화면 nosniff.
 - 서버 키 비노출과 최신 GitHub/정적 배포의 기존 메모 본문 부재.
 
-실제 A/B SQL 연결·계정 시험이나 심판 판정을 추측하지 않는다. 제목처럼 짧은 일반 단어 검색은 기존 XDR fixture 설명에서도 일치할 수 있으므로 전체 본문 일치와 구분하며 기존 연습 자료를 보존한다. [AGENTS.md](AGENTS.md)의 저장점 규칙을 따른다.
+SQL 연결 확인과 실제 A/B 계정 요청 시험을 구분하며 심판 판정을 추측하지 않는다. 제목처럼 짧은 일반 단어 검색은 기존 XDR fixture 설명에서도 일치할 수 있으므로 전체 본문 일치와 구분하며 기존 연습 자료를 보존한다. [AGENTS.md](AGENTS.md)의 저장점 규칙을 따른다.
 
 이번 저장점 실제 로컬 실행: test:r5 16건, test:package 3건 통과. build -- --local 및 모의 Vercel 메타데이터를 제공한 build 성공, 4단계 aleph.json 생성과 data.json 부재 확인. 최신 파일의 기존 메모 본문·비밀값 패턴 및 정적 메모/서버 키 참조 검색은 0건이다. 실제 A/B 계정 시험은 미실행이다.
