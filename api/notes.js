@@ -15,7 +15,7 @@ export default async function handler(request, response) {
     endpoint.searchParams.set('select', 'title,content');
     endpoint.searchParams.set('order', 'id.asc');
     const upstream = await fetch(endpoint, {
-      headers: { apikey: key }, redirect: 'error',
+      headers: { apikey: key, 'Accept-Profile': 'vault_api' }, redirect: 'error',
       signal: AbortSignal.timeout(10000),
     });
     if (!upstream.ok) throw new Error();

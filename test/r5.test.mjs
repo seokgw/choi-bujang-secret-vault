@@ -53,6 +53,7 @@ test('notes API limits fields and hides missing configuration/upstream errors', 
     globalThis.fetch = async (url, init) => {
       assert.equal(url.searchParams.get('select'), 'title,content');
       assert.equal(init.headers.apikey, 'unit-test-placeholder');
+      assert.equal(init.headers['Accept-Profile'], 'vault_api');
       return Response.json([{ title: 'test title', content: 'test content', owner_id: 'hidden' }]);
     };
     await notesHandler({ method: 'GET' }, response);

@@ -19,11 +19,13 @@ Node.js 22 이상과 npm을 사용한다. 새 체크아웃에서는 `npm ci`로 
 
 이전 SQL은 로컬 `artifacts/supabase-stage2.sql`이다. 사용자 선택에 따라 원문이 든 SQL은 Git·정적 배포·제출 JSON에서 제외했다. 새 Git 체크아웃에는 없으므로 별도 보관하고 Supabase SQL Editor에서 직접 실행한다. 실제 키는 SQL에 적지 않는다.
 
-SQL은 트랜잭션으로 public.training_notes를 만들고 기존 4건 전체를 삽입한다. owner_id uuid는 가상 소유자이며 auth.users 외래키가 없다. RLS를 활성화하고 PUBLIC·anon·authenticated 테이블 권한을 회수한다. 이 역할들의 읽기 정책은 없으며 서버용 service_role에만 SELECT를 준다. 동명 테이블이 있으면 덮어쓰지 않고 실패한다. 첫 오류 하나를 확인한다.
+최종 SQL은 트랜잭션으로 vault_api.training_notes를 만들고 기존 4건 전체를 삽입한다. owner_id uuid는 가상 소유자이며 auth.users 외래키가 없다. RLS를 활성화하고 PUBLIC·anon·authenticated 테이블 권한을 회수한다. 서버용 service_role에만 스키마 USAGE와 테이블 SELECT를 준다. 동명 스키마/테이블이 있으면 덮어쓰지 않고 실패한다. 이미 실행한 DB에는 초기 SQL을 반복 실행하지 않는다.
 
-끝의 쿼리에서 owner_id가 uuid인지, rowsecurity가 true인지, anon/authenticated SELECT가 false인지 사용자가 확인한다. 실제 Supabase 접속·실행은 아직 확인하지 않았다.
+2026-10-06 사용자 승인으로 aleph-plan-do-see에 초기 SQL을 실행하고 자료실 테이블만 vault_api로 이동했다. 실제 SQL 조회에서 4건, owner_id uuid, RLS true, anon/authenticated SELECT false를 확인했다. 기존 테이블 데이터·권한·RLS는 변경하지 않았다. 사용자는 같은 항목을 캡처로 재확인할 수 있다.
 
-Vercel 서버 환경변수에 SUPABASE_URL, SUPABASE_SECRET_KEY를 직접 설정하고 재배포한다. 값 자체를 채팅·Git·캡처에 넣지 않는다. SUPABASE_SECRET_KEY는 서버에서만 사용한다. 서버는 Supabase REST API의 apikey 헤더에 키를 보내고 title,content만 조회한다. owner_id·내부 오류·스택·환경변수·키는 응답하거나 로그로 출력하지 않는다. [Supabase 공식 키 사용법](https://supabase.com/docs/guides/getting-started/api-keys)을 따른다.
+Vercel Production 서버 환경변수 SUPABASE_URL과 SUPABASE_SECRET_KEY를 설정했다. 키는 Vercel Secret 유형으로 저장했으며 값 자체를 채팅·파일·Git·캡처에 넣지 않았다. SUPABASE_SECRET_KEY는 서버에서만 사용한다. 서버는 apikey 헤더와 Accept-Profile: vault_api로 title,content만 조회한다. owner_id·내부 오류·스택·환경변수·키는 응답하거나 로그로 출력하지 않는다. [Supabase 공식 키 사용법](https://supabase.com/docs/guides/getting-started/api-keys)을 따른다.
+
+공유 프로젝트의 Data API가 꺼져 있었고, 활성화 화면은 기존 RLS 없는 테이블들의 공개 위험을 경고했다. 사용자 추가 승인으로 authenticator 역할의 pgrst.db_schemas를 vault_api로 제한한 뒤 Data API를 활성화했다. 관리 화면의 기본 노출 목록보다 이 override가 우선한다. **Reset override를 누르거나 public을 추가하지 않는다.** 기본 노출 목록만 보고 기존 테이블이 실제로 노출됐다고 판단하지 않는다. [Supabase 공식 override 설명](https://supabase.com/docs/guides/troubleshooting/pgrst106-the-schema-must-be-one-of-the-following-error-when-querying-an-exposed-schema)을 참고한다. 서버 키는 프로젝트 수준의 권한을 가지므로 별도 프로젝트만큼 격리된 것은 아니다.
 
 ## 현재 보안 약점과 배포 구조
 
@@ -62,7 +64,7 @@ foreach ($file in (git ls-files)) {
 
 ## 검증 범위와 점수 조건
 
-실제 Supabase 실행, Vercel 환경변수와 배포 화면·404·aleph·헤더, GitHub 최신 파일은 외부 확인 전에는 미확인이다. 제출 묶음은 실제 배포 주소에 요청한 HTTP/형식 결과만 기록하며 응답 실패는 사용자 확인 필요로 남긴다. 로컬 시험은 실제 심판 판정이 아니다.
+Supabase의 실제 DB 상태와 Vercel Production 환경변수 저장을 확인했다. 배포 화면·404·aleph·헤더의 최신 결과는 artifacts/submission.json과 캡처로 별도 기록한다. 확인하지 않은 항목은 성공으로 쓰지 않는다. 제출 묶음은 실제 배포 주소에 요청한 HTTP/형식 결과만 기록하며 응답 실패는 사용자 확인 필요로 남긴다. 로컬 시험은 실제 심판 판정이 아니다.
 
 - 70점 기본: SQL·owner_id uuid·RLS·직접 읽기 권한 회수, 서버 환경변수 API, 정적 원문 제거, 공개 API·과거 노출 한계 기록.
 - 추가 10점: /data.json 404 구조. 실제 배포 확인 필요.
