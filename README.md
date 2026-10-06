@@ -1,7 +1,7 @@
-# BYTE BACK 자료실 · 3단계 저장점
+# BYTE BACK 자료실 · 4단계 저장점
 
 현재 구조: **브라우저 → Vercel 인증 API 서버 함수 → Supabase Auth / vault_api.training_notes**.
-기존 가상 메모는 4건이다. 어두운 화면 디자인과 텍스트 카드 렌더링을 유지하면서 이메일/비밀번호 로그인, 로그아웃, 메모 추가·수정·삭제를 구현했다. 비로그인 화면에는 메모가 없고 메모 API는 401 JSON 오류를 반환한다. 기존 정책·탐지 연습과 미구현 서버 뼈대는 유지한다.
+기존 가상 메모는 4건이며 사용자가 지정한 A 대상은 ID 1·2·3이다. ID 4는 삭제하거나 소유자를 바꾸지 않는다. 어두운 화면 디자인과 텍스트 카드 렌더링을 유지하면서 이메일/비밀번호 로그인, 로그아웃, 메모 추가·수정·삭제를 구현했다. 비로그인 화면에는 메모가 없고 메모 API는 401 JSON 오류를 반환한다. 기존 정책·탐지 연습과 미구현 서버 뼈대는 유지한다.
 
 ## 다시 실행
 
@@ -13,7 +13,7 @@ Node.js 22 이상과 npm을 사용한다. 새 체크아웃에서는 `npm ci`로 
 - `npm run build`: Vercel 시스템 환경변수를 검증하고 public/aleph.json 생성. 배포 정보가 없으면 실패한다.
 - `npm run bundle`: 저장점 커밋 후 artifacts/submission.json 생성. bundle-notes.json에 작업 설명을 작성하며 두 파일은 Git에서 제외된다.
 
-배포 화면에서 이메일/비밀번호를 직접 입력하고 **로그인**을 누른다. 정상 A 계정이면 기존 카드 4개가 보이며 **저장**, 카드의 **수정/삭제**, **로그아웃**을 시험할 수 있다. 삭제 시험은 새로 만든 가상 시험 메모만 대상으로 한다. 시크릿 창에서는 로그인 폼만 보이고 GET /api/notes는 401 JSON이어야 한다. 실제 계정 비밀번호를 코드·명령·채팅에 적지 않는다. 이 화면은 계정 가입 기능을 제공하지 않는다. 계정이 없으면 사용자가 Supabase Auth 공식 화면에서 직접 생성한다.
+배포 화면에서 이메일/비밀번호를 직접 입력하고 **로그인**을 누른다. A/B 소유자 연결 SQL 적용 후 A 계정이면 선택한 기존 카드 3개와 A가 새로 만든 메모가 보이며 **저장**, 카드의 **수정/삭제**, **로그아웃**을 시험할 수 있다. 삭제 시험은 새로 만든 가상 시험 메모만 대상으로 한다. 시크릿 창에서는 로그인 폼만 보이고 GET /api/notes는 401 JSON이어야 한다. 실제 계정 비밀번호를 코드·명령·채팅에 적지 않는다. 이 화면은 계정 가입 기능을 제공하지 않는다. 계정이 없으면 사용자가 Supabase Auth 공식 화면에서 직접 생성한다.
 
 ## 로그인과 서버 API 계약
 
@@ -21,13 +21,15 @@ POST /api/session은 이메일/비밀번호를 Supabase Auth 이메일 로그인
 
 메모 API는 쿠키 또는 Authorization Bearer를 기존 검증기로 확인한다. Supabase 학생 토큰은 getClaims로 확인하고 심판 토큰은 기존 운영 발급자의 ES256 서명 검증을 유지한다. 브라우저의 userId·role·owner_id는 신뢰하지 않는다.
 
-- GET /api/notes: 검증된 로그인 사용자에게 id,title,content만 반환.
+- GET /api/notes: owner_id가 검증된 사용자 ID인 행만 조회하고 id,title,content만 반환.
+- GET /api/notes/:id: 본인 행이면 {id,title,content}, 타인/없는 행이면 동일한 404 JSON. GET /api/notes?id=숫자는 기존 notes 배열 응답을 유지.
 - POST /api/notes: title/content만 받고 owner_id는 **검증한 사용자 ID**로 서버가 지정. 성공 201.
-- PATCH /api/notes?id=숫자: 제목·본문 수정. DELETE 같은 주소: 삭제.
+- PUT/PATCH /api/notes/:id: 제목·content 수정. DELETE 같은 주소: 삭제. 기존 PUT/PATCH/DELETE /api/notes?id=숫자도 제공한다. PUT은 기존 전체 제목/본문 입력 계약을 Supabase PATCH로 전달한다.
+- 수정·삭제는 ID와 owner_id를 함께 DB 조건에 넣는 원자적 요청이다. 기존 행은 본인 소유여야 하고 수정 입력에 owner_id를 복사하지 않으므로 새 행의 소유자도 유지된다. 반환 행의 owner_id도 서버에서 다시 검사한다. 소유권 이전 기능은 없다.
 - 비로그인 자료 요청: 401, application/json, `{ "error": "unauthorized" }`. HTML·자료·JWT·키·스택을 반환하지 않음.
 - 쿠키를 쓰는 변경 요청은 배포 주소의 Origin을 확인한다. 잘못된 입력은 400, 거부는 403, 없는 대상은 404, 내부 실패는 일반 503 JSON.
 
-aleph.config.json은 step 3이며 identityProvider는 aleph-plan-do-see의 Auth 발급자, audience authenticated, 해당 JWKS 주소다. allowedRoutes는 실제 구현한 /api/notes와 /api/session이다. judgeIssuer와 기존 RULE_IDS는 변경하지 않는다.
+aleph.config.json은 step 4이며 identityProvider는 aleph-plan-do-see의 Auth 발급자, audience authenticated, 해당 JWKS 주소다. allowedRoutes는 /api/notes의 GET·POST·PUT·PATCH·DELETE, /api/notes/:id의 GET·PUT·PATCH·DELETE, /api/session의 GET·POST·DELETE를 메서드와 함께 기록한다. root 수정·삭제에는 id 쿼리가 필요하다. judgeIssuer와 기존 RULE_IDS는 변경하지 않는다.
 
 ## DB와 서버 설정
 
@@ -39,11 +41,27 @@ Vercel Production의 SUPABASE_URL과 SUPABASE_SECRET_KEY를 서버 환경변수�
 
 공유 프로젝트의 Data API는 기존 사용자 승인으로 활성화했고 authenticator의 pgrst.db_schemas=vault_api override로 자료실 스키마만 노출한다. **Reset override를 누르거나 public을 추가하지 않는다.** 기존 다른 테이블 데이터·권한·RLS는 변경하지 않는다. 서버 키는 프로젝트 수준 권한을 가지므로 별도 프로젝트만큼 격리된 것은 아니다.
 
-## 현재 남은 보안 약점
+## 4단계 소유권 SQL과 적용 상태
 
-Vercel API 주소 자체는 공개지만 비로그인 자료 요청은 거부하도록 변경했다. **로그인 사용자별 소유권 인가는 아직 구현하지 않았다.** 정상 로그인 사용자는 다른 사용자가 만든 메모도 조회·수정·삭제할 수 있다. RLS가 활성화되어도 서버 전용 역할을 통한 현재 API의 소유권 검사를 대신하지 않는다. 이 타인 메모 접근 약점은 다음 단계에서 해결할 항목이며 해결됐다고 쓰지 않는다. 실제 직접 요청 여부와 인가는 심판이 별도로 확인한다.
+학습 SQL은 기존 사용자 선택에 따라 artifacts에만 보관하고 Git·정적 배포·제출 JSON에서 제외한다. 실제 비밀번호/JWT/키를 입력하지 않는다. A/B 이메일도 Git이나 출력에 기록하지 않고 SQL Editor의 입력란에만 직접 넣는다.
 
-루트/public의 data.json을 제거한 2단계 구조를 유지한다. 빌드는 오래된 public/data.json도 제거하고 다시 생성하지 않는다. /data.json의 의도한 결과는 404다. Vercel build/output 설정과 첫 화면 X-Content-Type-Options: nosniff를 유지한다. 배포 식별 정보 검증을 유지하며 3단계 public/aleph.json도 자동 생성한다.
+1. artifacts/supabase-stage4-owners.sql: 이메일로 auth.users의 A/B UUID를 각각 조회한다. ID 1·2·3의 owner_id만 A로 연결하고 B 가상 시험 메모 1건을 추가한다. 기존 4번째 메모와 제목/본문/ID는 보존한다. 계정 누락·동일 계정·잘못된 대상·중복 B 시험 메모면 트랜잭션을 중단한다. 총 예상 메모는 기존 4건+신규 B 1건=5건이다.
+2. artifacts/supabase-stage4-owners-check.sql: A/B 조회 일치 여부와 A 대상 3건, B 시험 1건을 확인한다. UUID/이메일/본문을 결과에 출력하지 않는다.
+3. artifacts/supabase-stage4-before.sql: role_table_grants와 has_table_privilege의 역할별 SELECT/INSERT/UPDATE/DELETE 및 기존 정책을 조회한다.
+4. artifacts/supabase-stage4-rls.sql: 자료실 테이블 권한을 PUBLIC·anon·authenticated에서 회수하고 authenticated에 네 CRUD 권한만 부여한다. RLS를 활성화하며 SELECT/DELETE는 USING(auth.uid()=owner_id), INSERT는 WITH CHECK, UPDATE는 USING과 WITH CHECK를 모두 둔다. 기존 정책이 있으면 무작정 DROP하지 않고 검토를 요구하며 중단한다. 다른 테이블은 변경하지 않는다. custom schema USAGE와 해당 정수 ID 시퀀스 USAGE는 삽입에 필요한 최소 보조 권한이다.
+5. artifacts/supabase-stage4-after.sql / supabase-stage4-policies.sql: 같은 두 방법으로 적용 후 권한과 USING/WITH CHECK를 확인한다. anon 네 권한은 false, authenticated는 네 권한만 true여야 한다.
+
+2026-10-06 읽기 전용 실제 조회에서 기존 메모 4건의 ID 1·2·3·4 및 초기 원본 일치를 확인했다. 기존 정책은 0개, role_table_grants의 PUBLIC/anon/authenticated 명시적 권한은 없었고 has_table_privilege에서도 anon/authenticated의 네 권한이 모두 false였다. 이후 사용자 명시적 SQL 실행 요청에 따라 RLS/최소 권한 SQL 실행이 성공했다. 적용 후 has_table_privilege에서 anon 네 권한 false, authenticated 네 권한 true를 확인했고 role_table_grants에서는 authenticated에 DELETE/INSERT/SELECT/UPDATE 네 권한만 나타났다. 네 정책의 auth.uid()=owner_id 조건 및 UPDATE의 USING/WITH CHECK를 실제 재조회했다. 다른 테이블은 변경하지 않았다.
+
+**소유자 연결 SQL은 B 계정이 없어 아직 실행하지 않았다.** 현재 Auth 이메일 계정은 1개뿐이다. B 계정 생성과 A/B 이메일 지정 후 소유자 연결을 완료해야 기존 A 카드와 B 시험 카드를 실제 계정으로 확인할 수 있다. 새 비밀번호 설정은 사용자가 공식 화면에서 직접 수행한다. 이 준비가 끝나기 전 기존 가상 소유자의 메모는 4단계 API에서 현재 로그인 계정에 보이지 않을 수 있다.
+
+## 현재 보안 한계
+
+API가 이제 로그인 여부와 서버에서 검증한 ID에 따른 owner_id를 함께 검사한다. URL/쿼리/본문의 owner_id·userId·role은 권한에 사용하지 않는다. POST 소유자는 서버 지정이며 PUT/PATCH 소유자 변경 입력은 무시하고 DELETE도 자기 행만 대상으로 한다. A/B가 자기 자료만 접근하도록 코드가 바뀌었으며 실제 A/B 계정 시험은 아직 미확인이다.
+
+서버 전용 service_role은 RLS를 우회하므로 API의 소유자 검사도 반드시 유지해야 한다. DB 정책은 authenticated 직접 요청에 같은 규칙을 적용한다. [Supabase RLS 공식 설명](https://supabase.com/docs/guides/database/postgres/row-level-security)을 참고한다. 실제 DB 역할별 동작과 외부 A/B 요청 검증을 로컬 모의 시험으로 대신하지 않는다. 서버 키의 프로젝트 수준 권한, 토큰 즉시 무효화·자동 갱신 미구현, 과거 노출 이력의 한계는 남아 있다.
+
+루트/public의 data.json을 제거한 2단계 구조를 유지한다. 빌드는 오래된 public/data.json도 제거하고 다시 생성하지 않는다. /data.json의 의도한 결과는 404다. Vercel build/output 설정과 첫 화면 X-Content-Type-Options: nosniff를 유지한다. 배포 식별 정보 검증을 유지하며 4단계 public/aleph.json도 자동 생성한다.
 
 ## 가상 메모 노출 검색 절차
 
@@ -72,17 +90,21 @@ foreach ($file in (git ls-files)) {
 
 **B. 과거 공개 이력:** 옛 공개 GitHub 커밋과 옛 Vercel 배포는 별개다. 초기 공개 커밋에는 메모가 남아 있다. 최신 파일에서 없어져도 과거 노출이 완전히 해소된 것이 아니다. 이번 작업은 Git 이력을 재작성하거나 옛 배포를 삭제하지 않는다. 옛 배포 URL·커밋을 따로 목록화하고 확인하지 않은 접근 차단·삭제를 완료로 적지 않는다.
 
-## 검증 범위와 점수 조건
+## 이번 저장점 검증과 사용자 직접 확인
 
-로컬 인증/CRUD 시험은 모의 upstream 및 실행 중 생성한 시험 토큰을 사용하며 실제 A 계정 시험이 아니다. 실제 실행한 명령의 결과와 외부 확인은 최종 보고/제출 묶음에 기록한다. 미실행 항목은 미확인으로 남긴다. 기존 decider/detect 연습의 미구현 항목은 이번 단계에서 수정하지 않는다.
+실행 명령은 위 다시 실행 절을 따른다. 로컬 A/B 시험은 모의 DB와 실행 중 생성한 시험 토큰을 사용하며 실제 계정 검증이 아니다. 실제 실행한 테스트/빌드·배포 결과는 최종 보고/제출 묶음에 기록한다. 기존 decider/detect 연습의 미구현 항목은 이번 단계에서 수정하지 않는다.
 
-- 70점 기본: Auth 로그인/로그아웃, 화면 상태, 기존 토큰 검증, 비로그인 거부, 로그인 CRUD, 서버 owner_id 지정, 발급자/경로 일치, 키 비노출, 타인 메모 접근 한계 기록. 실제 A 로그인/CRUD 캡처 필요.
-- 추가 10점: 비로그인 GET /api/notes가 401 또는 403 **JSON**이며 HTML과 자료가 없음. 실제 배포 확인 필요.
-- 추가 10점: /aleph.json 자동 생성 구조 유지. 실제 배포 접근 캡처 필요.
-- 추가 10점: 첫 화면 nosniff 유지. 실제 응답 헤더 캡처 필요.
+사용자는 다음을 직접 캡처한다:
 
-사용자 직접 확인: 시크릿 창의 자료 비노출 및 JSON 거부, A 로그인 후 기존 4건 조회와 새 시험 메모 CRUD/로그아웃, 서버 키 비노출, /data.json 404, /aleph.json, 첫 화면 보안 헤더, 최신 GitHub/정적 배포의 기존 메모 문장 부재. 실제 계정 시험이나 심판 점수를 추측하지 않는다.
+- A 기존 ID 1·2·3의 owner_id가 이메일로 조회한 A UUID인지, B 시험 1건이 B UUID인지. ID 4 보존 여부.
+- A와 B 각각 자기 목록·한 건 조회·추가·수정·삭제 가능 여부.
+- A의 B 행 접근/수정/삭제 및 B의 A 행 접근/수정/삭제가 자료 없는 404로 거부되는지.
+- POST/PUT/PATCH의 owner_id 변경 시도가 무시되며 자기 소유가 유지되는지.
+- anon 권한 없음, authenticated에는 테이블 네 CRUD 권한만 있음.
+- 네 RLS 정책의 USING/WITH CHECK가 auth.uid()=owner_id 규칙인지 및 DB 직접 요청도 자기 행만 허용하는지.
+- 비로그인 메모 요청 401 JSON, /data.json 404, /aleph.json의 4단계 저장점과 첫 화면 nosniff.
+- 서버 키 비노출과 최신 GitHub/정적 배포의 기존 메모 본문 부재.
 
-제목처럼 짧은 일반 단어 검색은 기존 XDR fixture 설명에서도 일치할 수 있다. 경로를 열어 전체 본문 일치와 구분하며 관계없는 연습 자료는 보존한다. [AGENTS.md](AGENTS.md)의 저장점 규칙을 따른다.
+실제 A/B SQL 연결·계정 시험이나 심판 판정을 추측하지 않는다. 제목처럼 짧은 일반 단어 검색은 기존 XDR fixture 설명에서도 일치할 수 있으므로 전체 본문 일치와 구분하며 기존 연습 자료를 보존한다. [AGENTS.md](AGENTS.md)의 저장점 규칙을 따른다.
 
-이번 저장점 로컬 실행: test:r5 12건, test:package 3건 통과. build -- --local 및 모의 Vercel 시스템 환경변수를 제공한 build 성공, 3단계 aleph.json 생성과 data.json 부재 확인. 최신 파일의 기존 메모 본문·비밀값 패턴 및 정적 파일의 메모/서버 키 참조 검색은 0건이었다. 실제 A 계정 로그인 시험은 아직 미확인이다.
+이번 저장점 실제 로컬 실행: test:r5 16건, test:package 3건 통과. build -- --local 및 모의 Vercel 메타데이터를 제공한 build 성공, 4단계 aleph.json 생성과 data.json 부재 확인. 최신 파일의 기존 메모 본문·비밀값 패턴 및 정적 메모/서버 키 참조 검색은 0건이다. 실제 A/B 계정 시험은 미실행이다.

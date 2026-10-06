@@ -32,7 +32,7 @@ test('deployed handler rejects missing or malformed authorization without config
   }
 });
 test('CRUD assigns verified owner and exposes only allowed fields', async () => {
-  const row = { id: 5, title: '<b>test</b>', content: 'fictional test', owner_id: 'hidden' };
+  const row = { id: 5, title: '<b>test</b>', content: 'fictional test', owner_id: userId };
   const calls = [];
   const handler = createNotesHandler({ verify: async () => ({ userId }), settings,
     fetcher: async (url, init) => { calls.push({ url, init }); return Response.json([row]); } });
@@ -108,7 +108,7 @@ test('stage3 self-check requires denial JSON and stage3 identity', async () => {
       const path = new URL(url).pathname;
       if (path === '/api/notes') return Response.json({ error: 'unauthorized' }, { status: 401 });
       if (path === '/data.json') return new Response('', { status: 404 });
-      if (path === '/aleph.json') return Response.json({ schema: 'aleph.defense.deployment.v1', step: 3 });
+      if (path === '/aleph.json') return Response.json({ schema: 'aleph.defense.deployment.v1', step: config.step });
       return new Response('', { headers: { 'x-content-type-options': 'nosniff' } });
     };
     const result = await runAttackChecks(config);

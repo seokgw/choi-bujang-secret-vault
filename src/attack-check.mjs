@@ -1,7 +1,7 @@
 // The student changes this check as each stage adds an attack to the same app.
 // Never return tokens, private keys, real names, or note bodies.
 export async function runAttackChecks(config) {
-  if (![1, 2, 3].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
+  if (![1, 2, 3, 4].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
   let app;
   try {
     app = new URL(config.publicAppUrl);
@@ -16,10 +16,12 @@ export async function runAttackChecks(config) {
   if (config.step >= 2) {
     const checks = [
       ['/data.json', 'static_note_removal', '404 또는 제목·본문이 없는 빈 notes 배열'],
-      ['/api/notes', config.step === 3 ? 'anonymous_note_rejection' : 'public_api_direct_request', config.step === 3 ? '401 또는 403 JSON 오류; 자료와 내부 정보 없음' : '현재 단계는 인증 없이 직접 호출 가능; 정상 설정 시 가상 메모 4건'],
+      ['/api/notes', config.step >= 3 ? 'anonymous_note_rejection' : 'public_api_direct_request', config.step >= 3 ? '401 또는 403 JSON 오류; 자료와 내부 정보 없음' : '현재 단계는 인증 없이 직접 호출 가능; 정상 설정 시 가상 메모 4건'],
       ['/aleph.json', 'deployment_identity', `현재 ${config.step}단계 배포 증명 JSON 제공`],
       ['/', 'homepage_nosniff', '첫 화면에 X-Content-Type-Options: nosniff'],
     ];
+    if (config.step === 4) checks.push(['/api/notes/1', 'anonymous_detail_rejection',
+      '401 또는 403 JSON 오류; 상세 경로도 비로그인 자료 반환 없음']);
     const results = [];
     for (const [path, attackId, expected] of checks) {
       let observed;
@@ -36,8 +38,8 @@ export async function runAttackChecks(config) {
           try { data = await res.json(); } catch { /* Only report shape/status. */ }
           if (path === '/data.json') {
             observed = `HTTP ${res.status}; 빈 notes 배열 ${Array.isArray(data?.notes) && data.notes.length === 0 ? '확인' : '미확인'}`;
-          } else if (path === '/api/notes') {
-            observed = config.step === 3
+          } else if (path.startsWith('/api/notes')) {
+            observed = config.step >= 3
               ? `비로그인 HTTP ${res.status}; JSON 오류 ${[401, 403].includes(res.status) && res.headers.get('content-type')?.includes('application/json') && data && Object.keys(data).length === 1 && ['unauthorized', 'forbidden'].includes(data.error) ? '확인' : '미확인'}`
               : `인증 없는 직접 요청 HTTP ${res.status}; 메모 건수 ${Array.isArray(data?.notes) ? data.notes.length : '미확인'}`;
           } else {

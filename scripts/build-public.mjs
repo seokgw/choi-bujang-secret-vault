@@ -5,7 +5,7 @@ import { deploymentIdentity } from './deployment-identity.mjs';
 const root = resolve(import.meta.dirname, '..');
 const output = resolve(root, 'public', 'data.json');
 const config = JSON.parse(await readFile(resolve(root, 'aleph.config.json'), 'utf8'));
-if (![2, 3].includes(config.step)) throw new Error('현재 빌드는 2·3단계 설정이 필요합니다.');
+if (![2, 3, 4].includes(config.step)) throw new Error('현재 빌드는 2·3·4단계 설정이 필요합니다.');
 await mkdir(resolve(root, 'public'), { recursive: true });
 await rm(output, { force: true });
 console.log('공개 data.json을 생성하지 않습니다.');

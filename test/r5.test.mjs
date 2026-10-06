@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import { deploymentIdentity } from '../scripts/deployment-identity.mjs';
 import { runAttackChecks } from '../src/attack-check.mjs';
 import '../test/stage3.test.mjs';
+import '../test/stage4.test.mjs';
 
 const config = {
   step: 1,
