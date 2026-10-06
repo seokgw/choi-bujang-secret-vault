@@ -43,7 +43,7 @@ export async function runAttackChecks(config) {
               ? `비로그인 HTTP ${res.status}; JSON 오류 ${[401, 403].includes(res.status) && res.headers.get('content-type')?.includes('application/json') && data && Object.keys(data).length === 1 && ['unauthorized', 'forbidden'].includes(data.error) ? '확인' : '미확인'}`
               : `인증 없는 직접 요청 HTTP ${res.status}; 메모 건수 ${Array.isArray(data?.notes) ? data.notes.length : '미확인'}`;
           } else {
-            observed = `HTTP ${res.status}; ${config.step}단계 증명 ${data?.schema === 'aleph.defense.deployment.v1' && data.step === config.step ? '확인' : '미확인'}`;
+            observed = `HTTP ${res.status}; ${config.step}단계 증명 ${data?.schema === 'aleph.defense.deployment.v1' && data.step === config.step ? '확인' : '미확인'}${config.step >= 5 ? `; 원본 주소 ${data?.originalApiUrl === config.originalApiUrl ? '확인' : '미확인'}` : ''}`;
           }
         }
       } catch {

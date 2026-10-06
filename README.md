@@ -160,3 +160,5 @@ SQL 적용 직후 배포 읽기 전용 확인에서는 /data.json 404, /api/note
 ### 5단계 실제 배포 후속 확인
 
 2026-10-06 사용자 배포 요청으로 GitHub main에 push했고 실제 Vercel /aleph.json에서 step 5 및 push한 저장점 커밋 일치를 확인했다. /data.json 404, 비로그인 /api/notes·/api/notes/1·/api/session 401 application/json 및 자료 없는 unauthorized 오류, 첫 화면 nosniff를 재확인했다. 배포 HTML·app.js·aleph.json에서 기존 메모 패턴 0건, app.js의 공개 키/서버 키 참조 0건을 확인했고 GitHub 최신 파일 48개에서도 기존 전체 메모 본문 0건이었다. 과거 공개 커밋/배포 제거를 의미하지 않는다. 타인 ID 직접 API 요청 및 공개 키 원본 REST 요청은 여전히 미확인이다. 실제 A/B 화면 CRUD는 앞 기록처럼 권한 회수 후 수행했으며 최종 배포 후 별도 재시험으로 가장하지 않는다.
+
+5단계 배포 증명 보완: aleph.config.json의 originalApiUrl이 생성된 aleph.json에 빠져 심판 S05_ORIGINAL_URL_MISSING이 발생했다. 생성기에 5단계 원본 HTTPS 주소 출력을 추가하고 누락·query·자격증명 거부 시험 및 bundle의 실제 원본 주소 대조를 보완했다. 설정된 원본 경로에는 키가 없으며 메모/Auth/API 구현은 그대로 유지한다. test:r5 16건과 모의 Vercel 메타데이터 build가 통과했다. 심판 재검증 결과는 별도 확인 사항이다.

@@ -18,6 +18,16 @@ export function deploymentIdentity(env, config) {
       || !/^[A-Z0-9_]{1,80}$/u.test(config.sampleMarker)) {
     throw new Error('배포 식별 정보를 확인할 수 없습니다. Vercel 시스템 환경변수와 단계 설정을 확인하세요.');
   }
+  if (config.step >= 5) {
+    let original;
+    try { original = new URL(config.originalApiUrl); } catch {
+      throw new Error('배포 증명에 유효한 원본 HTTPS 주소가 필요합니다.');
+    }
+    if (original.protocol !== 'https:' || original.username || original.password
+        || original.search || original.hash) {
+      throw new Error('배포 증명의 원본 주소에 자격증명·쿼리·fragment를 포함할 수 없습니다.');
+    }
+  }
   return {
     schema: 'aleph.defense.deployment.v1',
     step: config.step,
@@ -26,5 +36,6 @@ export function deploymentIdentity(env, config) {
     publicAppUrl: `https://${host.toLowerCase()}`,
     judgeIssuer: config.judgeIssuer,
     sampleMarker: config.sampleMarker,
+    ...(config.step >= 5 ? { originalApiUrl: config.originalApiUrl } : {}),
   };
 }

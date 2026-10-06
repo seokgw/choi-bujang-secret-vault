@@ -21,7 +21,12 @@ const env = {
 
 test('build identity uses Vercel Git and deployment metadata', () => {
   assert.equal(deploymentIdentity(env, { ...config, step: 2 }).step, 2);
-  assert.equal(deploymentIdentity(env, { ...config, step: 5 }).step, 5);
+  const stage5 = { ...config, step: 5,
+    originalApiUrl: 'https://student-project.supabase.co/rest/v1/training_notes' };
+  assert.equal(deploymentIdentity(env, stage5).originalApiUrl, stage5.originalApiUrl);
+  assert.throws(() => deploymentIdentity(env, { ...stage5, originalApiUrl: null }));
+  assert.throws(() => deploymentIdentity(env, { ...stage5,
+    originalApiUrl: `${stage5.originalApiUrl}?select=*` }));
   assert.deepEqual(deploymentIdentity(env, config), {
     schema: 'aleph.defense.deployment.v1',
     step: 1,
