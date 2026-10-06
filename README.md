@@ -33,7 +33,7 @@ aleph.config.json은 step 5이며 identityProvider는 aleph-plan-do-see의 Auth 
 
 ## DB와 서버 설정
 
-기존 이전 SQL artifacts/supabase-stage2.sql과 원문 검색 패턴은 사용자 선택에 따라 Git·정적 배포·제출 JSON에서 제외한다. 별도 보관한다. 이미 만들어진 DB에 초기 SQL을 반복 실행하지 않는다. 가상 메모 owner_id uuid에는 auth.users 외래키가 없다. RLS와 owner_id 정책을 유지한다. 4단계 적용 상태에서 anon/PUBLIC 권한은 없고 authenticated에는 네 CRUD 권한이 있다. 5단계 권한 회수 SQL은 작성만 했으며 사용자 실행 전에는 이 권한이 남아 있다.
+기존 이전 SQL artifacts/supabase-stage2.sql과 원문 검색 패턴은 사용자 선택에 따라 Git·정적 배포·제출 JSON에서 제외한다. 별도 보관한다. 이미 만들어진 DB에 초기 SQL을 반복 실행하지 않는다. 가상 메모 owner_id uuid에는 auth.users 외래키가 없다. RLS와 owner_id 정책을 유지한다. 4단계 적용 상태에서 anon/PUBLIC 권한은 없고 authenticated에는 네 CRUD 권한이 있다. 5단계 권한 회수 SQL은 이후 사용자 실행 요청으로 실제 적용했다. 적용 후 PUBLIC·anon·authenticated의 직접 테이블 권한은 없으며 service_role CRUD는 유지된다.
 
 3단계 추가 SQL artifacts/supabase-stage3.sql은 기존 4건을 보존하면서 자료실 ID 자동 생성 시퀀스를 만들고 service_role에 이 테이블의 INSERT·UPDATE·DELETE 및 시퀀스 권한을 준다. 다른 기존 테이블은 변경하지 않는다. 실행 결과는 최종 보고와 캡처로 구분해 기록하며 SQL 작성 자체를 DB 실행 성공으로 취급하지 않는다.
 
@@ -107,7 +107,7 @@ foreach ($file in (git ls-files)) {
 
 SQL 연결 확인과 실제 A/B 계정 요청 시험을 구분하며 심판 판정을 추측하지 않는다. 제목처럼 짧은 일반 단어 검색은 기존 XDR fixture 설명에서도 일치할 수 있으므로 전체 본문 일치와 구분하며 기존 연습 자료를 보존한다. [AGENTS.md](AGENTS.md)의 저장점 규칙을 따른다.
 
-이번 저장점의 로컬 실행 결과는 최종 보고와 제출 묶음에 기록한다. 실제 A/B 계정 시험과 5단계 권한 회수 SQL 실행은 미실행이다.
+이번 저장점의 로컬 실행 결과는 최종 보고와 제출 묶음에 기록한다. 실제 A/B 계정 시험은 미실행이며 5단계 권한 회수 SQL은 아래 후속 적용 기록을 따른다.
 
 ## 5단계 서버 경로 집중과 권한 회수 제안
 
@@ -115,7 +115,7 @@ SQL 연결 확인과 실제 A/B 계정 요청 시험을 구분하며 심판 판�
 
 현재 구조: 브라우저 → Vercel 서버 함수/API → 서버 전용 Supabase 설정 → vault_api.training_notes. 기존 src/verify-login.mjs 검증과 owner_id 필터를 그대로 유지한다. 서버는 검증된 사용자 ID만 사용하고 브라우저 userId/role/owner_id를 신뢰하지 않는다. service_role 서버 접근은 일반 역할의 테이블 권한 회수와 별개이며 기존 CRUD 권한과 시퀀스 권한을 유지한다. 실제 A CRUD, B의 A 자료 접근 거부, 비로그인 거부는 사용자 캡처 확인 사항이다. B 자기 자료 CRUD는 허용되는 구조다.
 
-**아직 DB에 5단계 REVOKE를 적용하지 않았다.** 사용자가 아래 SQL을 검토하고 Supabase SQL Editor에서 순서대로 직접 실행한다. 파일은 기존 선택대로 Git·정적 배포·제출 JSON에서 제외한 artifacts에 보관한다.
+**2026-10-06 사용자 후속 실행 요청으로 DB에 5단계 REVOKE를 적용했다.** 아래 SQL은 실제 사용한 적용 전/적용/적용 후 절차이며 기존 DB에 다시 적용할 필요는 없다. 파일은 기존 선택대로 Git·정적 배포·제출 JSON에서 제외한 artifacts에 보관한다.
 
 1. artifacts/supabase-stage5-before.sql: role_table_grants로 PUBLIC/anon/authenticated의 모든 명시적 권한을 조회하고 has_table_privilege로 anon/authenticated의 네 CRUD 및 service_role의 네 CRUD를 각각 확인한다. PUBLIC은 ACL grantee=0으로 확인한다. 별도 열 권한, RLS 및 기존 정책도 조회한다.
 2. artifacts/supabase-stage5-revoke.sql: 아래 한 테이블의 모든 직접 권한만 회수한다. 별도 열 권한이 있으면 먼저 중단한다. 데이터·RLS·owner_id 정책·service_role·다른 테이블은 변경하지 않는다.
@@ -139,8 +139,14 @@ originalApiUrl: **https://icvjlbkcyrqquoqhabdy.supabase.co/rest/v1/training_note
 
 /api/notes의 PUT/PATCH/DELETE에는 id 쿼리가 필요하다. 미구현 /api/ai 및 /api/threat-intel은 501 뼈대이므로 허용 목록에 넣지 않는다. 첫 화면 nosniff와 aleph.json 자동 생성 구조를 유지하며 5단계 설정을 빌드/자기 점검이 인식하게 했다.
 
-사용자 직접 확인 기록: A 목록·한 건 조회/추가/수정/삭제, 기존 UI, 브라우저 Network의 메모 요청이 서버 API뿐인지, B의 A 자료 접근 거부, 무로그인 401 JSON, anon/authenticated SELECT 거부 및 INSERT/UPDATE/DELETE false, PUBLIC 권한 없음, 서버 CRUD/로그인/owner_id 검사, originalApiUrl 실제 경로 및 query 부재, 공개 키 원본 요청 차단, 서버 키의 브라우저/응답/로그 비노출을 각각 캡처한다. /aleph.json 저장점 및 첫 화면 nosniff도 확인한다. SQL 실행·실제 배포 검증·심판 판정은 사용자 확인 필요이며 로컬 모의 시험으로 대신하지 않는다.
+사용자 직접 확인 기록: A 목록·한 건 조회/추가/수정/삭제, 기존 UI, 브라우저 Network의 메모 요청이 서버 API뿐인지, B의 A 자료 접근 거부, 무로그인 401 JSON, anon/authenticated SELECT 거부 및 INSERT/UPDATE/DELETE false, PUBLIC 권한 없음, 서버 CRUD/로그인/owner_id 검사, originalApiUrl 실제 경로 및 query 부재, 공개 키 원본 요청 차단, 서버 키의 브라우저/응답/로그 비노출을 각각 캡처한다. /aleph.json 저장점 및 첫 화면 nosniff도 확인한다. SQL 적용 후 권한은 실제 조회로 확인했다. 실제 배포의 A/B 계정 검증·공개 키 원본 요청·심판 판정은 아직 확인이 필요하며 로컬 모의 시험으로 대신하지 않는다.
 
 이번 5단계 실제 로컬 실행: test:r5 16건 및 test:package 3건 통과. build -- --local과 모의 Vercel 시스템 메타데이터를 제공한 build 성공; 5단계 aleph.json 생성 및 data.json 부재 확인. 실제 배포 빌드 성공으로 기록하지 않는다. API가 반환한 Allow 메서드와 allowedRoutes 12개가 일치하고 원본 URL 구조 검증도 통과했다. 최신 추적 파일 48개/정적 파일의 기존 본문·비밀값 패턴 및 클라이언트 공개 키/서버 키 참조 검색 0건이다.
 
-2026-10-06 5단계 적용 전 실제 읽기 전용 조회: vault_api.training_notes RLS true, 정책 4개; anon 네 CRUD false, authenticated 및 service_role 네 CRUD true. REVOKE는 실행하지 않았으므로 authenticated 직접 권한이 제거됐다고 보고하지 않는다.
+2026-10-06 5단계 적용 전 실제 읽기 전용 조회: vault_api.training_notes RLS true, 정책 4개; anon 네 CRUD false, authenticated 및 service_role 네 CRUD true. 이 기록은 적용 전 상태다. 아래 후속 적용 결과와 구분한다.
+
+### 5단계 SQL 후속 실제 적용 결과
+
+2026-10-06 사용자의 SQL 실행 요청으로 vault_api.training_notes의 REVOKE 트랜잭션이 성공했다. 적용 후 has_table_privilege 재조회에서 anon/authenticated의 SELECT·INSERT·UPDATE·DELETE 모두 false, service_role의 네 CRUD는 모두 true였다. information_schema.role_table_grants의 PUBLIC/anon/authenticated 명시적 권한 0건, PUBLIC ACL 0건, 해당 역할의 별도 열 권한 0건을 확인했다. RLS true, 정책 4개, 전체 자료 5건 유지도 재조회했다. 다른 테이블은 적용 SQL의 대상이 아니다.
+
+현재 배포 읽기 전용 확인에서는 /data.json 404, /api/notes 401, /aleph.json 200이며 아직 4단계 증명이다. HTML·app.js·aleph.json 기존 메모 패턴 일치 0건이다. 5단계 커밋을 push/배포하지 않았으므로 5단계 배포 완료로 기록하지 않는다. A/B 실제 로그인 CRUD·타인 접근 거부와 공개 키를 사용한 원본 REST 요청은 아직 미확인이다.
