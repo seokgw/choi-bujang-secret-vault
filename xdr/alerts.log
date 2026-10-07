@@ -93,3 +93,22 @@
 {"runAt":"2026-10-07T07:46:50.862Z","alertId":"bf-17","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}
 {"runAt":"2026-10-07T07:46:50.862Z","alertId":"bf-18","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}
 {"runAt":"2026-10-07T07:46:50.863Z","alertId":"bf-19","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}
+{"runAt":"2026-10-07T08:06:19.649Z","alertId":"bf-01","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T08:06:19.651Z","alertId":"bf-02","action":"block","confidence":0.95,"reason":"password-spraying"}
+{"runAt":"2026-10-07T08:06:19.652Z","alertId":"bf-03","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T08:06:19.653Z","alertId":"bf-04","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T08:06:19.653Z","alertId":"bf-05","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}
+{"runAt":"2026-10-07T08:06:19.653Z","alertId":"bf-06","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T08:06:19.654Z","alertId":"bf-07","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}
+{"runAt":"2026-10-07T08:06:19.654Z","alertId":"bf-08","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}
+{"runAt":"2026-10-07T08:06:19.655Z","alertId":"bf-09","action":"block","confidence":0.95,"reason":"password-spraying"}
+{"runAt":"2026-10-07T08:06:19.655Z","alertId":"bf-10","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}
+{"runAt":"2026-10-07T08:06:19.656Z","alertId":"bf-11","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}
+{"runAt":"2026-10-07T08:06:19.658Z","alertId":"bf-12","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}
+{"runAt":"2026-10-07T08:06:19.658Z","alertId":"bf-13","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}
+{"runAt":"2026-10-07T08:06:19.659Z","alertId":"bf-14","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}
+{"runAt":"2026-10-07T08:06:19.659Z","alertId":"bf-15","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}
+{"runAt":"2026-10-07T08:06:19.660Z","alertId":"bf-16","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}
+{"runAt":"2026-10-07T08:06:19.660Z","alertId":"bf-17","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}
+{"runAt":"2026-10-07T08:06:19.661Z","alertId":"bf-18","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}
+{"runAt":"2026-10-07T08:06:19.661Z","alertId":"bf-19","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama review"}

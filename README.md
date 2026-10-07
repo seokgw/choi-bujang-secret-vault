@@ -2,6 +2,16 @@
 
 ## 보너스 xdr-01 저장점
 
+최종 저장점 검증(2026-10-07): Ollama를 켜고 실행기를 다시 실행해 counts 존재 및 block 6 / alert 13 / record 9, 정상 XDR block 0건을 확인했다. 기존 인증/패키징과 주체 연결 규칙 시험 23건 및 AI 계약/분류 검증이 통과했다. 설정의 step 5·issuer·허용 경로·originalApiUrl·judgeIssuer는 보존했다. 원본 경보 변경은 없다. 기존 판정기에는 사용자 후속 요청에 따라 선택적 XDR 후보 검사만 추가했으며 기본 starter.deny는 유지했다. 실제 사용자 연결 정보가 없어 활성 규칙은 0건이며 정상 ZTNA 요청은 여전히 거부된다. TypeSafe Jev 대신 Ollama로 검토했다. 공개 집계 성공과 운영 차단 완료를 구분하고 제출 상태는 제출 전 수정 필요로 기록한다.
+
+### 기존 판정기에 XDR 규칙 추가
+
+`src/decider.mjs`의 기존 decide(request)가 `src/xdr-policy.mjs`를 통해 서버 전용 `xdr/brute-force/active-rules.json`을 읽는다. 기존 starter.deny와 응답 5항목·이유 코드를 보존하며, 유효한 차단 후보가 일치하면 ruleIds에 xdr.brute-force.deny를 추가한다. 운영 등록부를 확인하지 못해 새 reasonCode는 도입하지 않았다. RULE_IDS의 새 항목은 실제 구현한 후보 검사 분기다.
+
+규칙은 action=block, confidence 0.85~1, 두 로컬 패턴 중 하나, 근거 alertId, issuedAt/expiresAt(최대 15분), 운영 엔진이 검증한 classId/projectId/subjectId/deviceId를 요구한다. 네 식별 값 모두 현재 요청과 일치해야 적용된다. 같은 IP라는 이유로 다른 사용자를 차단하지 않는다. 신원 연결 정보가 없는 가상 경보를 자동 활성화하지 않으며 active-rules는 현재 빈 배열이다. 이 파일에 실제 개인정보나 자격증명을 넣거나 공개 정적 빌드에 복사하지 않는다.
+
+실행: `node --test test/xdr-policy.test.mjs`. 등록부 형식·만료·다른 주체·alert/record 제외·기존 decide의 실제 파일 읽기를 격리된 가상 규칙으로 검증한다. 공개 화면에서는 집계 JSON 확인을 눌러 XDR 정상 오탐 0을 확인한다. 정상 기본 정책은 기존 deny이며 운영 정상 통과나 실접속 차단 완료를 의미하지 않는다. 실제 활성화에는 운영 엔진의 검증된 주체 연결 및 판정기 등록이 여전히 필요하다.
+
 최신 상태(2026-10-07): Ollama qwen3.5:9b로 애매한 경보 13건을 실제 검토했고 호출 실패는 0건이다. counts는 block 6 / alert 13 / record 9, 정상 XDR 오탐은 0건이다. 공개 결과 화면은 `/xdr/brute-force/`이며 이번 배포는 저장된 로컬 집계와 AI 제공자 이름만 공개한다. Vercel에서 PC의 Ollama를 호출하지 않는다. TypeSafe Jev는 키 생성에 필요한 크레딧이 없어 미연동이다. 운영 ZTNA 정상 요청 통과는 여전히 실패다. 아래의 초기 미배포·404 기록은 이전 점검 시점의 기록이며 최신 배포 상태는 최종 보고에서 별도로 확인한다.
 
 ### Ollama 로컬 보조 판단
