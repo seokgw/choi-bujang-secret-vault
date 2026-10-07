@@ -2,6 +2,24 @@
 
 ## 보너스 xdr-01 저장점
 
+최신 상태(2026-10-07): Ollama qwen3.5:9b로 애매한 경보 13건을 실제 검토했고 호출 실패는 0건이다. counts는 block 6 / alert 13 / record 9, 정상 XDR 오탐은 0건이다. 공개 결과 화면은 `/xdr/brute-force/`이며 이번 배포는 저장된 로컬 집계와 AI 제공자 이름만 공개한다. Vercel에서 PC의 Ollama를 호출하지 않는다. TypeSafe Jev는 키 생성에 필요한 크레딧이 없어 미연동이다. 운영 ZTNA 정상 요청 통과는 여전히 실패다. 아래의 초기 미배포·404 기록은 이전 점검 시점의 기록이며 최신 배포 상태는 최종 보고에서 별도로 확인한다.
+
+### Ollama 로컬 보조 판단
+
+API 충전 없이 설치된 `qwen3.5:9b`를 사용한다. PowerShell에서 `$env:OLLAMA_MODEL='qwen3.5:9b'; node scripts/xdr-run.mjs brute-force`를 실행한다(npm이 설치된 환경에서는 마지막 명령을 `npm run xdr:run -- brute-force`로 대체 가능). 로컬 결과 파일의 counts와 validation.aiProvider를 확인한다. 해당 실행 환경에서만 Ollama가 활성화되며 명시적 시험 어댑터가 최우선, 이후 Ollama, 이후 TypeSafe 순서다.
+
+연결은 `http://127.0.0.1:11434/api/generate`로 고정하고 외부 공개나 터널을 만들지 않는다. 주소·계정·원본 설명 대신 신호와 규칙 수준만 전달한다. JSON schema로 score 0~1을 요구하고 파싱·범위를 재검증한다. 점수는 모델의 추정치이며 Jev의 보정된 확률이 아니다. AI 점수만으로 block하지 않고 애매한 경보는 alert로 유지한다. 정상 경보와 명확한 로컬 패턴은 AI를 호출하지 않는다. HTTP 제한은 55초, 같은 요약의 성공 응답은 실행 중 재사용한다.
+
+2026-10-07 실제 Ollama 호출에서 score 0.1 응답을 확인했다. `node xdr/brute-force/ollama-test.mjs`는 요청 비노출·캐시·오류/잘못된 점수 처리를 모의 검증한다. Vercel은 사용자 PC의 localhost에 접근할 수 없으므로 이 기능은 로컬 실행 전용이다. 기존 운영 ZTNA 미연동 상태는 그대로다.
+
+### TypeSafe Jev 연결 시험
+
+공식 API `https://api.typesafe.ai/v1/systemone`에 연결하는 서버용 어댑터를 추가했다. 계약 출처는 https://docs.typesafe.ai/api 이다. `TYPESAFE_API_KEY`가 실행 환경에 있으면 애매한 경보만 호출하며, 명시적으로 configureJev로 설치한 어댑터가 우선한다. TypeSafe 공식 콘솔 https://console.typesafe.ai 에서 발급한 키는 실행 환경의 비밀 환경변수 입력란에만 설정하고 채팅·명령 문자열·Git에 넣지 않는다. 브라우저에서는 호출하지 않는다.
+
+외부 전송은 정규화된 신호·규칙 수준만 포함한다. 출발 주소·계정·경보 원문·인증값은 제외한다. `noul`의 0~1 값은 공격일 확률이며 Choice/Score의 별도 confidence와 다르다. 기존 보수적 정책대로 Jev만으로 차단하지 않는다. 900ms HTTP 시간 제한·잘못된 응답·인증 오류는 alert로 처리한다. 모델은 공식 별칭 jev-latest를 사용하며 실제 검증한 고정 버전은 없다.
+
+실행: `node xdr/brute-force/jev-test.mjs`로 모의 HTTP 계약/오류/비노출을 검증하고 `npm run xdr:run -- brute-force`로 실제 환경을 재실행한다. 2026-10-07 공식 endpoint에 비밀값 없는 가상 요청을 직접 전송한 결과 HTTP 403 및 인증 오류 표시를 확인했다. 현재 키는 미설정이며 실제 Jev 추론 성공은 미확인이다. 모의 계약 시험과 기존 분류/오류/만료 시험은 통과했다. 이번 연결 변경은 아직 커밋·배포하지 않았다.
+
 공개 결과 화면 경로는 `/xdr/brute-force/`다. 빌드는 최신 result.json에서 counts와 정상 XDR 오탐 수만 골라 공개 JSON을 생성한다. 원본 경보·주소·계정·로그는 정적 배포에 복사하지 않는다. 기존 로그인 자료실은 `/`에서 유지한다. 이번 배포는 결과 공개이며 운영 ZTNA 연결 완료를 의미하지 않는다.
 
 `npm run xdr:run -- brute-force`로 원본 가상 Wazuh 경보 28건을 재실행하고 `xdr/brute-force/result.json`을 확인한다. `node xdr/brute-force/verify.mjs`는 추출 건수·패턴 근거·분류·Jev 오류/시간 초과·거부 후보 만료를 검증한다. 경보 설명은 알려진 신호 요약으로 정규화하며 원문/인증정보를 출력하지 않는다. `xdr/alerts.log`는 block/alert를 JSON 한 줄씩 append한다.

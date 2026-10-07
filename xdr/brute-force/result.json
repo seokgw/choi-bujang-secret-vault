@@ -30,7 +30,7 @@
       "alertId": "bf-05",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: Jev unavailable"
+      "reason": "ambiguous-failures: ollama review"
     },
     {
       "alertId": "bf-06",
@@ -42,13 +42,13 @@
       "alertId": "bf-07",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: Jev unavailable"
+      "reason": "ambiguous-failures: ollama review"
     },
     {
       "alertId": "bf-08",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: Jev unavailable"
+      "reason": "ambiguous-failures: ollama review"
     },
     {
       "alertId": "bf-09",
@@ -60,61 +60,61 @@
       "alertId": "bf-10",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: Jev unavailable"
+      "reason": "ambiguous-failures: ollama review"
     },
     {
       "alertId": "bf-11",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: Jev unavailable"
+      "reason": "ambiguous-failures: ollama review"
     },
     {
       "alertId": "bf-12",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: Jev unavailable"
+      "reason": "ambiguous-failures: ollama review"
     },
     {
       "alertId": "bf-13",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: Jev unavailable"
+      "reason": "ambiguous-failures: ollama review"
     },
     {
       "alertId": "bf-14",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: Jev unavailable"
+      "reason": "ambiguous-failures: ollama review"
     },
     {
       "alertId": "bf-15",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: Jev unavailable"
+      "reason": "ambiguous-failures: ollama review"
     },
     {
       "alertId": "bf-16",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: Jev unavailable"
+      "reason": "ambiguous-failures: ollama review"
     },
     {
       "alertId": "bf-17",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: Jev unavailable"
+      "reason": "ambiguous-failures: ollama review"
     },
     {
       "alertId": "bf-18",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: Jev unavailable"
+      "reason": "ambiguous-failures: ollama review"
     },
     {
       "alertId": "bf-19",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: Jev unavailable"
+      "reason": "ambiguous-failures: ollama review"
     },
     {
       "alertId": "bf-20",
@@ -182,7 +182,8 @@
     "normalBlocked": 0,
     "normalZtnaDenied": 9,
     "productionConnected": false,
-    "jevConfigured": false
+    "jevConfigured": false,
+    "aiProvider": "ollama"
   },
   "ztna": {
     "scope": "fixture replay with trusted source; existing starter denies all requests",

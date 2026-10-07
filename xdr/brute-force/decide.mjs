@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { extractAlert } from './read-alerts.mjs';
-import { askJev } from './jev.mjs';
+import { askJev, aiProviderName } from './jev.mjs';
 
 const patterns = JSON.parse(await readFile(new URL('./patterns.json', import.meta.url), 'utf8'));
 function response(confidence, reason) {
@@ -16,8 +16,8 @@ export async function decide(alert) {
     const confidence = await askJev(summary);
     if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) throw new Error('Invalid confidence');
     // Jev alone cannot supply the missing local attack evidence needed for blocking.
-    return response(Math.min(0.84, Math.max(0.5, confidence)), 'ambiguous-failures: Jev review');
+    return response(Math.min(0.84, Math.max(0.5, confidence)), `ambiguous-failures: ${aiProviderName()} review`);
   } catch {
-    return response(0.5, 'ambiguous-failures: Jev unavailable');
+    return response(0.5, `ambiguous-failures: ${aiProviderName()} unavailable`);
   }
 }

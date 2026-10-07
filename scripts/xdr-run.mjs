@@ -56,6 +56,7 @@ export async function runXdr({ root, moduleKey, writeError = (line) => console.e
   if (moduleKey === 'brute-force') {
     const { createDenyRules, decideWithDenyRules } = await import('../xdr/brute-force/ztna.mjs');
     const { readAlerts } = await import('../xdr/brute-force/read-alerts.mjs');
+    const { isJevConfigured, aiProviderName } = await import('../xdr/brute-force/jev.mjs');
     const extracted = await readAlerts(join(root, 'xdr', 'fixtures', 'brute-force.json'));
     const rules = createDenyRules(fixture.alerts, decisions);
     const checks = [];
@@ -71,7 +72,8 @@ export async function runXdr({ root, moduleKey, writeError = (line) => console.e
       rawCount: fixture.alerts.length, extractedCount: extracted.length,
       normalBlocked: decisions.filter((d, i) => extracted[i].description === 'normal-event' && d.action === 'block').length,
       normalZtnaDenied: checks.filter((d, i) => extracted[i].description === 'normal-event' && d.decision === 'deny').length,
-      productionConnected: false, jevConfigured: false,
+      productionConnected: false, jevConfigured: isJevConfigured(),
+      aiProvider: aiProviderName(),
     };
     result.ztna = { scope: 'fixture replay with trusted source; existing starter denies all requests', rules, checks };
     for (const d of decisions.filter(d => d.action !== 'record')) {
