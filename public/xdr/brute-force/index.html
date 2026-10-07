@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BYTE BACK · 무차별 로그인 공격 검증</title>
+<style>body{font:16px/1.7 system-ui,sans-serif;background:#111827;color:#eef2ff;max-width:760px;margin:60px auto;padding:24px}main{background:#1f2937;border-radius:16px;padding:28px}a{color:#93c5fd}strong{font-size:22px}li{margin:12px 0}</style>
+<main>
+<h1>무차별 로그인 공격 검증</h1>
+<p>수업용 가상 Wazuh 경보의 실행 결과입니다.</p>
+<p id="counts" aria-live="polite">결과를 불러오는 중입니다.</p>
+<p id="normal"></p>
+<p>명확한 로컬 패턴은 block, 근거가 부족한 시도는 alert, 정상 이벤트는 record로 분류합니다. Jev 연결은 미설정입니다.</p>
+<p><b>운영 ZTNA 차단 연결은 미완료입니다.</b> 기존 판정기는 정상 요청도 거부하므로 실제 정상 사용자 통과를 입증한 결과가 아닙니다.</p>
+<p><a href="./result.json">공개 집계 JSON 확인</a> · <a href="/">기존 자료실 열기</a> · <a href="https://github.com/seokgw/choi-bujang-secret-vault/tree/main/xdr/brute-force">구현 파일 확인</a></p>
+</main>
+<script>
+fetch('./result.json').then(r=>{if(!r.ok)throw Error();return r.json()}).then(r=>{
+  document.getElementById('counts').textContent=`block ${r.counts.block} / alert ${r.counts.alert} / record ${r.counts.record}`;
+  document.getElementById('normal').textContent=`정상 이벤트의 XDR block: ${r.normalBlocked}건`;
+}).catch(()=>{document.getElementById('counts').textContent='결과를 불러오지 못했습니다.'});
+</script>
+</html>

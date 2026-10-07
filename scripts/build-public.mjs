@@ -18,6 +18,20 @@ if (config.step >= 5) {
 await mkdir(resolve(root, 'public'), { recursive: true });
 await rm(output, { force: true });
 console.log('공개 data.json을 생성하지 않습니다.');
+const xdr = JSON.parse(await readFile(resolve(root, 'xdr/brute-force/result.json'), 'utf8'));
+const counts = {};
+for (const action of ['block', 'alert', 'record']) {
+  if (!Number.isSafeInteger(xdr.counts?.[action]) || xdr.counts[action] < 0) throw new Error('XDR 집계 형식 오류');
+  counts[action] = xdr.counts[action];
+}
+if (!Number.isSafeInteger(xdr.validation?.normalBlocked) || xdr.validation.normalBlocked < 0) throw new Error('XDR 오탐 집계 형식 오류');
+await mkdir(resolve(root, 'public/xdr/brute-force'), { recursive: true });
+await writeFile(resolve(root, 'public/xdr/brute-force/result.json'), `${JSON.stringify({
+  schema: 'aleph.xdr.public.v1', moduleKey: 'brute-force', counts,
+  normalBlocked: xdr.validation.normalBlocked,
+  productionConnected: xdr.validation.productionConnected === true,
+  scope: '가상 경보 로컬 검증. 운영 ZTNA 차단은 연결되지 않았습니다.',
+}, null, 2)}\n`, 'utf8');
 if (!process.argv.includes('--local')) {
   const identity = deploymentIdentity(process.env, config);
   await writeFile(resolve(root, 'public', 'aleph.json'),

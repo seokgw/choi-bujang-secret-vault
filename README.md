@@ -2,6 +2,8 @@
 
 ## 보너스 xdr-01 저장점
 
+공개 결과 화면 경로는 `/xdr/brute-force/`다. 빌드는 최신 result.json에서 counts와 정상 XDR 오탐 수만 골라 공개 JSON을 생성한다. 원본 경보·주소·계정·로그는 정적 배포에 복사하지 않는다. 기존 로그인 자료실은 `/`에서 유지한다. 이번 배포는 결과 공개이며 운영 ZTNA 연결 완료를 의미하지 않는다.
+
 `npm run xdr:run -- brute-force`로 원본 가상 Wazuh 경보 28건을 재실행하고 `xdr/brute-force/result.json`을 확인한다. `node xdr/brute-force/verify.mjs`는 추출 건수·패턴 근거·분류·Jev 오류/시간 초과·거부 후보 만료를 검증한다. 경보 설명은 알려진 신호 요약으로 정규화하며 원문/인증정보를 출력하지 않는다. `xdr/alerts.log`는 block/alert를 JSON 한 줄씩 append한다.
 
 MITRE T1110.001·T1110.003의 두 신호만 사용한다. 이 fixture에서는 시간 범위나 동일 비밀번호 근거가 부족한 bf-05·07·08·10을 보수적으로 alert로 처리한다. 결과는 block 6 / alert 13 / record 9이며 정상 XDR block은 0이다. Jev 공식 연결은 미설정이고 애매한 경보는 alert로 떨어진다. 신뢰된 호스트는 `jev.mjs`의 configureJev로 확신도 제공 함수를 연결할 수 있다. Jev만으로 애매한 경보를 block으로 승격하지 않는다.
