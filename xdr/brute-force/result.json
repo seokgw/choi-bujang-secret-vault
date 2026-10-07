@@ -1,0 +1,370 @@
+{
+  "schema": "aleph.xdr.result.v1",
+  "moduleKey": "brute-force",
+  "decisions": [
+    {
+      "alertId": "bf-01",
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "rapid-login-failures"
+    },
+    {
+      "alertId": "bf-02",
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "password-spraying"
+    },
+    {
+      "alertId": "bf-03",
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "rapid-login-failures"
+    },
+    {
+      "alertId": "bf-04",
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "rapid-login-failures"
+    },
+    {
+      "alertId": "bf-05",
+      "action": "alert",
+      "confidence": 0.5,
+      "reason": "ambiguous-failures: Jev unavailable"
+    },
+    {
+      "alertId": "bf-06",
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "rapid-login-failures"
+    },
+    {
+      "alertId": "bf-07",
+      "action": "alert",
+      "confidence": 0.5,
+      "reason": "ambiguous-failures: Jev unavailable"
+    },
+    {
+      "alertId": "bf-08",
+      "action": "alert",
+      "confidence": 0.5,
+      "reason": "ambiguous-failures: Jev unavailable"
+    },
+    {
+      "alertId": "bf-09",
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "password-spraying"
+    },
+    {
+      "alertId": "bf-10",
+      "action": "alert",
+      "confidence": 0.5,
+      "reason": "ambiguous-failures: Jev unavailable"
+    },
+    {
+      "alertId": "bf-11",
+      "action": "alert",
+      "confidence": 0.5,
+      "reason": "ambiguous-failures: Jev unavailable"
+    },
+    {
+      "alertId": "bf-12",
+      "action": "alert",
+      "confidence": 0.5,
+      "reason": "ambiguous-failures: Jev unavailable"
+    },
+    {
+      "alertId": "bf-13",
+      "action": "alert",
+      "confidence": 0.5,
+      "reason": "ambiguous-failures: Jev unavailable"
+    },
+    {
+      "alertId": "bf-14",
+      "action": "alert",
+      "confidence": 0.5,
+      "reason": "ambiguous-failures: Jev unavailable"
+    },
+    {
+      "alertId": "bf-15",
+      "action": "alert",
+      "confidence": 0.5,
+      "reason": "ambiguous-failures: Jev unavailable"
+    },
+    {
+      "alertId": "bf-16",
+      "action": "alert",
+      "confidence": 0.5,
+      "reason": "ambiguous-failures: Jev unavailable"
+    },
+    {
+      "alertId": "bf-17",
+      "action": "alert",
+      "confidence": 0.5,
+      "reason": "ambiguous-failures: Jev unavailable"
+    },
+    {
+      "alertId": "bf-18",
+      "action": "alert",
+      "confidence": 0.5,
+      "reason": "ambiguous-failures: Jev unavailable"
+    },
+    {
+      "alertId": "bf-19",
+      "action": "alert",
+      "confidence": 0.5,
+      "reason": "ambiguous-failures: Jev unavailable"
+    },
+    {
+      "alertId": "bf-20",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "normal-event"
+    },
+    {
+      "alertId": "bf-21",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "normal-event"
+    },
+    {
+      "alertId": "bf-22",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "normal-event"
+    },
+    {
+      "alertId": "bf-23",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "normal-event"
+    },
+    {
+      "alertId": "bf-24",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "normal-event"
+    },
+    {
+      "alertId": "bf-25",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "normal-event"
+    },
+    {
+      "alertId": "bf-26",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "normal-event"
+    },
+    {
+      "alertId": "bf-27",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "normal-event"
+    },
+    {
+      "alertId": "bf-28",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "normal-event"
+    }
+  ],
+  "counts": {
+    "block": 6,
+    "alert": 13,
+    "record": 9
+  },
+  "validation": {
+    "rawCount": 28,
+    "extractedCount": 28,
+    "normalBlocked": 0,
+    "normalZtnaDenied": 9,
+    "productionConnected": false,
+    "jevConfigured": false
+  },
+  "ztna": {
+    "scope": "fixture replay with trusted source; existing starter denies all requests",
+    "rules": [
+      {
+        "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-01",
+        "source": "203.0.113.10",
+        "expiresAt": "2026-09-27T00:27:01.000Z"
+      },
+      {
+        "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-02",
+        "source": "203.0.113.10",
+        "expiresAt": "2026-09-27T00:27:40.000Z"
+      },
+      {
+        "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-03",
+        "source": "198.51.100.20",
+        "expiresAt": "2026-09-27T00:29:02.000Z"
+      },
+      {
+        "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-04",
+        "source": "192.0.2.30",
+        "expiresAt": "2026-09-27T00:35:11.000Z"
+      },
+      {
+        "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-06",
+        "source": "198.51.100.44",
+        "expiresAt": "2026-09-27T02:17:15.000Z"
+      },
+      {
+        "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-09",
+        "source": "198.51.100.8",
+        "expiresAt": "2026-09-27T05:37:18.000Z"
+      }
+    ],
+    "checks": [
+      {
+        "alertId": "bf-01",
+        "decision": "deny",
+        "dynamicDeny": true
+      },
+      {
+        "alertId": "bf-02",
+        "decision": "deny",
+        "dynamicDeny": true
+      },
+      {
+        "alertId": "bf-03",
+        "decision": "deny",
+        "dynamicDeny": true
+      },
+      {
+        "alertId": "bf-04",
+        "decision": "deny",
+        "dynamicDeny": true
+      },
+      {
+        "alertId": "bf-05",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-06",
+        "decision": "deny",
+        "dynamicDeny": true
+      },
+      {
+        "alertId": "bf-07",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-08",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-09",
+        "decision": "deny",
+        "dynamicDeny": true
+      },
+      {
+        "alertId": "bf-10",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-11",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-12",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-13",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-14",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-15",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-16",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-17",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-18",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-19",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-20",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-21",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-22",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-23",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-24",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-25",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-26",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-27",
+        "decision": "deny",
+        "dynamicDeny": false
+      },
+      {
+        "alertId": "bf-28",
+        "decision": "deny",
+        "dynamicDeny": false
+      }
+    ]
+  }
+}

@@ -1,5 +1,17 @@
 # BYTE BACK 자료실 · 5단계 저장점
 
+## 보너스 xdr-01 저장점
+
+`npm run xdr:run -- brute-force`로 원본 가상 Wazuh 경보 28건을 재실행하고 `xdr/brute-force/result.json`을 확인한다. `node xdr/brute-force/verify.mjs`는 추출 건수·패턴 근거·분류·Jev 오류/시간 초과·거부 후보 만료를 검증한다. 경보 설명은 알려진 신호 요약으로 정규화하며 원문/인증정보를 출력하지 않는다. `xdr/alerts.log`는 block/alert를 JSON 한 줄씩 append한다.
+
+MITRE T1110.001·T1110.003의 두 신호만 사용한다. 이 fixture에서는 시간 범위나 동일 비밀번호 근거가 부족한 bf-05·07·08·10을 보수적으로 alert로 처리한다. 결과는 block 6 / alert 13 / record 9이며 정상 XDR block은 0이다. Jev 공식 연결은 미설정이고 애매한 경보는 alert로 떨어진다. 신뢰된 호스트는 `jev.mjs`의 configureJev로 확신도 제공 함수를 연결할 수 있다. Jev만으로 애매한 경보를 block으로 승격하지 않는다.
+
+기존 `src/decider.mjs`와 RULE_IDS는 보존했다. 별도 `ztna.mjs`는 block 후보만 경보 시각부터 15분 만료·경보 ID를 갖는 거부 규칙으로 만들고, 검증된 출발 주소를 받는 경우 기존 판정기 앞에서 비교한다. fixture 재생은 과거 경보 시각으로 검증하며 현재 접속을 차단하지 않는다. 운영 계약에 출발 IP 연결이 없어 실제 엔진 연동은 미완료다. 기존 starter.deny가 모든 요청을 거부하므로 정상 ZTNA 요청 통과는 실패이며 제출 가능으로 표시할 수 없다. 배포 화면에 XDR 결과를 게시하지 않았다.
+
+설정 대조: step 5·기존 배포 주소·Auth issuer/audience/JWKS·메모/세션 허용 경로·originalApiUrl은 기존 5단계 구현을 유지한다. judgeIssuer를 변경하지 않았다. 화면에서는 공개 저장소의 `xdr/brute-force/result.json`을 눌러 counts를 확인한다. 정상 경보는 record, 두 신호가 명확한 공격은 block이어야 한다. 이는 로컬 가상 경보 검증이며 운영 심판 판정이 아니다.
+
+2026-10-07 직접 검증: 원본/기존 판정기/설정 diff 0, 추출 28/28, 두 패턴 근거 존재, 정상 XDR 오탐 0, 후보 6건의 만료/경보 ID 존재, 로그 줄별 JSON 파싱 성공. 전체 계약 형식의 가상 요청으로 기존 판정기 함수를 직접 호출했으며 정상 9건도 starter.deny로 거부됐다. 운영 요청 차단 성공을 의미하지 않는다. Jev 미설정/오류/잘못된 확신도/시간 초과 검증과 기존 인증·패키징 시험 19건이 통과했다. 현재 실행 셸에 npm이 없어 npm 명령 자체는 실패했고 같은 실행기를 `node scripts/xdr-run.mjs brute-force`로 실행했다. 최신 추적 파일과 이번 추가 파일의 비밀값 패턴 및 기존 메모 본문 검색은 0건이며 Git 과거 이력의 완전한 비밀값 부재를 증명하지 않는다. 공개 배포 루트는 HTTP 200, XDR 결과 경로는 404다. GitHub 저장소는 PUBLIC이며 이번 저장점의 원격 반영은 아직 하지 않았다. 제출 상태는 제출 전 수정 필요다.
+
 현재 구조: **브라우저 → Vercel 인증 API 서버 함수 → Supabase Auth / vault_api.training_notes**.
 기존 가상 메모는 4건이며 사용자가 지정한 A 대상은 ID 1·2·3이다. ID 4는 삭제하거나 소유자를 바꾸지 않는다. 어두운 화면 디자인과 텍스트 카드 렌더링을 유지하면서 이메일/비밀번호 로그인, 로그아웃, 메모 추가·수정·삭제를 구현했다. 비로그인 화면에는 메모가 없고 메모 API는 401 JSON 오류를 반환한다. 기존 정책·탐지 연습과 미구현 서버 뼈대는 유지한다.
 

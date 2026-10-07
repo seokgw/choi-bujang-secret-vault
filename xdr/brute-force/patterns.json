@@ -1,0 +1,14 @@
+[
+  {
+    "name": "rapid-login-failures",
+    "condition": { "description": "rapid-login-failures", "minimumLevel": 10, "confidence": 0.95 },
+    "finding": "출발 주소가 있는 경보에서 3분 이내 로그인 실패 30건 이상이 명시됨. 숫자는 과제용 보수적 기준이며 MITRE의 공식 임계값이 아님.",
+    "evidence": "MITRE ATT&CK T1110.001: 반복적인 비밀번호 추측으로 로그인 시도 — https://attack.mitre.org/techniques/T1110/001/"
+  },
+  {
+    "name": "password-spraying",
+    "condition": { "description": "password-spraying", "minimumLevel": 10, "confidence": 0.95 },
+    "finding": "출발 주소가 있는 경보에 여러 계정과 동일 비밀번호 대입이 명시됨. 비밀번호 값은 읽거나 저장하지 않음.",
+    "evidence": "MITRE ATT&CK T1110.003: 동일하거나 소수의 비밀번호를 여러 계정에 시도 — https://attack.mitre.org/techniques/T1110/003/"
+  }
+]

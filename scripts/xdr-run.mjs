@@ -1,6 +1,7 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fixtureRequests } from './fixture-7.mjs';
 
 const MODULE_KEYS = ['brute-force', 'web-injection', 'known-cve', 'persistence', 'privilege', 'exfiltration'];
 const ACTIONS = new Set(['block', 'alert', 'record']);
@@ -52,6 +53,31 @@ export async function runXdr({ root, moduleKey, writeError = (line) => console.e
   }
 
   const result = { schema: 'aleph.xdr.result.v1', moduleKey, decisions, counts };
+  if (moduleKey === 'brute-force') {
+    const { createDenyRules, decideWithDenyRules } = await import('../xdr/brute-force/ztna.mjs');
+    const { readAlerts } = await import('../xdr/brute-force/read-alerts.mjs');
+    const extracted = await readAlerts(join(root, 'xdr', 'fixtures', 'brute-force.json'));
+    const rules = createDenyRules(fixture.alerts, decisions);
+    const checks = [];
+    for (let i = 0; i < fixture.alerts.length; i += 1) {
+      const alert = fixture.alerts[i];
+      const decision = await decideWithDenyRules(fixtureRequests().normal, {
+        trustedSource: extracted[i].source, rules, now: Date.parse(extracted[i].timestamp),
+      });
+      checks.push({ alertId: alert.id, decision: decision.decision,
+        dynamicDeny: decision.ruleIds.includes('xdr.brute-force.deny') });
+    }
+    result.validation = {
+      rawCount: fixture.alerts.length, extractedCount: extracted.length,
+      normalBlocked: decisions.filter((d, i) => extracted[i].description === 'normal-event' && d.action === 'block').length,
+      normalZtnaDenied: checks.filter((d, i) => extracted[i].description === 'normal-event' && d.decision === 'deny').length,
+      productionConnected: false, jevConfigured: false,
+    };
+    result.ztna = { scope: 'fixture replay with trusted source; existing starter denies all requests', rules, checks };
+    for (const d of decisions.filter(d => d.action !== 'record')) {
+      await appendFile(join(root, 'xdr', 'alerts.log'), `${JSON.stringify({ runAt: new Date().toISOString(), ...d })}\n`, 'utf8');
+    }
+  }
   const outDir = join(root, 'xdr', moduleKey);
   await mkdir(outDir, { recursive: true });
   await writeFile(join(outDir, 'result.json'), `${JSON.stringify(result, null, 2)}\n`, 'utf8');

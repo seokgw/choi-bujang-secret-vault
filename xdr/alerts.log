@@ -1,0 +1,76 @@
+{"runAt":"2026-10-07T07:14:40.452Z","alertId":"bf-01","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:14:40.453Z","alertId":"bf-02","action":"block","confidence":0.95,"reason":"password-spraying"}
+{"runAt":"2026-10-07T07:14:40.453Z","alertId":"bf-03","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:14:40.454Z","alertId":"bf-04","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:14:40.454Z","alertId":"bf-05","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:40.455Z","alertId":"bf-06","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:14:40.455Z","alertId":"bf-07","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:40.456Z","alertId":"bf-08","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:40.456Z","alertId":"bf-09","action":"block","confidence":0.95,"reason":"password-spraying"}
+{"runAt":"2026-10-07T07:14:40.456Z","alertId":"bf-10","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:40.457Z","alertId":"bf-11","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:40.457Z","alertId":"bf-12","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:40.457Z","alertId":"bf-13","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:40.458Z","alertId":"bf-14","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:40.458Z","alertId":"bf-15","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:40.459Z","alertId":"bf-16","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:40.459Z","alertId":"bf-17","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:40.459Z","alertId":"bf-18","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:40.459Z","alertId":"bf-19","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:50.897Z","alertId":"bf-01","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:14:50.898Z","alertId":"bf-02","action":"block","confidence":0.95,"reason":"password-spraying"}
+{"runAt":"2026-10-07T07:14:50.898Z","alertId":"bf-03","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:14:50.899Z","alertId":"bf-04","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:14:50.899Z","alertId":"bf-05","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:50.900Z","alertId":"bf-06","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:14:50.900Z","alertId":"bf-07","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:50.900Z","alertId":"bf-08","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:50.901Z","alertId":"bf-09","action":"block","confidence":0.95,"reason":"password-spraying"}
+{"runAt":"2026-10-07T07:14:50.901Z","alertId":"bf-10","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:50.902Z","alertId":"bf-11","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:50.902Z","alertId":"bf-12","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:50.902Z","alertId":"bf-13","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:50.903Z","alertId":"bf-14","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:50.903Z","alertId":"bf-15","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:50.904Z","alertId":"bf-16","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:50.904Z","alertId":"bf-17","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:50.904Z","alertId":"bf-18","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:14:50.905Z","alertId":"bf-19","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:16:34.827Z","alertId":"bf-01","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:16:34.828Z","alertId":"bf-02","action":"block","confidence":0.95,"reason":"password-spraying"}
+{"runAt":"2026-10-07T07:16:34.829Z","alertId":"bf-03","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:16:34.829Z","alertId":"bf-04","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:16:34.830Z","alertId":"bf-05","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:16:34.830Z","alertId":"bf-06","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:16:34.831Z","alertId":"bf-07","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:16:34.831Z","alertId":"bf-08","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:16:34.832Z","alertId":"bf-09","action":"block","confidence":0.95,"reason":"password-spraying"}
+{"runAt":"2026-10-07T07:16:34.832Z","alertId":"bf-10","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:16:34.832Z","alertId":"bf-11","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:16:34.833Z","alertId":"bf-12","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:16:34.833Z","alertId":"bf-13","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:16:34.833Z","alertId":"bf-14","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:16:34.834Z","alertId":"bf-15","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:16:34.834Z","alertId":"bf-16","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:16:34.834Z","alertId":"bf-17","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:16:34.835Z","alertId":"bf-18","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:16:34.835Z","alertId":"bf-19","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:17:46.445Z","alertId":"bf-01","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:17:46.446Z","alertId":"bf-02","action":"block","confidence":0.95,"reason":"password-spraying"}
+{"runAt":"2026-10-07T07:17:46.447Z","alertId":"bf-03","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:17:46.447Z","alertId":"bf-04","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:17:46.448Z","alertId":"bf-05","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:17:46.448Z","alertId":"bf-06","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-07T07:17:46.449Z","alertId":"bf-07","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:17:46.449Z","alertId":"bf-08","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:17:46.449Z","alertId":"bf-09","action":"block","confidence":0.95,"reason":"password-spraying"}
+{"runAt":"2026-10-07T07:17:46.450Z","alertId":"bf-10","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:17:46.450Z","alertId":"bf-11","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:17:46.451Z","alertId":"bf-12","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:17:46.451Z","alertId":"bf-13","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:17:46.451Z","alertId":"bf-14","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:17:46.452Z","alertId":"bf-15","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:17:46.452Z","alertId":"bf-16","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:17:46.453Z","alertId":"bf-17","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:17:46.453Z","alertId":"bf-18","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
+{"runAt":"2026-10-07T07:17:46.453Z","alertId":"bf-19","action":"alert","confidence":0.5,"reason":"ambiguous-failures: Jev unavailable"}
