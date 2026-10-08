@@ -1,7 +1,6 @@
-import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { access, appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { fixtureRequests } from './fixture-7.mjs';
 
 const MODULE_KEYS = ['brute-force', 'web-injection', 'known-cve', 'persistence', 'privilege', 'exfiltration'];
 const ACTIONS = new Set(['block', 'alert', 'record']);
@@ -53,10 +52,18 @@ export async function runXdr({ root, moduleKey, writeError = (line) => console.e
   }
 
   const result = { schema: 'aleph.xdr.result.v1', moduleKey, decisions, counts };
-  if (moduleKey === 'brute-force') {
-    const { createDenyRules, decideWithDenyRules } = await import('../xdr/brute-force/ztna.mjs');
-    const { readAlerts } = await import('../xdr/brute-force/read-alerts.mjs');
-    const { isJevConfigured, aiProviderName } = await import('../xdr/brute-force/jev.mjs');
+  // The base runner must work in isolation with just the fixture and decide.
+  // Repository-specific ZTNA replay is optional enrichment, not a prerequisite.
+  const replayPaths = ['scripts/fixture-7.mjs', 'xdr/brute-force/ztna.mjs',
+    'xdr/brute-force/read-alerts.mjs', 'xdr/brute-force/jev.mjs'];
+  const replayAvailable = moduleKey === 'brute-force' && (await Promise.all(
+    replayPaths.map(path => access(join(root, path)).then(() => true, () => false))
+  )).every(Boolean);
+  if (replayAvailable) {
+    const { fixtureRequests } = await import(pathToFileURL(join(root, 'scripts/fixture-7.mjs')).href);
+    const { createDenyRules, decideWithDenyRules } = await import(pathToFileURL(join(root, 'xdr/brute-force/ztna.mjs')).href);
+    const { readAlerts } = await import(pathToFileURL(join(root, 'xdr/brute-force/read-alerts.mjs')).href);
+    const { isJevConfigured, aiProviderName } = await import(pathToFileURL(join(root, 'xdr/brute-force/jev.mjs')).href);
     const extracted = await readAlerts(join(root, 'xdr', 'fixtures', 'brute-force.json'));
     const rules = createDenyRules(fixture.alerts, decisions);
     const checks = [];
@@ -76,6 +83,8 @@ export async function runXdr({ root, moduleKey, writeError = (line) => console.e
       aiProvider: aiProviderName(),
     };
     result.ztna = { scope: 'fixture replay with trusted source; existing starter denies all requests', rules, checks };
+  }
+  if (moduleKey === 'brute-force') {
     for (const d of decisions.filter(d => d.action !== 'record')) {
       await appendFile(join(root, 'xdr', 'alerts.log'), `${JSON.stringify({ runAt: new Date().toISOString(), ...d })}\n`, 'utf8');
     }

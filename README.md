@@ -2,6 +2,8 @@
 
 ## 보너스 xdr-01 저장점
 
+2026-10-08 격리 실행 수정 저장점: 기존 `test/xdr-run.test.mjs`의 격리 실행 시험에서 실행기가 부가 fixture-7/ZTNA 파일을 필수 import해 종료하는 오류를 재현했다. 기본 경보-판정-counts 생성은 부가 검증 파일 없이 실행되게 하고, 전체 저장소에서는 기존 ZTNA 검증을 유지했다. block/alert 로그 append도 기본 실행 경로에 유지한다. 임계값·원본 경보·기존 ZTNA 규칙은 변경하지 않았다. `node --test test/xdr-run.test.mjs`로 격리 시험 3건 통과를 확인하고 `npm run xdr:run -- brute-force`를 다시 실행한다. 최신 counts는 block 16 / alert 0 / record 12, fixture 정상 XDR block 0이며 실제 심판 오류의 원인 일치는 재제출로 확인해야 한다. 공개 화면의 집계 JSON 확인을 누른다. 정상 경보는 record, 기존 차단 후보는 block, 미응답은 alert가 기대 결과다.
+
 2026-10-08 입력 형식 검토 저장점: 명확한 공격을 놓치는 입력 정규화 결함을 재현해 수정했다. 초/분·건/회/번·영문 인증 실패·Wazuh 문자열 count·문자열 수준·원본 및 평탄화 설명 입력·영문 동일 비밀번호 다중 계정 신호를 지원한다. 분+초는 합산하고 정상 로그인 성공/소수 실패 뒤 성공도 영문과 문자열 수준에서 보존한다. firedtimes·관련 없는 count·잘못된 입력·미응답은 공격 근거로 추정하지 않는다. 기존 임계값과 강화 정책은 유지한다. `node xdr/brute-force/normalization-test.mjs`로 입력 경계를 재확인하고 `npm run xdr:run -- brute-force`로 실행한다. 원본 28건은 block 16 / alert 0 / record 12, fixture 정상 XDR block 0이며 실제 심판 정답 일치는 미확인이다. 공개 화면에서 집계 JSON 확인을 누른다. 명확한 동일 공격 표현은 block, 정상 성공과 소수 실패 뒤 성공은 record, 부족한 근거는 alert가 기대 결과다. Jev 실제 추론·운영 사용자 차단 성공은 확인하지 않았다.
 
 2026-10-08 강화 차단 저장점: 사용자 요청으로 기존 alert 6건에 해당하는 미해결 반복 실패 정책을 추가했다. 수준 5~8, 실패 합계 3~8건, 성공 미기재, 명시된 시간 10분 이하가 조건이며 두 계정의 명시적 건별 실패는 합산한다. 경보 번호를 하드코딩하지 않는다. 추가 정책의 confidence 0.85는 운영 임계값이며 공격 확률을 증명하지 않는다. 최신 counts는 block 16 / alert 0 / record 12, fixture 정상 XDR block 0이다. 추가 6건을 명확한 공격이나 심판 정답으로 확정하지 않으며 정상 재시도 차단 위험이 있다. 실행: `npm run xdr:run -- brute-force`. 검증: `node xdr/brute-force/verify.mjs`. 공개 화면에서 집계 JSON 확인을 누른다. 요청한 반복 실패 후보는 block, 기존 정상 12건은 record가 기대 결과다. 기존 ZTNA 규칙·원본 경보·배포 설정은 보존한다. Jev 키 미설정·운영 사용자 연결 미등록 상태는 그대로다.
