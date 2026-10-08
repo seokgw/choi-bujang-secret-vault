@@ -2,6 +2,8 @@
 
 ## 보너스 xdr-01 저장점
 
+2026-10-08 입력 형식 검토 저장점: 명확한 공격을 놓치는 입력 정규화 결함을 재현해 수정했다. 초/분·건/회/번·영문 인증 실패·Wazuh 문자열 count·문자열 수준·원본 및 평탄화 설명 입력·영문 동일 비밀번호 다중 계정 신호를 지원한다. 분+초는 합산하고 정상 로그인 성공/소수 실패 뒤 성공도 영문과 문자열 수준에서 보존한다. firedtimes·관련 없는 count·잘못된 입력·미응답은 공격 근거로 추정하지 않는다. 기존 임계값과 강화 정책은 유지한다. `node xdr/brute-force/normalization-test.mjs`로 입력 경계를 재확인하고 `npm run xdr:run -- brute-force`로 실행한다. 원본 28건은 block 16 / alert 0 / record 12, fixture 정상 XDR block 0이며 실제 심판 정답 일치는 미확인이다. 공개 화면에서 집계 JSON 확인을 누른다. 명확한 동일 공격 표현은 block, 정상 성공과 소수 실패 뒤 성공은 record, 부족한 근거는 alert가 기대 결과다. Jev 실제 추론·운영 사용자 차단 성공은 확인하지 않았다.
+
 2026-10-08 강화 차단 저장점: 사용자 요청으로 기존 alert 6건에 해당하는 미해결 반복 실패 정책을 추가했다. 수준 5~8, 실패 합계 3~8건, 성공 미기재, 명시된 시간 10분 이하가 조건이며 두 계정의 명시적 건별 실패는 합산한다. 경보 번호를 하드코딩하지 않는다. 추가 정책의 confidence 0.85는 운영 임계값이며 공격 확률을 증명하지 않는다. 최신 counts는 block 16 / alert 0 / record 12, fixture 정상 XDR block 0이다. 추가 6건을 명확한 공격이나 심판 정답으로 확정하지 않으며 정상 재시도 차단 위험이 있다. 실행: `npm run xdr:run -- brute-force`. 검증: `node xdr/brute-force/verify.mjs`. 공개 화면에서 집계 JSON 확인을 누른다. 요청한 반복 실패 후보는 block, 기존 정상 12건은 record가 기대 결과다. 기존 ZTNA 규칙·원본 경보·배포 설정은 보존한다. Jev 키 미설정·운영 사용자 연결 미등록 상태는 그대로다.
 
 2026-10-08 탐지 강화 저장점: Wazuh 공식 SSH 상관 경보 5712·5720을 기존 반복 실패 패턴의 추가 인식 조건으로 지원한다. 규칙 번호뿐 아니라 디코더·실패 그룹·MITRE 태그·설명·수준을 함께 검증한다. 일반 경보는 명확한 대량 실패·동일 비밀번호 근거가 있으면 수준 9 이하에서도 block한다. 알려진 문구·MITRE 태그가 없는 구조화 집계는 data.event_type=login_failure/authentication_failed, failure_count>=30, window_seconds=1~180, same_source=true를 모두 요구한다. 이 필드가 없는 이벤트의 값을 추정하지 않으며 firedtimes를 실패 횟수로 사용하지 않는다. 수준만 높은 이벤트는 block하지 않는다. 원본 28건의 집계는 block 10 / alert 6 / record 12, 정상 XDR block 0이다. Jev 키 미설정과 실제 운영 차단 미확인 상태는 그대로다.

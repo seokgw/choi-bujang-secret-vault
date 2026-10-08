@@ -7,9 +7,14 @@ const patterns = JSON.parse(await readFile(new URL('./patterns.json', import.met
 const signals = new Set(['rapid-login-failures', 'password-spraying', 'normal-event', 'ambiguous-failures', 'repeated-login-failures-policy']);
 function summaryOf(alert) {
   if (alert?.rule) return extractAlert(alert);
+  if (!signals.has(alert?.description)) {
+    return extractAlert({ timestamp: alert?.timestamp,
+      rule: { level: alert?.level, description: alert?.description },
+      data: { srcip: alert?.source, srcuser: alert?.account } });
+  }
   // Accept the five-field output of readAlerts without re-extracting it as Wazuh.
   // Only known signal labels survive; free text and additional fields are discarded.
-  const time = Date.parse(alert?.timestamp);
+  const time = typeof alert?.timestamp === 'string' ? Date.parse(alert.timestamp) : NaN;
   return {
     timestamp: Number.isFinite(time) ? new Date(time).toISOString() : null,
     source: typeof alert?.source === 'string' && isIP(alert.source) ? alert.source : null,
