@@ -2,7 +2,8 @@ import { createHash } from 'node:crypto';
 import config from '../aleph.config.json' with { type: 'json' };
 
 const schema = 'aleph.vault.xdr-deny.v1';
-const patterns = new Set(['rapid-login-failures', 'password-spraying']);
+const patterns = new Set(['rapid-login-failures', 'password-spraying',
+  'sql-injection', 'script-tag-injection', 'repeated-path-traversal']);
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function subjectHash(userId) {
   if (typeof userId !== 'string' || !uuid.test(userId)) return null;

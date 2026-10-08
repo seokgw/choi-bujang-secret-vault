@@ -1,0 +1,35 @@
+[
+  {
+    "name": "sql-injection",
+    "condition": {
+      "signal": "요청 인자 안의 SQL 구문",
+      "scope": "웹 요청 인자",
+      "match": "입력값에 SQL 문장을 이어 붙이거나 조회 의미를 바꾸는 구문이 포함됨. 경보가 SQL 구문 삽입을 명시한 경우도 신호로 사용함.",
+      "exclude": "따옴표 하나, select 또는 SQL이라는 수업명·일반 검색 단어만으로 공격을 확정하지 않음."
+    },
+    "finding": "요청 인자 안의 SQL 주입 구문을 찾되 일반 단어와 구분한다. 신호 발견만으로 악용 성공이나 차단을 확정하지 않는다.",
+    "evidence": "MITRE ATT&CK T1190은 공개 앱 악용의 SQL 주입 사례를 제시하며, OWASP는 입력을 통해 SQL 구문을 삽입하는 형태를 설명한다: https://attack.mitre.org/techniques/T1190/ ; https://owasp.org/www-community/attacks/SQL_Injection"
+  },
+  {
+    "name": "script-tag-injection",
+    "condition": {
+      "signal": "요청 인자 안의 스크립트 태그",
+      "scope": "웹 요청 인자",
+      "match": "입력값에 <script> 태그 형태가 포함되거나 경보가 스크립트 삽입 표식을 명시함.",
+      "exclude": "스크립트라는 수업 단어·일반 설명만으로 공격을 확정하지 않음."
+    },
+    "finding": "스크립트 태그 삽입 신호를 찾는다. 실제 실행·반사 여부가 없는 경보만으로 XSS 성공이나 T1190 초기 접근 성공을 단정하지 않는다.",
+    "evidence": "T1190은 공개 앱 취약점 악용의 상위 근거이며, 스크립트 주입 형태의 직접 근거는 OWASP XSS 설명이다: https://attack.mitre.org/techniques/T1190/ ; https://owasp.org/www-community/attacks/xss/"
+  },
+  {
+    "name": "repeated-path-traversal",
+    "condition": {
+      "signal": "../ 경로 거슬러 올라가기 반복",
+      "scope": "웹 요청 경로 또는 인자",
+      "match": "../로 상위 경로를 거슬러 올라가는 표기가 반복되거나 경보가 경로 이탈 표기의 반복 요청을 명시함.",
+      "exclude": "up이라는 일반 경로 이름, 반복·경로 이탈 근거 없는 단일 특수 문자만으로 공격을 확정하지 않음."
+    },
+    "finding": "반복된 상위 경로 이동 표기를 찾는다. 단순히 긴 주소를 경로 이탈로 추정하지 않으며 MITRE가 정하지 않은 횟수 임계값을 공식 기준으로 제시하지 않는다.",
+    "evidence": "MITRE ATT&CK T1190에는 디렉터리 순회 취약점 악용 사례가 있고 OWASP는 ../를 이용한 상위 디렉터리 접근 형태를 설명한다: https://attack.mitre.org/techniques/T1190/ ; https://owasp.org/www-community/attacks/Path_Traversal"
+  }
+]

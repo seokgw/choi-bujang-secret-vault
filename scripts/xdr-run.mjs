@@ -84,9 +84,26 @@ export async function runXdr({ root, moduleKey, writeError = (line) => console.e
     };
     result.ztna = { scope: 'fixture replay with trusted source; existing starter denies all requests', rules, checks };
   }
-  if (moduleKey === 'brute-force') {
+  if (moduleKey === 'web-injection') {
+    const paths = ['xdr/web-injection/ztna.mjs', 'xdr/web-injection/read-alerts.mjs'];
+    if ((await Promise.all(paths.map(path => access(join(root, path)).then(() => true, () => false)))).every(Boolean)) {
+      const { createDenyRules } = await import(pathToFileURL(join(root, paths[0])).href);
+      const { readAlerts } = await import(pathToFileURL(join(root, paths[1])).href);
+      const extracted = await readAlerts(join(root, 'xdr/fixtures/web-injection.json'));
+      // No production identity bindings exist in the training alerts.
+      result.ztna = { scope: 'unbound candidates; trusted user bindings required',
+        candidates: decisions.filter(d => d.action === 'block').map(d => ({
+          action: d.action, confidence: d.confidence, pattern: d.reason, alertId: d.alertId,
+          issuedAt: new Date().toISOString(), expiresAt: new Date(Date.now() + 15 * 60_000).toISOString(),
+        })),
+        rules: createDenyRules(decisions, []).rules };
+      result.validation = { rawCount: fixture.alerts.length, extractedCount: extracted.length,
+        productionConnected: false };
+    }
+  }
+  if (moduleKey === 'brute-force' || moduleKey === 'web-injection') {
     for (const d of decisions.filter(d => d.action !== 'record')) {
-      await appendFile(join(root, 'xdr', 'alerts.log'), `${JSON.stringify({ runAt: new Date().toISOString(), ...d })}\n`, 'utf8');
+      await appendFile(join(root, 'xdr', 'alerts.log'), `${JSON.stringify({ runAt: new Date().toISOString(), ...(moduleKey === 'web-injection' ? { moduleKey } : {}), ...d })}\n`, 'utf8');
     }
   }
   const outDir = join(root, 'xdr', moduleKey);

@@ -1,5 +1,9 @@
 # BYTE BACK 자료실 · 5단계 저장점
 
+## 보너스 xdr-02 저장점
+
+2026-10-08 웹 주입 경보 읽기·세 패턴(SQL, 스크립트 태그, 반복 경로 이탈)·독립 decide(alert)·자료실 API 동적 거부 연결을 추가했다. 실행: `npm run xdr:run -- web-injection`. 최신 result.json은 block 7 / alert 10 / record 9, 시험 정상 block 0이다. 명령 구분자는 현재 세 패턴 밖이므로 alert다. Jev 키 미설정 시 alert이며 실제 추론 성공을 확인하지 않았다. block 후보에 경보 번호와 15분 만료를 붙이고 검증된 사용자 연결만 기존 API 거부 규칙에 넣는다. 실제 운영 연결은 미등록이다. `node xdr/web-injection/verify.mjs`는 가상 인증·DB로 실제 API 핸들러를 재생해 후보 7건 거부, 애매한 10건·정상 9건 통과와 만료·다른 사용자·연결 누락을 검증한다. xdr/alerts.log는 block/alert만 JSON 한 줄씩 append한다. 원본 경보·기존 ZTNA 기본 규칙·brute-force는 보존한다. 현재 화면은 brute-force 결과만 제공하므로 웹 주입 결과는 저장소의 xdr/web-injection/result.json을 클릭해 확인한다. 정상은 record, 명확한 세 패턴 후보는 block, 근거 부족은 alert가 기대 결과다. step 5·기존 배포 주소·로그인 issuer·12개 허용 경로·originalApiUrl·judgeIssuer는 그대로다. 실제 심판 판정이나 운영 차단 성공으로 보고하지 않는다.
+
 ## 보너스 xdr-01 저장점
 
 2026-10-08 애매한 시도 분류 복원: 저수준 미해결 실패의 추가 block 정책을 제거했다. 반복 실패 뒤 성공을 일괄 record로 내리던 조건도 제거하고, 낮은 수준의 단일 실패 후 성공만 정상으로 기록한다. 명확한 공격 조건·독립 함수 실행·Jev 오류 fallback·기존 ZTNA 규칙·원본 경보는 유지한다. npm run xdr:run -- brute-force 실행 결과 block 10 / alert 9 / record 9, fixture 정상 block 0이다. verify·normalization·portable·standalone 및 API 연결 가상 시험이 통과했다. 공개 화면에서 집계 JSON 확인을 누른다. 단일 실패 후 성공은 record, 반복 실패의 부족한 근거는 alert, 명확한 공격은 block이 기대 결과다. 실제 심판 통과와 운영 차단은 별도 확인 대상이다. 아래는 이전 저장점 기록이다.
