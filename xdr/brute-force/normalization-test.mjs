@@ -33,9 +33,9 @@ try {
   assert.equal((await decide({ ...flat,
     description: 'The same password was attempted across multiple accounts from the same source.' })).action, 'block');
   assert.equal((await decide({ ...flat, description: 'Login successful.' })).action, 'record');
-  assert.equal((await decide({ ...flat, level: '6', description: '3 failed login attempts, then successful login.' })).action, 'record');
+  assert.equal((await decide({ ...flat, level: '6', description: '3 failed login attempts, then successful login.' })).action, 'alert');
   assert.equal((await decide({ ...flat, description: '48 failed login attempts in 3 minutes 30 seconds.' })).action, 'alert');
-  assert.equal((await decide({ ...base, rule: { level: '7', description: '로그인 실패 4건 뒤에 성공했습니다.' } })).action, 'record');
+  assert.equal((await decide({ ...base, rule: { level: '7', description: '로그인 실패 4건 뒤에 성공했습니다.' } })).action, 'alert');
   assert.equal((await decide({ ...base, rule: { level: '5', description: 'structured event' },
     data: { srcip: '192.0.2.1', event_type: 'login_failure', failure_count: '48',
       window_seconds: '120', same_source: true } })).action, 'block');

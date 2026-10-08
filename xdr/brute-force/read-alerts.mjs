@@ -45,12 +45,10 @@ export function extractAlert(alert) {
   else if ((failureSignal && count >= 30 && duration > 0 && duration <= 180) || strongRepeated) description = 'rapid-login-failures';
   else if (failureSignal) description = 'ambiguous-failures';
   else if (/성공|로그아웃|세션 유지|로그인 상태|자료실 화면|\b(?:login|logon|authentication) (?:succeeded|successful|success)\b|\blogged out\b|\bsession (?:active|maintained)\b/i.test(raw)) description = 'normal-event';
-  // A small corrected login is recorded, rather than escalated as an attack.
-  // Success alone never overrides high-volume or spraying evidence.
-  if (description === 'ambiguous-failures' && count >= 1 && count <= 6
-      && level !== null && level <= 7
+  // A single corrected failure is ordinary; repeated failures remain ambiguous.
+  if (description === 'ambiguous-failures' && count === 1 && level !== null && level <= 7
       && /뒤(?:에)?\s*성공|\b(?:then|followed by)\s+(?:a\s+)?(?:successful (?:login|logon)|success)\b/i.test(raw)
-      && !spraying && !/여러 계정|서로 다른 계정|계정 이름을 바꿔|\b(?:multiple|different|many) (?:user )?accounts\b/i.test(raw)) description = 'normal-event';
+      && !/여러 계정|서로 다른 계정|계정 이름을 바꿔|\b(?:multiple|different|many) (?:user )?accounts\b/i.test(raw)) description = 'normal-event';
   const vendor = vendorSignal(alert, raw);
   if (vendor) description = vendor;
   // Structured failure aggregates do not require a MITRE tag or exact wording.
@@ -60,15 +58,6 @@ export function extractAlert(alert) {
       && Number.isInteger(failuresTotal) && failuresTotal >= 30
       && Number.isInteger(windowSeconds) && windowSeconds > 0 && windowSeconds <= 180
       && alert?.data?.same_source === true) description = 'rapid-login-failures';
-  // Explicitly requested stricter policy for low-volume unresolved failures.
-  // This is an operational threshold, not proof that the event is an attack.
-  const unresolvedCount = count * (/두 계정.*건씩/.test(raw) ? 2 : 1);
-  if (description === 'ambiguous-failures' && level !== null
-      && level >= 5 && level <= 8
-      && unresolvedCount >= 3 && unresolvedCount <= 8
-      && (duration === null || (duration > 0 && duration <= 600)) && !/성공|success/i.test(raw)) {
-    description = 'repeated-login-failures-policy';
-  }
   const time = typeof alert?.timestamp === 'string' ? Date.parse(alert.timestamp) : NaN;
   return {
     timestamp: Number.isFinite(time) ? new Date(time).toISOString() : null,

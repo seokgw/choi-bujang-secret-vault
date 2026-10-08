@@ -2,6 +2,8 @@
 
 ## 보너스 xdr-01 저장점
 
+2026-10-08 애매한 시도 분류 복원: 저수준 미해결 실패의 추가 block 정책을 제거했다. 반복 실패 뒤 성공을 일괄 record로 내리던 조건도 제거하고, 낮은 수준의 단일 실패 후 성공만 정상으로 기록한다. 명확한 공격 조건·독립 함수 실행·Jev 오류 fallback·기존 ZTNA 규칙·원본 경보는 유지한다. npm run xdr:run -- brute-force 실행 결과 block 10 / alert 9 / record 9, fixture 정상 block 0이다. verify·normalization·portable·standalone 및 API 연결 가상 시험이 통과했다. 공개 화면에서 집계 JSON 확인을 누른다. 단일 실패 후 성공은 record, 반복 실패의 부족한 근거는 alert, 명확한 공격은 block이 기대 결과다. 실제 심판 통과와 운영 차단은 별도 확인 대상이다. 아래는 이전 저장점 기록이다.
+
 2026-10-08 독립 함수 저장점: decide(alert)의 패턴 스냅샷·정규화·판정 보조 함수를 함수 안에 포함해 필수 Node 모듈과 파일 읽기를 제거했다. patterns.json을 기준으로 내장 조건을 동기화하며 portable-test가 일치를 검증한다. 정상·명확한 패턴은 외부 호출 없이 판정한다. Node 서버에서는 기존 Jev 어댑터를 선택적으로 사용하며, 연결 미설정·오류는 alert다. 브라우저에 API 키를 넣지 않는다. node xdr/brute-force/portable-test.mjs는 Node 전역·모듈 로더 없는 격리 JavaScript에서 함수만 실행해 28건 일치·주소 경계·AI 미설정 fallback을 검증한다. 파일 전체 Node 실행은 standalone-test.mjs로 검증한다. 실행: npm run xdr:run -- brute-force. 최신 counts는 block 16 / alert 0 / record 12, fixture 정상 XDR block 0이다. 공개 화면에서 집계 JSON 확인을 누른다. 정상은 record, 기존 차단 후보는 block, 미응답은 alert가 기대 결과다. 이 시험은 실제 심판 판정이 아니며 재제출로 확인해야 한다. 기존 ZTNA 규칙·원본 경보·step 5·issuer·12개 허용 경로·원본 API·judgeIssuer는 보존한다.
 
 2026-10-08 격리 실행 수정 저장점: 기존 `test/xdr-run.test.mjs`의 격리 실행 시험에서 실행기가 부가 fixture-7/ZTNA 파일을 필수 import해 종료하는 오류를 재현했다. 기본 경보-판정-counts 생성은 부가 검증 파일 없이 실행되게 하고, 전체 저장소에서는 기존 ZTNA 검증을 유지했다. block/alert 로그 append도 기본 실행 경로에 유지한다. 임계값·원본 경보·기존 ZTNA 규칙은 변경하지 않았다. `node --test test/xdr-run.test.mjs`로 격리 시험 3건 통과를 확인하고 `npm run xdr:run -- brute-force`를 다시 실행한다. 최신 counts는 block 16 / alert 0 / record 12, fixture 정상 XDR block 0이며 실제 심판 오류의 원인 일치는 재제출로 확인해야 한다. 공개 화면의 집계 JSON 확인을 누른다. 정상 경보는 record, 기존 차단 후보는 block, 미응답은 alert가 기대 결과다.
