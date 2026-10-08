@@ -2,7 +2,7 @@
   {
     "name": "rapid-login-failures",
     "condition": { "description": "rapid-login-failures", "minimumLevel": 10, "confidence": 0.95 },
-    "finding": "같은 출발 주소에서 3분 이내 로그인 실패 30건 이상이 연속 발생했다고 경보에 명시됨. 숫자는 과제용 보수적 기준이며 MITRE의 공식 임계값이 아님.",
+    "finding": "출발 주소가 확인되고 수준 10 이상: 3분 이내 실패 30건 이상, 또는 시간 범위 미기재지만 30건 이상의 비밀번호 변형·연속 실패·성공 없음이 명시됨, 또는 같은 주소가 10개 이상 계정에 일정 간격으로 로그인 실패를 반복함. 시간 미기재 사건을 단시간으로 추정하지 않으며 동일 비밀번호도 추정하지 않음. 숫자는 과제 기준이며 MITRE 공식 임계값이 아님.",
     "evidence": "MITRE ATT&CK T1110.001: 반복적인 비밀번호 추측으로 로그인 시도 — https://attack.mitre.org/techniques/T1110/001/"
   },
   {

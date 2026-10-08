@@ -28,9 +28,9 @@
     },
     {
       "alertId": "bf-05",
-      "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama unavailable"
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "rapid-login-failures"
     },
     {
       "alertId": "bf-06",
@@ -40,15 +40,15 @@
     },
     {
       "alertId": "bf-07",
-      "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama unavailable"
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "rapid-login-failures"
     },
     {
       "alertId": "bf-08",
-      "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama unavailable"
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "rapid-login-failures"
     },
     {
       "alertId": "bf-09",
@@ -58,9 +58,9 @@
     },
     {
       "alertId": "bf-10",
-      "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama unavailable"
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "rapid-login-failures"
     },
     {
       "alertId": "bf-11",
@@ -78,25 +78,25 @@
       "alertId": "bf-13",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama unavailable"
+      "reason": "ambiguous-failures: unconfigured unavailable"
     },
     {
       "alertId": "bf-14",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama unavailable"
+      "reason": "ambiguous-failures: unconfigured unavailable"
     },
     {
       "alertId": "bf-15",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama unavailable"
+      "reason": "ambiguous-failures: unconfigured unavailable"
     },
     {
       "alertId": "bf-16",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama unavailable"
+      "reason": "ambiguous-failures: unconfigured unavailable"
     },
     {
       "alertId": "bf-17",
@@ -108,13 +108,13 @@
       "alertId": "bf-18",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama unavailable"
+      "reason": "ambiguous-failures: unconfigured unavailable"
     },
     {
       "alertId": "bf-19",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama unavailable"
+      "reason": "ambiguous-failures: unconfigured unavailable"
     },
     {
       "alertId": "bf-20",
@@ -172,8 +172,8 @@
     }
   ],
   "counts": {
-    "block": 6,
-    "alert": 10,
+    "block": 10,
+    "alert": 6,
     "record": 12
   },
   "validation": {
@@ -183,7 +183,7 @@
     "normalZtnaDenied": 12,
     "productionConnected": false,
     "jevConfigured": false,
-    "aiProvider": "ollama"
+    "aiProvider": "unconfigured"
   },
   "ztna": {
     "scope": "fixture replay with trusted source; existing starter denies all requests",
@@ -214,15 +214,39 @@
       },
       {
         "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-05",
+        "source": "203.0.113.21",
+        "expiresAt": "2026-09-27T00:36:00.000Z"
+      },
+      {
+        "ruleId": "xdr.brute-force.deny",
         "alertId": "bf-06",
         "source": "198.51.100.44",
         "expiresAt": "2026-09-27T02:17:15.000Z"
       },
       {
         "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-07",
+        "source": "203.0.113.15",
+        "expiresAt": "2026-09-27T02:20:40.000Z"
+      },
+      {
+        "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-08",
+        "source": "192.0.2.18",
+        "expiresAt": "2026-09-27T04:25:02.000Z"
+      },
+      {
+        "ruleId": "xdr.brute-force.deny",
         "alertId": "bf-09",
         "source": "198.51.100.8",
         "expiresAt": "2026-09-27T05:37:18.000Z"
+      },
+      {
+        "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-10",
+        "source": "203.0.113.40",
+        "expiresAt": "2026-09-27T06:55:01.000Z"
       }
     ],
     "checks": [
@@ -249,7 +273,7 @@
       {
         "alertId": "bf-05",
         "decision": "deny",
-        "dynamicDeny": false
+        "dynamicDeny": true
       },
       {
         "alertId": "bf-06",
@@ -259,12 +283,12 @@
       {
         "alertId": "bf-07",
         "decision": "deny",
-        "dynamicDeny": false
+        "dynamicDeny": true
       },
       {
         "alertId": "bf-08",
         "decision": "deny",
-        "dynamicDeny": false
+        "dynamicDeny": true
       },
       {
         "alertId": "bf-09",
@@ -274,7 +298,7 @@
       {
         "alertId": "bf-10",
         "decision": "deny",
-        "dynamicDeny": false
+        "dynamicDeny": true
       },
       {
         "alertId": "bf-11",

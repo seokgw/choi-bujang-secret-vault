@@ -128,3 +128,19 @@
 {"runAt":"2026-10-08T00:04:21.120Z","alertId":"bf-16","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama unavailable"}
 {"runAt":"2026-10-08T00:04:21.120Z","alertId":"bf-18","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama unavailable"}
 {"runAt":"2026-10-08T00:04:21.121Z","alertId":"bf-19","action":"alert","confidence":0.5,"reason":"ambiguous-failures: ollama unavailable"}
+{"runAt":"2026-10-08T00:14:49.698Z","alertId":"bf-01","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-08T00:14:49.699Z","alertId":"bf-02","action":"block","confidence":0.95,"reason":"password-spraying"}
+{"runAt":"2026-10-08T00:14:49.699Z","alertId":"bf-03","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-08T00:14:49.699Z","alertId":"bf-04","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-08T00:14:49.700Z","alertId":"bf-05","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-08T00:14:49.700Z","alertId":"bf-06","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-08T00:14:49.701Z","alertId":"bf-07","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-08T00:14:49.701Z","alertId":"bf-08","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-08T00:14:49.701Z","alertId":"bf-09","action":"block","confidence":0.95,"reason":"password-spraying"}
+{"runAt":"2026-10-08T00:14:49.702Z","alertId":"bf-10","action":"block","confidence":0.95,"reason":"rapid-login-failures"}
+{"runAt":"2026-10-08T00:14:49.702Z","alertId":"bf-13","action":"alert","confidence":0.5,"reason":"ambiguous-failures: unconfigured unavailable"}
+{"runAt":"2026-10-08T00:14:49.703Z","alertId":"bf-14","action":"alert","confidence":0.5,"reason":"ambiguous-failures: unconfigured unavailable"}
+{"runAt":"2026-10-08T00:14:49.703Z","alertId":"bf-15","action":"alert","confidence":0.5,"reason":"ambiguous-failures: unconfigured unavailable"}
+{"runAt":"2026-10-08T00:14:49.704Z","alertId":"bf-16","action":"alert","confidence":0.5,"reason":"ambiguous-failures: unconfigured unavailable"}
+{"runAt":"2026-10-08T00:14:49.704Z","alertId":"bf-18","action":"alert","confidence":0.5,"reason":"ambiguous-failures: unconfigured unavailable"}
+{"runAt":"2026-10-08T00:14:49.704Z","alertId":"bf-19","action":"alert","confidence":0.5,"reason":"ambiguous-failures: unconfigured unavailable"}
