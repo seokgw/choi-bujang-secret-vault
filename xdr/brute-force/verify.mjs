@@ -21,6 +21,7 @@ for (const alert of fixture.alerts) {
   const number = Number(alert.id.slice(3));
   assert.equal(d.action, number >= 20 || recovered.has(alert.id) ? 'record' : blocks.has(alert.id) ? 'block' : 'alert');
   decisions.push({ alertId: alert.id, ...d });
+  assert.deepEqual(await decide(extractAlert(alert)), d);
 }
 const ambiguous = fixture.alerts[12];
 for (const adapter of [async () => { throw new Error(); }, async () => NaN,

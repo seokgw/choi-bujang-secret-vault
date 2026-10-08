@@ -2,17 +2,17 @@
 
 ## 보너스 xdr-01 저장점
 
+2026-10-08 최종 저장점: 임시 경로의 공식 npm 도구로 `npm run xdr:run -- brute-force`를 다시 실행해 result.json을 갱신했다. counts는 block 10 / alert 6 / record 12이며 정상 XDR block은 0건이다. 실제 Jev 키는 미설정이므로 애매한 6건은 오류 대체 alert이며 실제 AI 추론 성공으로 표시하지 않는다. `decide`는 원본 경보와 readAlerts의 추출 결과를 모두 처리한다. 정상 이벤트는 record, 명확한 공격은 block이 기대 결과다. 공개 화면에서는 집계 JSON 확인을 누른다. 기존 판정기·원본 경보·설정은 이번 단계에서 변경하지 않았다.
+
+현재 보조 판단은 실제 TypeSafe Jev API 연동이다. 서버 환경의 `TYPESAFE_API_KEY`만 사용하며 키를 코드·브라우저·로그에 넣지 않는다. 키 미설정·타임아웃·오류·잘못된 확신도는 alert다. 실제 추론 성공은 키 설정 후 별도 확인해야 하며 미설정 실행을 AI 성공으로 보고하지 않는다.
+
 2026-10-08 자료실 API 차단 연결: `api/notes.js`는 인증으로 검증한 identity에 대해 `src/vault-xdr.mjs`를 호출한다. 목록·상세의 모든 메서드에서 유효한 사용자 연결 block 규칙은 DB 접근 전에 403으로 거부하며 기존 인증·Origin·소유권 검사는 유지한다. 서버 전용 `VAULT_XDR_DENY_RULES_JSON` 설정을 읽고 없거나 잘못되면 기존 정책으로 처리한다. 규칙에는 발급 시각, 최대 15분 만료, 근거 alertId, 패턴, confidence, 발급자와 검증된 사용자 ID의 SHA-256 가명 연결이 필수다. 요청 본문·IP·가상 계정 이름으로 사용자 연결을 추정하지 않는다. `createVaultDenyRules(decisions, bindings)`는 서버에서 확인한 일대일 경보-사용자 연결을 받아 block 후보만 생성한다. 실제 사용자 ID·연결 자료는 Git/로그/공개 화면에 넣지 않고 운영자가 공식 서버 설정 화면에서 규칙을 등록한다. 실제 연결 정보가 없어 운영 대상 등록은 보류하며 활성 차단 성공으로 표시하지 않는다.
 
 실행: `node --test test/vault-xdr.test.mjs test/r5.test.mjs test/package-starter.test.mjs test/xdr-policy.test.mjs`. 27건 통과. 실제 notes 핸들러의 가상 인증·DB를 사용해 28경보를 재생한 결과 차단 후보 10건 403, 애매한 6건과 정상 12건 200이며 만료·다른 사용자·동일 IP·본문 위조·누락된 연결도 검증했다. 이는 배포에서 실제 사용자로 실행한 시험과 구분한다. 자료실 화면에서 정상 로그인 후 자기 자료 목록을 열면 기존 동작이 유지되어야 하며, 운영자가 유효한 차단 규칙을 등록한 대상의 API 요청은 403이어야 한다. 별도 `src/decider.mjs`의 기본 거부는 이 자료실 경로와 분리돼 있다.
 
-2026-10-08 최종 판정 수정: `decide(alert)`는 먼저 로컬 패턴을 비교하고 애매한 경보만 `jev.mjs`의 로컬 판단 정책으로 넘긴다. 유효한 확신도는 그대로 반환하며 0.85 이상 block, 0.5 이상 alert, 그 아래 record다. 오류·미응답·범위 밖 응답은 confidence 0.5의 alert다. reason은 한 줄 패턴 이름이다. 재실행 명령은 `node scripts/xdr-run.mjs brute-force`이며 공개 화면에서 집계 JSON 확인을 누른다. 명확한 공격 10건 block, 애매한 6건 alert, 정상 12건 record가 로컬 기대 결과다. 실제 서비스 AI 호출·심판 통과·운영 ZTNA 연동을 의미하지 않는다.
+2026-10-08 최종 판정 수정: `decide(alert)`는 먼저 로컬 패턴을 비교하고 애매한 경보만 `jev.mjs`를 통해 실제 TypeSafe Jev에 질의한다. 유효한 확신도는 그대로 반환하며 0.85 이상 block, 0.5 이상 alert, 그 아래 record다. 오류·미응답·범위 밖 응답은 confidence 0.5의 alert다. reason은 한 줄 패턴 이름이다. 재실행 명령은 `node scripts/xdr-run.mjs brute-force`이며 공개 화면에서 집계 JSON 확인을 누른다. 명확한 공격 10건 block, 애매한 6건 alert, 정상 12건 record가 로컬 기대 결과다. 실제 서비스 AI 호출·심판 통과·운영 ZTNA 연동을 의미하지 않는다.
 
-2026-10-08 보조 판단 변경: `jev.mjs`는 외부 서비스 없이 실행되는 로컬 정책이다. 명확한 공격과 정상 이벤트는 기존 패턴으로 처리하고, 애매한 경보는 수준에 따른 0.5~0.7 정책 점수로 alert를 유지한다. 점수는 보정된 확률이나 실제 Jev 응답이 아니다. 실행: `node scripts/xdr-run.mjs brute-force`. 공개 화면의 집계 JSON 확인을 눌러 결과를 본다. 명확한 공격은 block, 정상 이벤트는 record가 기대 결과이며 기존 ZTNA의 기본 거부는 보존한다.
-
-2026-10-08 보조 판단 변경: `jev.mjs`는 외부 서비스 없이 실행되는 로컬 정책이다. 명확한 공격과 정상 이벤트는 기존 패턴으로 처리하고, 애매한 경보는 수준에 따른 0.5~0.7 정책 점수로 alert를 유지한다. 점수는 보정된 확률이나 실제 Jev 응답이 아니다. 실행: `node scripts/xdr-run.mjs brute-force`. 공개 화면의 집계 JSON 확인을 눌러 결과를 본다. 명확한 공격은 block, 정상 이벤트는 record가 기대 결과이며 기존 ZTNA의 기본 거부는 보존한다.
-
-최신 X01 수정 저장점: block 10 / alert 6 / record 12, 정상 XDR block 0건. 로컬 판단 정책으로 실행기를 직접 재실행해 근거가 명확한 공격은 로컬에서 block, 남은 애매한 6건은 근거 부족으로 alert임을 확인했다. XDR 경계 시험·기존 인증/패키징·주체 연결 규칙 시험 23건·로컬 빌드가 통과했다. 아래 6/10/12와 AI 호출 기록은 이전 점검 기록이다. 심판 재통과 및 운영 ZTNA 정상 통과는 아직 확인되지 않았다.
+최신 X01 수정 저장점: block 10 / alert 6 / record 12, 정상 XDR block 0건. 이전 로컬 판단 정책 실행 당시 근거가 명확한 공격은 로컬에서 block, 남은 애매한 6건은 근거 부족으로 alert임을 확인했다. XDR 경계 시험·기존 인증/패키징·주체 연결 규칙 시험 23건·로컬 빌드가 통과했다. 아래 6/10/12와 AI 호출 기록은 이전 점검 기록이다. 심판 재통과 및 운영 ZTNA 정상 통과는 아직 확인되지 않았다.
 
 2026-10-08 X01_CLEAR_NOT_BLOCKED 수정: 반복 실패 정규화가 시간 명시만 요구해 bf-05·07·08·10을 놓쳤다. 기존 반복 실패 패턴에서 수준 10 이상·대량 반복의 명시적 근거(비밀번호 변형/연속 실패/성공 없음) 또는 같은 주소의 일정 간격 다중 계정 실패를 인식하도록 보완했다. 시간/동일 비밀번호/사용자 연결을 추정하지 않는다. 장시간·낮은 수준·임계 미만 경계와 정상 경보는 차단하지 않는 로컬 시험을 추가했다. 이 수정은 운영 ZTNA 기본 규칙이나 원본 경보를 바꾸지 않는다. 심판 재통과 여부는 재제출 후 확인해야 한다.
 
@@ -28,7 +28,7 @@
 
 ### TypeSafe Jev 연결 시험
 
-공식 API `https://api.typesafe.ai/v1/systemone`에 연결하는 서버용 어댑터를 추가했다. 계약 출처는 https://docs.typesafe.ai/api 이다. 현재 기본 실행은 외부 API를 호출하지 않고 로컬 정책을 사용한다. 기존 TypeSafe 어댑터 파일은 보존하지만 자동 선택하지 않는다. TypeSafe 공식 콘솔 https://console.typesafe.ai 에서 발급한 키는 실행 환경의 비밀 환경변수 입력란에만 설정하고 채팅·명령 문자열·Git에 넣지 않는다. 브라우저에서는 호출하지 않는다.
+공식 API `https://api.typesafe.ai/v1/systemone`에 연결하는 서버용 어댑터를 추가했다. 계약 출처는 https://docs.typesafe.ai/api 이다. 현재 `jev.mjs`는 `TYPESAFE_API_KEY`가 서버에 설정된 경우 TypeSafe 어댑터를 사용하며, 키가 없으면 alert로 처리한다. 로컬 점수 대체는 제거했다. TypeSafe 공식 콘솔 https://console.typesafe.ai 에서 발급한 키는 실행 환경의 비밀 환경변수 입력란에만 설정하고 채팅·명령 문자열·Git에 넣지 않는다. 브라우저에서는 호출하지 않는다.
 
 외부 전송은 정규화된 신호·규칙 수준만 포함한다. 출발 주소·계정·경보 원문·인증값은 제외한다. `noul`의 0~1 값은 공격일 확률이며 Choice/Score의 별도 confidence와 다르다. 현재 decide는 유효한 보조 판단 점수를 변경하지 않고 0.85 이상 block, 0.5 이상 alert, 그 아래 record로 반환한다. 900ms HTTP 시간 제한·잘못된 응답·인증 오류는 alert로 처리한다. 모델은 공식 별칭 jev-latest를 사용하며 실제 검증한 고정 버전은 없다.
 

@@ -1,17 +1,13 @@
-// Local evidence policy replaces external inference. Scores are policy values,
-// not calibrated AI probabilities or responses from the TypeSafe Jev service.
+import { createTypeSafeProvider } from './typesafe-jev.mjs';
+
+// Credentials remain in the server environment. No local score substitution.
 let provider;
 export function configureJev(adapter) { provider = adapter; }
-export function isJevConfigured() { return true; }
-export function aiProviderName() { return typeof provider === 'function' ? 'custom' : 'local-policy'; }
-function localReview(summary) {
-  // Missing evidence cannot justify blocking or declaring the event normal.
-  if (summary.description !== 'ambiguous-failures') return 0.5;
-  const level = Number.isInteger(summary.level) ? summary.level : 5;
-  return Math.min(0.7, Math.max(0.5, 0.5 + (level - 5) * 0.025));
-}
+export function isJevConfigured() { return typeof provider === 'function' || Boolean(process.env.TYPESAFE_API_KEY); }
+export function aiProviderName() { return typeof provider === 'function' ? 'custom' : process.env.TYPESAFE_API_KEY ? 'typesafe-jev' : 'unconfigured'; }
 export async function askJev(summary) {
-  const active = provider ?? localReview;
+  const active = provider ?? (process.env.TYPESAFE_API_KEY
+    ? createTypeSafeProvider({ apiKey: process.env.TYPESAFE_API_KEY }) : undefined);
   if (typeof active !== 'function') throw new Error('Jev unavailable');
   let timer;
   try {

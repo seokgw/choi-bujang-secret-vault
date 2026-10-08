@@ -83,13 +83,13 @@
     {
       "alertId": "bf-14",
       "action": "alert",
-      "confidence": 0.525,
+      "confidence": 0.5,
       "reason": "ambiguous-failures"
     },
     {
       "alertId": "bf-15",
       "action": "alert",
-      "confidence": 0.55,
+      "confidence": 0.5,
       "reason": "ambiguous-failures"
     },
     {
@@ -107,13 +107,13 @@
     {
       "alertId": "bf-18",
       "action": "alert",
-      "confidence": 0.575,
+      "confidence": 0.5,
       "reason": "ambiguous-failures"
     },
     {
       "alertId": "bf-19",
       "action": "alert",
-      "confidence": 0.525,
+      "confidence": 0.5,
       "reason": "ambiguous-failures"
     },
     {
@@ -182,8 +182,8 @@
     "normalBlocked": 0,
     "normalZtnaDenied": 12,
     "productionConnected": false,
-    "jevConfigured": true,
-    "aiProvider": "local-policy"
+    "jevConfigured": false,
+    "aiProvider": "unconfigured"
   },
   "ztna": {
     "scope": "fixture replay with trusted source; existing starter denies all requests",
