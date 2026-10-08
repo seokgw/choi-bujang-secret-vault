@@ -1,6 +1,6 @@
 import { createVaultDenyRules, matchVaultDeny } from '../../src/vault-xdr.mjs';
 
-const patterns = new Set(['sql-injection', 'script-tag-injection', 'repeated-path-traversal']);
+const patterns = new Set(['sql-injection', 'script-tag-injection', 'repeated-path-traversal', 'repeated-command-injection']);
 
 // Supply bindings only from a trusted server investigation, never from the
 // request body, source IP or a training account. Missing bindings create no rule.

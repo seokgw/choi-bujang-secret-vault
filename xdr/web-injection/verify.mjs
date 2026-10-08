@@ -17,7 +17,7 @@ const bindings = fixture.alerts.map((a, i) => ({ alertId: a.id,
 const document = createDenyRules(decisions, bindings, now);
 assert.equal(createDenyRules(decisions, [], now).rules.length, 0);
 assert.equal(createDenyRules(decisions, [...bindings, ...bindings], now).rules.length, 0);
-assert.equal(document.rules.length, 7);
+assert.equal(document.rules.length, 8);
 for (const rule of document.rules) {
   assert(rule.alertId && Number.isFinite(Date.parse(rule.expiresAt)));
   assert.equal(Date.parse(rule.expiresAt) - Date.parse(rule.issuedAt), 15 * 60_000);
@@ -30,7 +30,7 @@ const counts = { blocked: 0, ambiguousAllowed: 0, normalAllowed: 0 };
 for (let i = 0; i < decisions.length; i++) {
   const d = decisions[i];
   const number = Number(d.alertId.slice(3));
-  const expected = number >= 18 ? 'record' : number <= 8 && number !== 6 ? 'block' : 'alert';
+  const expected = number >= 18 ? 'record' : number <= 8 ? 'block' : 'alert';
   assert.equal(d.action, expected, d.alertId);
   let dbCalls = 0;
   const handler = createNotesHandler({ verify: async () => ({ userId: bindings[i].userId }),
@@ -45,5 +45,11 @@ for (let i = 0; i < decisions.length; i++) {
   assert.equal(dbCalls, expected === 'block' ? 0 : 1);
   counts[expected === 'block' ? 'blocked' : expected === 'alert' ? 'ambiguousAllowed' : 'normalAllowed']++;
 }
-assert.deepEqual(counts, { blocked: 7, ambiguousAllowed: 10, normalAllowed: 9 });
-console.log('PASS: fixture API replay: 7 block candidates denied, 10 ambiguous and 9 normal requests allowed; expiry, missing/duplicate binding and identity isolation verified. Operating bindings are not installed.');
+assert.deepEqual(counts, { blocked: 8, ambiguousAllowed: 9, normalAllowed: 9 });
+for (const description of ['명령 구분자 표기가 1번 있습니다.',
+  '이름 검색에 구분 문자가 11건 있습니다.',
+  '명령 구분자 표기가 연속 요청 7번에 있습니다.',
+  '명령 구분자 표기가 11번 있지만 반복은 없습니다.']) {
+  assert.equal((await decide({ rule: { level: 11, description } })).action, 'alert');
+}
+console.log('PASS: fixture API replay: 8 block candidates denied, 9 ambiguous and 9 normal requests allowed; command-separator boundaries, expiry, missing/duplicate binding and identity isolation verified. Operating bindings are not installed.');

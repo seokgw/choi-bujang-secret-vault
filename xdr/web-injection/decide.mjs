@@ -1,4 +1,4 @@
-// Standalone counterpart of the three patterns in patterns.json.
+// Standalone counterpart of the patterns in patterns.json.
 // No request URL, account, address, description or credential is sent to Jev.
 export async function decide(alert) {
   const respond = (confidence, reason) => ({
@@ -22,6 +22,11 @@ export async function decide(alert) {
   ];
   const matched = patterns.find(pattern => pattern.signal.test(text));
   if (matched && repeated) return respond(0.95, matched.name);
+  // Repeated explicit command-injection correlation, not a lone separator.
+  if (repeated && count >= 8 && level >= 10
+      && /명령 구분자 표기/.test(text) && /연속 요청|반복/.test(text)) {
+    return respond(0.95, 'repeated-command-injection');
+  }
   // Explicit ordinary activity only. A suspicious attempt followed by a normal
   // request remains ambiguous; low severity alone is not normal evidence.
   const suspicious = /SQL|select|스크립트|script|주입|따옴표|구분 문자|구분자|경로|이상한|공격|평소보다|\.\.\//i.test(text);

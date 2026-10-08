@@ -34,9 +34,9 @@
     },
     {
       "alertId": "wi-06",
-      "action": "alert",
-      "confidence": 0.5,
-      "reason": "unmatched-web-injection"
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "repeated-command-injection"
     },
     {
       "alertId": "wi-07",
@@ -160,8 +160,8 @@
     }
   ],
   "counts": {
-    "block": 7,
-    "alert": 10,
+    "block": 8,
+    "alert": 9,
     "record": 9
   },
   "ztna": {
@@ -172,56 +172,64 @@
         "confidence": 0.95,
         "pattern": "sql-injection",
         "alertId": "wi-01",
-        "issuedAt": "2026-10-08T02:04:28.743Z",
-        "expiresAt": "2026-10-08T02:19:28.743Z"
+        "issuedAt": "2026-10-08T02:10:07.524Z",
+        "expiresAt": "2026-10-08T02:25:07.524Z"
       },
       {
         "action": "block",
         "confidence": 0.95,
         "pattern": "script-tag-injection",
         "alertId": "wi-02",
-        "issuedAt": "2026-10-08T02:04:28.743Z",
-        "expiresAt": "2026-10-08T02:19:28.743Z"
+        "issuedAt": "2026-10-08T02:10:07.524Z",
+        "expiresAt": "2026-10-08T02:25:07.524Z"
       },
       {
         "action": "block",
         "confidence": 0.95,
         "pattern": "repeated-path-traversal",
         "alertId": "wi-03",
-        "issuedAt": "2026-10-08T02:04:28.743Z",
-        "expiresAt": "2026-10-08T02:19:28.743Z"
+        "issuedAt": "2026-10-08T02:10:07.524Z",
+        "expiresAt": "2026-10-08T02:25:07.524Z"
       },
       {
         "action": "block",
         "confidence": 0.95,
         "pattern": "sql-injection",
         "alertId": "wi-04",
-        "issuedAt": "2026-10-08T02:04:28.743Z",
-        "expiresAt": "2026-10-08T02:19:28.743Z"
+        "issuedAt": "2026-10-08T02:10:07.524Z",
+        "expiresAt": "2026-10-08T02:25:07.524Z"
       },
       {
         "action": "block",
         "confidence": 0.95,
         "pattern": "sql-injection",
         "alertId": "wi-05",
-        "issuedAt": "2026-10-08T02:04:28.743Z",
-        "expiresAt": "2026-10-08T02:19:28.743Z"
+        "issuedAt": "2026-10-08T02:10:07.524Z",
+        "expiresAt": "2026-10-08T02:25:07.524Z"
+      },
+      {
+        "action": "block",
+        "confidence": 0.95,
+        "pattern": "repeated-command-injection",
+        "alertId": "wi-06",
+        "issuedAt": "2026-10-08T02:10:07.524Z",
+        "expiresAt": "2026-10-08T02:25:07.524Z"
       },
       {
         "action": "block",
         "confidence": 0.95,
         "pattern": "repeated-path-traversal",
         "alertId": "wi-07",
-        "issuedAt": "2026-10-08T02:04:28.743Z",
-        "expiresAt": "2026-10-08T02:19:28.743Z"
+        "issuedAt": "2026-10-08T02:10:07.524Z",
+        "expiresAt": "2026-10-08T02:25:07.524Z"
       },
       {
         "action": "block",
         "confidence": 0.95,
         "pattern": "sql-injection",
         "alertId": "wi-08",
-        "issuedAt": "2026-10-08T02:04:28.743Z",
-        "expiresAt": "2026-10-08T02:19:28.743Z"
+        "issuedAt": "2026-10-08T02:10:07.524Z",
+        "expiresAt": "2026-10-08T02:25:07.524Z"
       }
     ],
     "rules": []

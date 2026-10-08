@@ -31,5 +31,16 @@
     },
     "finding": "반복된 상위 경로 이동 표기를 찾는다. 단순히 긴 주소를 경로 이탈로 추정하지 않으며 MITRE가 정하지 않은 횟수 임계값을 공식 기준으로 제시하지 않는다.",
     "evidence": "MITRE ATT&CK T1190에는 디렉터리 순회 취약점 악용 사례가 있고 OWASP는 ../를 이용한 상위 디렉터리 접근 형태를 설명한다: https://attack.mitre.org/techniques/T1190/ ; https://owasp.org/www-community/attacks/Path_Traversal"
+  },
+  {
+    "name": "repeated-command-injection",
+    "condition": {
+      "signal": "명령 구분자 표기가 명시된 연속 웹 요청",
+      "scope": "웹 요청 인자",
+      "match": "경보가 명령 구분자 표기의 연속·반복을 명시하고 횟수 8 이상, 규칙 수준 10 이상일 때 후보로 판정함.",
+      "exclude": "단일 구분자, 이름 검색 구분 문자, 반복 없음, 낮은 수준만으로 확정하지 않음."
+    },
+    "finding": "명령 구분자를 이용한 주입 형태의 반복 상관 경보를 인식함. 횟수와 수준은 이 과제의 보수적인 정책이며 MITRE 공식 임계값이나 실행 성공 증거가 아님.",
+    "evidence": "MITRE T1190의 공개 앱 악용 범위에서, OWASP Command Injection은 입력의 명령 구분자를 통한 추가 명령 실행 형태를 설명한다: https://attack.mitre.org/techniques/T1190/ ; https://owasp.org/www-community/attacks/Command_Injection"
   }
 ]
