@@ -76,27 +76,27 @@
     },
     {
       "alertId": "bf-13",
-      "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures"
+      "action": "block",
+      "confidence": 0.85,
+      "reason": "rapid-login-failures"
     },
     {
       "alertId": "bf-14",
-      "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures"
+      "action": "block",
+      "confidence": 0.85,
+      "reason": "rapid-login-failures"
     },
     {
       "alertId": "bf-15",
-      "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures"
+      "action": "block",
+      "confidence": 0.85,
+      "reason": "rapid-login-failures"
     },
     {
       "alertId": "bf-16",
-      "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures"
+      "action": "block",
+      "confidence": 0.85,
+      "reason": "rapid-login-failures"
     },
     {
       "alertId": "bf-17",
@@ -106,15 +106,15 @@
     },
     {
       "alertId": "bf-18",
-      "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures"
+      "action": "block",
+      "confidence": 0.85,
+      "reason": "rapid-login-failures"
     },
     {
       "alertId": "bf-19",
-      "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures"
+      "action": "block",
+      "confidence": 0.85,
+      "reason": "rapid-login-failures"
     },
     {
       "alertId": "bf-20",
@@ -172,8 +172,8 @@
     }
   ],
   "counts": {
-    "block": 10,
-    "alert": 6,
+    "block": 16,
+    "alert": 0,
     "record": 12
   },
   "validation": {
@@ -247,6 +247,42 @@
         "alertId": "bf-10",
         "source": "203.0.113.40",
         "expiresAt": "2026-09-27T06:55:01.000Z"
+      },
+      {
+        "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-13",
+        "source": "203.0.113.50",
+        "expiresAt": "2026-09-27T01:17:20.000Z"
+      },
+      {
+        "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-14",
+        "source": "192.0.2.51",
+        "expiresAt": "2026-09-27T01:30:08.000Z"
+      },
+      {
+        "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-15",
+        "source": "198.51.100.51",
+        "expiresAt": "2026-09-27T01:43:44.000Z"
+      },
+      {
+        "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-16",
+        "source": "203.0.113.51",
+        "expiresAt": "2026-09-27T02:33:03.000Z"
+      },
+      {
+        "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-18",
+        "source": "198.51.100.52",
+        "expiresAt": "2026-09-27T05:20:27.000Z"
+      },
+      {
+        "ruleId": "xdr.brute-force.deny",
+        "alertId": "bf-19",
+        "source": "203.0.113.52",
+        "expiresAt": "2026-09-27T06:27:09.000Z"
       }
     ],
     "checks": [
@@ -313,22 +349,22 @@
       {
         "alertId": "bf-13",
         "decision": "deny",
-        "dynamicDeny": false
+        "dynamicDeny": true
       },
       {
         "alertId": "bf-14",
         "decision": "deny",
-        "dynamicDeny": false
+        "dynamicDeny": true
       },
       {
         "alertId": "bf-15",
         "decision": "deny",
-        "dynamicDeny": false
+        "dynamicDeny": true
       },
       {
         "alertId": "bf-16",
         "decision": "deny",
-        "dynamicDeny": false
+        "dynamicDeny": true
       },
       {
         "alertId": "bf-17",
@@ -338,12 +374,12 @@
       {
         "alertId": "bf-18",
         "decision": "deny",
-        "dynamicDeny": false
+        "dynamicDeny": true
       },
       {
         "alertId": "bf-19",
         "decision": "deny",
-        "dynamicDeny": false
+        "dynamicDeny": true
       },
       {
         "alertId": "bf-20",

@@ -4,7 +4,7 @@ import { extractAlert } from './read-alerts.mjs';
 import { askJev } from './jev.mjs';
 
 const patterns = JSON.parse(await readFile(new URL('./patterns.json', import.meta.url), 'utf8'));
-const signals = new Set(['rapid-login-failures', 'password-spraying', 'normal-event', 'ambiguous-failures']);
+const signals = new Set(['rapid-login-failures', 'password-spraying', 'normal-event', 'ambiguous-failures', 'repeated-login-failures-policy']);
 function summaryOf(alert) {
   if (alert?.rule) return extractAlert(alert);
   // Accept the five-field output of readAlerts without re-extracting it as Wazuh.
@@ -25,9 +25,10 @@ export async function decide(alert) {
   const summary = summaryOf(alert);
   if (summary.description === 'normal-event') return response(0.1, 'normal-event');
   const matched = patterns.find(p => summary.source && summary.timestamp
-    && summary.description === p.condition.description
+    && (summary.description === p.condition.description || p.condition.alternativeDescriptions?.includes(summary.description))
     && (p.condition.minimumLevel === 0 || (Number.isInteger(summary.level) && summary.level >= p.condition.minimumLevel)));
-  if (matched) return response(matched.condition.confidence, matched.name);
+  if (matched) return response(summary.description === matched.condition.description
+    ? matched.condition.confidence : matched.condition.alternativeConfidence, matched.name);
   try {
     const confidence = await askJev(summary);
     if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) throw new Error('Invalid confidence');

@@ -45,6 +45,15 @@ export function extractAlert(alert) {
       && Number.isInteger(failuresTotal) && failuresTotal >= 30
       && Number.isInteger(windowSeconds) && windowSeconds > 0 && windowSeconds <= 180
       && alert?.data?.same_source === true) description = 'rapid-login-failures';
+  // Explicitly requested stricter policy for low-volume unresolved failures.
+  // This is an operational threshold, not proof that the event is an attack.
+  const unresolvedCount = count * (/두 계정.*건씩/.test(raw) ? 2 : 1);
+  if (description === 'ambiguous-failures' && Number.isInteger(alert?.rule?.level)
+      && alert.rule.level >= 5 && alert.rule.level <= 8
+      && unresolvedCount >= 3 && unresolvedCount <= 8
+      && (!minutes || Number(minutes[1]) <= 10) && !/성공/.test(raw)) {
+    description = 'repeated-login-failures-policy';
+  }
   const time = Date.parse(alert?.timestamp);
   return {
     timestamp: Number.isFinite(time) ? new Date(time).toISOString() : null,

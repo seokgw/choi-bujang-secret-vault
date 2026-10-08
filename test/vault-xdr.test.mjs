@@ -60,7 +60,7 @@ test('actual notes handler uses the server setting; invalid optional setting pre
   }
 });
 
-test('28 fixture alerts replay through the notes API: 10 blocked, 6 ambiguous allowed, 12 normal allowed', async () => {
+test('28 fixture alerts replay through the notes API: 16 policy blocks, 12 normal allowed', async () => {
   const fixture = JSON.parse(await readFile(new URL('../xdr/fixtures/brute-force.json', import.meta.url)));
   const decisions = [];
   for (const a of fixture.alerts) decisions.push({ alertId: a.id, ...await decide(a) });
@@ -78,6 +78,6 @@ test('28 fixture alerts replay through the notes API: 10 blocked, 6 ambiguous al
     assert.equal(res.code, decisions[i].action === 'block' ? 403 : 200);
     counts[res.code === 403 ? 'blocked' : decisions[i].action === 'alert' ? 'ambiguousAllowed' : 'normalAllowed']++;
   }
-  assert.deepEqual(counts, { blocked: 10, ambiguousAllowed: 6, normalAllowed: 12 });
-  assert.equal(document.rules.length, 10);
+  assert.deepEqual(counts, { blocked: 16, ambiguousAllowed: 0, normalAllowed: 12 });
+  assert.equal(document.rules.length, 16);
 });

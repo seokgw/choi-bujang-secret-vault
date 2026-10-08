@@ -13,7 +13,7 @@ assert(patterns.every(p => p.name && p.finding && p.condition && p.evidence && !
 const extracted = await readAlerts();
 assert.equal(extracted.length, fixture.alerts.length);
 assert(extracted.every(a => Object.keys(a).length === 5));
-const blocks = new Set(['bf-01', 'bf-02', 'bf-03', 'bf-04', 'bf-05', 'bf-06', 'bf-07', 'bf-08', 'bf-09', 'bf-10']);
+const blocks = new Set(['bf-01', 'bf-02', 'bf-03', 'bf-04', 'bf-05', 'bf-06', 'bf-07', 'bf-08', 'bf-09', 'bf-10', 'bf-13', 'bf-14', 'bf-15', 'bf-16', 'bf-18', 'bf-19']);
 const recovered = new Set(['bf-11', 'bf-12', 'bf-17']);
 const decisions = [];
 for (const alert of fixture.alerts) {
@@ -23,7 +23,7 @@ for (const alert of fixture.alerts) {
   decisions.push({ alertId: alert.id, ...d });
   assert.deepEqual(await decide(extractAlert(alert)), d);
 }
-const ambiguous = fixture.alerts[12];
+const ambiguous = { ...fixture.alerts[12], rule: { level: 5, description: '로그인 실패 2건입니다.' } };
 for (const adapter of [async () => { throw new Error(); }, async () => NaN,
   async () => -0.1, async () => 1.1, () => new Promise(() => {})]) {
   configureJev(adapter);
@@ -51,7 +51,8 @@ for (const description of ['로그인 실패 29건이 이어졌습니다.',
 }
 assert.equal((await decide({ ...fixture.alerts[0], rule: { level: 6,
   description: '로그인 실패 40건이 이어졌습니다.' } })).action, 'block');
-for (const description of ['로그인 실패 7건 뒤에 성공했습니다.', '로그인 실패 4건입니다.',
+assert.equal((await decide({ ...fixture.alerts[10], rule: { level: 6, description: '로그인 실패 4건입니다.' } })).action, 'block');
+for (const description of ['로그인 실패 7건 뒤에 성공했습니다.',
   '여러 계정에 로그인 실패 4건 뒤에 성공했습니다.']) {
   const event = { ...fixture.alerts[10], rule: { level: 6, description } };
   assert.equal((await decide(event)).action, 'alert');
@@ -76,4 +77,4 @@ for (const a of extracted.filter(a => a.description === 'normal-event')) {
   const request = fixtureRequests().normal;
   assert.deepEqual(await decideWithDenyRules(request, { trustedSource: a.source, rules, now: Date.parse(a.timestamp) }), await baseline(request));
 }
-console.log(`PASS: alerts ${extracted.length}, evidence ${patterns.length}, block ${blocks.size}, alert 6, record 12; normal XDR blocks 0; repeated-failure/recovered-login boundaries, Jev failure/timeout and expiry tested. ZTNA baseline still denies normals.`);
+console.log(`PASS: alerts ${extracted.length}, evidence ${patterns.length}, block ${blocks.size}, alert 0, record 12; fixture normal XDR blocks 0; stricter unresolved-failure policy, recovered-login boundaries, Jev failure/timeout and expiry tested. ZTNA baseline still denies normals.`);
