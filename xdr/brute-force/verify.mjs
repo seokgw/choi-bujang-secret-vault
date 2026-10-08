@@ -50,7 +50,7 @@ for (const description of ['로그인 실패 29건이 이어졌습니다.',
   assert.equal((await decide({ ...fixture.alerts[0], rule: { level: 12, description } })).action, 'alert');
 }
 assert.equal((await decide({ ...fixture.alerts[0], rule: { level: 6,
-  description: '로그인 실패 40건이 이어졌습니다.' } })).action, 'alert');
+  description: '로그인 실패 40건이 이어졌습니다.' } })).action, 'block');
 for (const description of ['로그인 실패 7건 뒤에 성공했습니다.', '로그인 실패 4건입니다.',
   '여러 계정에 로그인 실패 4건 뒤에 성공했습니다.']) {
   const event = { ...fixture.alerts[10], rule: { level: 6, description } };

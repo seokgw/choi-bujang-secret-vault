@@ -2,6 +2,10 @@
 
 ## 보너스 xdr-01 저장점
 
+2026-10-08 탐지 강화 저장점: Wazuh 공식 SSH 상관 경보 5712·5720을 기존 반복 실패 패턴의 추가 인식 조건으로 지원한다. 규칙 번호뿐 아니라 디코더·실패 그룹·MITRE 태그·설명·수준을 함께 검증한다. 일반 경보는 명확한 대량 실패·동일 비밀번호 근거가 있으면 수준 9 이하에서도 block한다. 알려진 문구·MITRE 태그가 없는 구조화 집계는 data.event_type=login_failure/authentication_failed, failure_count>=30, window_seconds=1~180, same_source=true를 모두 요구한다. 이 필드가 없는 이벤트의 값을 추정하지 않으며 firedtimes를 실패 횟수로 사용하지 않는다. 수준만 높은 이벤트는 block하지 않는다. 원본 28건의 집계는 block 10 / alert 6 / record 12, 정상 XDR block 0이다. Jev 키 미설정과 실제 운영 차단 미확인 상태는 그대로다.
+
+재실행: `npm run xdr:run -- brute-force`. 경계 검증: `node xdr/brute-force/vendor-rules-test.mjs`와 `node xdr/brute-force/verify.mjs`. 공개 화면에서 집계 JSON 확인을 누른다. 명확한 추가 공격 신호는 block, 실패 횟수 부족·긴 시간·다른 출처·성공 이벤트는 추가 규칙으로 차단하지 않아야 한다. 기존 판정기 규칙·로그인 발급자·step 5·실제 배포 주소·12개 허용 경로·원본 API 주소·judgeIssuer를 보존했다.
+
 2026-10-08 최종 저장점: 임시 경로의 공식 npm 도구로 `npm run xdr:run -- brute-force`를 다시 실행해 result.json을 갱신했다. counts는 block 10 / alert 6 / record 12이며 정상 XDR block은 0건이다. 실제 Jev 키는 미설정이므로 애매한 6건은 오류 대체 alert이며 실제 AI 추론 성공으로 표시하지 않는다. `decide`는 원본 경보와 readAlerts의 추출 결과를 모두 처리한다. 정상 이벤트는 record, 명확한 공격은 block이 기대 결과다. 공개 화면에서는 집계 JSON 확인을 누른다. 기존 판정기·원본 경보·설정은 이번 단계에서 변경하지 않았다.
 
 현재 보조 판단은 실제 TypeSafe Jev API 연동이다. 서버 환경의 `TYPESAFE_API_KEY`만 사용하며 키를 코드·브라우저·로그에 넣지 않는다. 키 미설정·타임아웃·오류·잘못된 확신도는 alert다. 실제 추론 성공은 키 설정 후 별도 확인해야 하며 미설정 실행을 AI 성공으로 보고하지 않는다.

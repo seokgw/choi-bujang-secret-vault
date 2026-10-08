@@ -25,7 +25,8 @@ export async function decide(alert) {
   const summary = summaryOf(alert);
   if (summary.description === 'normal-event') return response(0.1, 'normal-event');
   const matched = patterns.find(p => summary.source && summary.timestamp
-    && summary.description === p.condition.description && summary.level >= p.condition.minimumLevel);
+    && summary.description === p.condition.description
+    && (p.condition.minimumLevel === 0 || (Number.isInteger(summary.level) && summary.level >= p.condition.minimumLevel)));
   if (matched) return response(matched.condition.confidence, matched.name);
   try {
     const confidence = await askJev(summary);
