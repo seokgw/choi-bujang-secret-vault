@@ -2,6 +2,10 @@
 
 ## 보너스 xdr-01 저장점
 
+2026-10-08 자료실 API 차단 연결: `api/notes.js`는 인증으로 검증한 identity에 대해 `src/vault-xdr.mjs`를 호출한다. 목록·상세의 모든 메서드에서 유효한 사용자 연결 block 규칙은 DB 접근 전에 403으로 거부하며 기존 인증·Origin·소유권 검사는 유지한다. 서버 전용 `VAULT_XDR_DENY_RULES_JSON` 설정을 읽고 없거나 잘못되면 기존 정책으로 처리한다. 규칙에는 발급 시각, 최대 15분 만료, 근거 alertId, 패턴, confidence, 발급자와 검증된 사용자 ID의 SHA-256 가명 연결이 필수다. 요청 본문·IP·가상 계정 이름으로 사용자 연결을 추정하지 않는다. `createVaultDenyRules(decisions, bindings)`는 서버에서 확인한 일대일 경보-사용자 연결을 받아 block 후보만 생성한다. 실제 사용자 ID·연결 자료는 Git/로그/공개 화면에 넣지 않고 운영자가 공식 서버 설정 화면에서 규칙을 등록한다. 실제 연결 정보가 없어 운영 대상 등록은 보류하며 활성 차단 성공으로 표시하지 않는다.
+
+실행: `node --test test/vault-xdr.test.mjs test/r5.test.mjs test/package-starter.test.mjs test/xdr-policy.test.mjs`. 27건 통과. 실제 notes 핸들러의 가상 인증·DB를 사용해 28경보를 재생한 결과 차단 후보 10건 403, 애매한 6건과 정상 12건 200이며 만료·다른 사용자·동일 IP·본문 위조·누락된 연결도 검증했다. 이는 배포에서 실제 사용자로 실행한 시험과 구분한다. 자료실 화면에서 정상 로그인 후 자기 자료 목록을 열면 기존 동작이 유지되어야 하며, 운영자가 유효한 차단 규칙을 등록한 대상의 API 요청은 403이어야 한다. 별도 `src/decider.mjs`의 기본 거부는 이 자료실 경로와 분리돼 있다.
+
 2026-10-08 최종 판정 수정: `decide(alert)`는 먼저 로컬 패턴을 비교하고 애매한 경보만 `jev.mjs`의 로컬 판단 정책으로 넘긴다. 유효한 확신도는 그대로 반환하며 0.85 이상 block, 0.5 이상 alert, 그 아래 record다. 오류·미응답·범위 밖 응답은 confidence 0.5의 alert다. reason은 한 줄 패턴 이름이다. 재실행 명령은 `node scripts/xdr-run.mjs brute-force`이며 공개 화면에서 집계 JSON 확인을 누른다. 명확한 공격 10건 block, 애매한 6건 alert, 정상 12건 record가 로컬 기대 결과다. 실제 서비스 AI 호출·심판 통과·운영 ZTNA 연동을 의미하지 않는다.
 
 2026-10-08 보조 판단 변경: `jev.mjs`는 외부 서비스 없이 실행되는 로컬 정책이다. 명확한 공격과 정상 이벤트는 기존 패턴으로 처리하고, 애매한 경보는 수준에 따른 0.5~0.7 정책 점수로 alert를 유지한다. 점수는 보정된 확률이나 실제 Jev 응답이 아니다. 실행: `node scripts/xdr-run.mjs brute-force`. 공개 화면의 집계 JSON 확인을 눌러 결과를 본다. 명확한 공격은 block, 정상 이벤트는 record가 기대 결과이며 기존 ZTNA의 기본 거부는 보존한다.

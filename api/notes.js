@@ -1,14 +1,16 @@
 import { serverSettings, verifyRequest, safeOrigin, bodyObject,
   jsonHeaders } from '../src/vault-server.mjs';
+import { activeVaultDeny } from '../src/vault-xdr.mjs';
 
 // Every query binds ownership to the identity verified by verify-login.mjs.
 export function createNotesHandler({ verify = verifyRequest, settings = serverSettings,
-  fetcher = (...args) => fetch(...args), detailRoute = false } = {}) {
+  fetcher = (...args) => fetch(...args), detailRoute = false, deny = activeVaultDeny } = {}) {
   return async function handler(request, response) {
     jsonHeaders(response);
     try {
       const identity = await verify(request);
       if (!identity) return response.status(401).json({ error: 'unauthorized' });
+      if (await deny(identity)) return response.status(403).json({ error: 'forbidden' });
       const methods = detailRoute ? ['GET', 'PUT', 'PATCH', 'DELETE'] : ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
       if (!methods.includes(request.method)) {
         response.setHeader('Allow', methods.join(', '));
