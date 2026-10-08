@@ -30,7 +30,7 @@
       "alertId": "bf-05",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama review"
+      "reason": "ambiguous-failures: ollama unavailable"
     },
     {
       "alertId": "bf-06",
@@ -42,13 +42,13 @@
       "alertId": "bf-07",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama review"
+      "reason": "ambiguous-failures: ollama unavailable"
     },
     {
       "alertId": "bf-08",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama review"
+      "reason": "ambiguous-failures: ollama unavailable"
     },
     {
       "alertId": "bf-09",
@@ -60,61 +60,61 @@
       "alertId": "bf-10",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama review"
+      "reason": "ambiguous-failures: ollama unavailable"
     },
     {
       "alertId": "bf-11",
-      "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama review"
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "normal-event"
     },
     {
       "alertId": "bf-12",
-      "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama review"
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "normal-event"
     },
     {
       "alertId": "bf-13",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama review"
+      "reason": "ambiguous-failures: ollama unavailable"
     },
     {
       "alertId": "bf-14",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama review"
+      "reason": "ambiguous-failures: ollama unavailable"
     },
     {
       "alertId": "bf-15",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama review"
+      "reason": "ambiguous-failures: ollama unavailable"
     },
     {
       "alertId": "bf-16",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama review"
+      "reason": "ambiguous-failures: ollama unavailable"
     },
     {
       "alertId": "bf-17",
-      "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama review"
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "normal-event"
     },
     {
       "alertId": "bf-18",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama review"
+      "reason": "ambiguous-failures: ollama unavailable"
     },
     {
       "alertId": "bf-19",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: ollama review"
+      "reason": "ambiguous-failures: ollama unavailable"
     },
     {
       "alertId": "bf-20",
@@ -173,14 +173,14 @@
   ],
   "counts": {
     "block": 6,
-    "alert": 13,
-    "record": 9
+    "alert": 10,
+    "record": 12
   },
   "validation": {
     "rawCount": 28,
     "extractedCount": 28,
     "normalBlocked": 0,
-    "normalZtnaDenied": 9,
+    "normalZtnaDenied": 12,
     "productionConnected": false,
     "jevConfigured": false,
     "aiProvider": "ollama"

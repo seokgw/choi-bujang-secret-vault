@@ -12,7 +12,12 @@ export function extractAlert(alert) {
   else if (count >= 30 && minutes && Number(minutes[1]) <= 3) description = 'rapid-login-failures';
   else if (/실패/.test(raw)) description = 'ambiguous-failures';
   else if (/성공|로그아웃|세션 유지|로그인 상태|자료실 화면/.test(raw)) description = 'normal-event';
-  if (count === 1 && /뒤에 성공/.test(raw)) description = 'normal-event';
+  // A small corrected login is recorded, rather than escalated as an attack.
+  // Success alone never overrides high-volume or spraying evidence.
+  if (description === 'ambiguous-failures' && count >= 1 && count <= 6
+      && Number.isInteger(alert?.rule?.level) && alert.rule.level <= 7
+      && /뒤(?:에)?\s*성공/.test(raw)
+      && !/여러 계정|서로 다른 계정|계정 이름을 바꿔|같은 비밀번호/.test(raw)) description = 'normal-event';
   const time = Date.parse(alert?.timestamp);
   return {
     timestamp: Number.isFinite(time) ? new Date(time).toISOString() : null,
