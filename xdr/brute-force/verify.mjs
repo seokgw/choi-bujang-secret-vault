@@ -23,10 +23,19 @@ for (const alert of fixture.alerts) {
   decisions.push({ alertId: alert.id, ...d });
 }
 const ambiguous = fixture.alerts[12];
-for (const adapter of [async () => { throw new Error(); }, async () => NaN, async () => 0.99,
-  async () => 0.01, () => new Promise(() => {})]) {
+for (const adapter of [async () => { throw new Error(); }, async () => NaN,
+  async () => -0.1, async () => 1.1, () => new Promise(() => {})]) {
   configureJev(adapter);
   assert.equal((await decide(ambiguous)).action, 'alert');
+}
+for (const [confidence, action] of [[0, 'record'], [0.49, 'record'], [0.5, 'alert'],
+  [0.84, 'alert'], [0.85, 'block'], [1, 'block']]) {
+  configureJev(async () => confidence);
+  const out = await decide(ambiguous);
+  assert.equal(out.action, action);
+  assert.equal(out.confidence, confidence);
+  assert.deepEqual(Object.keys(out).sort(), ['action', 'confidence', 'reason']);
+  assert(!/[\r\n]/.test(out.reason));
 }
 let calls = 0;
 configureJev(async () => { calls++; return 0.6; });

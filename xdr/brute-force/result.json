@@ -78,25 +78,25 @@
       "alertId": "bf-13",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: unconfigured unavailable"
+      "reason": "ambiguous-failures"
     },
     {
       "alertId": "bf-14",
       "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures: unconfigured unavailable"
+      "confidence": 0.525,
+      "reason": "ambiguous-failures"
     },
     {
       "alertId": "bf-15",
       "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures: unconfigured unavailable"
+      "confidence": 0.55,
+      "reason": "ambiguous-failures"
     },
     {
       "alertId": "bf-16",
       "action": "alert",
       "confidence": 0.5,
-      "reason": "ambiguous-failures: unconfigured unavailable"
+      "reason": "ambiguous-failures"
     },
     {
       "alertId": "bf-17",
@@ -107,14 +107,14 @@
     {
       "alertId": "bf-18",
       "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures: unconfigured unavailable"
+      "confidence": 0.575,
+      "reason": "ambiguous-failures"
     },
     {
       "alertId": "bf-19",
       "action": "alert",
-      "confidence": 0.5,
-      "reason": "ambiguous-failures: unconfigured unavailable"
+      "confidence": 0.525,
+      "reason": "ambiguous-failures"
     },
     {
       "alertId": "bf-20",
@@ -182,8 +182,8 @@
     "normalBlocked": 0,
     "normalZtnaDenied": 12,
     "productionConnected": false,
-    "jevConfigured": false,
-    "aiProvider": "unconfigured"
+    "jevConfigured": true,
+    "aiProvider": "local-policy"
   },
   "ztna": {
     "scope": "fixture replay with trusted source; existing starter denies all requests",
