@@ -58,86 +58,30 @@ export async function runAttackChecks(config) {
       }
       results.push({ attackId, expected, observed });
     }
-    if (config.step >= 6) {
-      const { normal } = fixtureRequests();
-      const missing = { ...normal };
-      delete missing.deviceRegistered;
-      for (const [attackId, request, decision, reasonCode] of [
-        ['registered_device_local', normal, 'allow', 'approved'],
-        ['unregistered_device_local', { ...normal, deviceRegistered: false }, 'deny', 'device_not_registered'],
-        ['missing_device_registration_local', missing, 'deny', 'device_not_registered'],
-      ]) {
-        const result = await decide(request);
-        results.push({ attackId, expected: `가상 요청 연습: ${decision} / ${reasonCode}`,
-          observed: `로컬 decide 호출: ${result.decision} / ${result.reasonCode}; ${result.decision === decision && result.reasonCode === reasonCode ? '일치' : '불일치'}; 실제 심판 판정 아님` });
-      }
-      results.push({ attackId: 'unregistered_device_judge',
-        expected: '실제 미등록 기기 공격은 심판이 담당',
-        observed: '미실행; 학생의 실제 미등록 기기 공격·심판 판정은 확인하지 않음' });
-      results.push({ attackId: 'registered_device_live',
-        expected: '등록 기기로 로그인 후 자기 자료실 읽기',
-        observed: '미실행; 6단계 실제 등록 기기 접속·운영 연결은 확인하지 않음' });
+    // The judge correlates every submitted attackId with a real request log.
+    // Local fixtures and planned exercises are not HTTP evidence.
+    const planned = [
+      ['registered_device_local', '등록 기기의 정상 요청 허용'],
+      ['unregistered_device_local', '미등록 기기 거부'],
+      ['missing_device_registration_local', '기기 등록 정보 없는 요청 거부'],
+      ['registered_device_live', '등록 기기의 실제 자료 접근'],
+      ['normal_access_local', '정상 접근 허용'],
+      ['combined_risk_local', '복합 위험의 추가 인증'],
+      ['verified_step_up_local', '검증된 추가 인증 후 허용'],
+      ['resource_zone_live', '본인 메모 허용과 타인 메모·공지 변경 거부'],
+      ['burst_read_detection_local', '가상 대량 조회 탐지'],
+      ['verified_policy_restore_live', '검증 사본으로 정책 복원'],
+      ['verified_single_note_restore_live', '검증 사본으로 단건 복원'],
+      ['stage1_to_9_after_restore_live', '복구 후 정상·금지 요청 확인'],
+      ['pwa_device_approval_live', '승인 기기 정상 허용과 미승인 거부'],
+      ['total_assault_41_live', '41종 공격 전체 방어']
+    ];
+    for (const [attackId, expected] of planned) {
+      results.push({ attackId, expected, observed: 'not_run' });
     }
-    if (config.step >= 7) {
-      const { normal, suspicious } = fixtureRequests();
-      for (const [attackId, request, expected] of [
-        ['normal_access_local', normal, 'allow'],
-        ['combined_risk_local', suspicious, 'step_up'],
-        ['verified_step_up_local', { ...suspicious, stepUp: { verified: true, authAgeSeconds: 60 } }, 'allow'],
-      ]) {
-        const result = await decide(request);
-        results.push({ attackId, expected: `가상 요청 연습: ${expected}`,
-          observed: `로컬 decide: ${result.decision} / ${result.reasonCode}; ${result.decision === expected ? '일치' : '불일치'}; 실제 재로그인·심판 판정 아님` });
-      }
-      results.push({ attackId: 'relogin_gate_live', expected: '같은 주체의 새 로그인 검증 후 요청 재판정',
-        observed: '미실행; 제공 엔진의 동일 주체·새 로그인 시각 전달 연결 미확인으로 실제 자료 차단·재허용을 시험하지 않음' });
-    }
-    if (config.step >= 8) {
-      results.push({ attackId: 'resource_zone_live', expected: '자기 메모 허용·타인 메모 거부·학생 공지 수정 거부',
-        observed: '미실행; 실제 계정·저장 강사 권한을 사용한 HTTP 실측 없음. 비로그인 HTTP 점검·API 모의 시험·DB 롤백 시험과 구분' });
-    }
-    if (config.step >= 9) {
-      const checks = await checkDetection(detect);
-      const passed = checks.filter(item => item.passed).length;
-      results.push({
-        attackId: 'burst_read_detection_local',
-        expected: '가상 사건 6개: 정상·경계값·분리·분산 observe, 폭주 121·200건 propose_revocation',
-        observed: `탐지 연습 ${passed}/${checks.length}개 통과; 실제 회수·심판 판정 아님`
-      });
-      results.push({
-        attackId: 'verified_device_revocation_live',
-        expected: '확인된 가상 기기 1개에만 회수 제안, 정상 기기는 유지',
-        observed: '미실행; 엔진 검증 기기 바인딩 및 실제 회수·시간 측정 연결 없음'
-      });
-    }
-    if (config.step >= 10) {
-      results.push({ attackId: 'verified_policy_restore_live',
-        expected: '검증된 사본으로 notes 정책만 복원; 다른 서비스 및 감사 기록 보존',
-        observed: '미실행; 시험 정책 사본·사전 신뢰 해시·실행 승인 확인 없음' });
-      results.push({ attackId: 'verified_single_note_restore_live',
-        expected: 'B 가상 메모 한 건의 ID·소유자·본문 SHA-256 일치',
-        observed: '미실행; 서버 검증 사본과 격리 시험 저장소 미연결; 기본 503' });
-      results.push({ attackId: 'stage1_to_9_after_restore_live',
-        expected: '복구 후 정상 요청 유지, 타인 메모·미등록 기기·학생 공지 변경 거부',
-        observed: '미실행; 복구 후 실제 HTTP 및 운영 심판 회귀 시험 미수행' });
-    }
-    if (config.step >= 11) {
-      results.push({ attackId: 'pwa_device_approval_live',
-        expected: '승인 전 보호 자료 거부, 승인된 기기만 기존 정책 통과',
-        observed: '미실행; 등록·기기 증명 제공자가 미연결이어서 기본 미승인 처리' });
-    }
-    if (config.step >= 12) results.push({
-      attackId: 'total_assault_41_live',
-      expected: '41종 공격 방어와 정상 요청 허용을 실제 서버 기록으로 검증',
-      observed: '미실행; 41종 총공세 실제 결과와 서버 요청 ID 기록 없음'
-    });
-    // Bundle accepts at most 20 records. Omit only three redundant
-    // unexecuted legacy placeholders; never label them as successful.
-    return results.filter(item => ![
-      'unregistered_device_judge',
-      'relogin_gate_live',
-      'verified_device_revocation_live'
-    ].includes(item.attackId));
+    // Keep only the six actual HTTP attempts plus the fourteen explicit
+    // unexecuted scenarios. No local result is misrepresented as server proof.
+    return results;
   }
   const response = await fetch(new URL('/data.json', app), {
     redirect: 'error', signal: AbortSignal.timeout(10000),
