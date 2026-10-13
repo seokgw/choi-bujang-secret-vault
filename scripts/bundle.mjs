@@ -90,9 +90,9 @@ try {
   const bundle = {
     schema: 'aleph.defense.submission.v2', step: config.step, commit, repoUrl,
     changedFiles, policyRules,
-    attackAttempts, explanation: notes.explanation.trim(), blockedAt: notes.blockedAt ?? null,
-    identityProvider: config.identityProvider ?? null, allowedRoutes: config.allowedRoutes ?? [],
-    originalApiUrl: config.originalApiUrl ?? null, restoreRoute: config.restoreRoute ?? null,
+    attackAttempts, explanation: notes.explanation.trim(), blockedAt: notes.blockedAt ?? 'not_run',
+    identityProvider: config.identityProvider ?? 'not_run', allowedRoutes: config.allowedRoutes ?? [],
+    originalApiUrl: config.originalApiUrl ?? 'not_run', restoreRoute: config.restoreRoute ?? 'not_run',
   };
   if (secretPattern.test(JSON.stringify(bundle))) fail('제출 묶음에 비밀값 또는 연락처로 보이는 내용이 있습니다.');
   mkdirSync(join(root, 'artifacts'), { recursive: true });
