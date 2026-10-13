@@ -10,7 +10,8 @@ export async function decide(request) {
   const xdrRuleId = 'xdr.brute-force.deny';
   const starterRuleId = 'starter.deny';
   const xdr = typeof activeDeny === 'function' ? await activeDeny(request) : null;
-  if (request.deviceRegistered !== true) {
+  const deviceRegistered = request.deviceRegistered === true;
+  if (!deviceRegistered) {
     return {
       schema: 'aleph.decision.v1',
       requestId: request.requestId,
@@ -19,7 +20,7 @@ export async function decide(request) {
       ruleIds: xdr ? ['device_registered', xdrRuleId] : ['device_registered'],
     };
   }
-  if (!xdr && request.method === 'GET'
+  if (deviceRegistered && !xdr && request.method === 'GET'
       && ['GET /notes', 'GET /notes/:id', 'GET /api/notes', 'GET /api/notes/:id'].includes(request.route)) {
     return {
       schema: 'aleph.decision.v1',

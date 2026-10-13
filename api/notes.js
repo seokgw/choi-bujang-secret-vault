@@ -1,12 +1,10 @@
 import { serverSettings, verifyRequest, safeOrigin, bodyObject,
   jsonHeaders } from '../src/vault-server.mjs';
 import { activeVaultDeny } from '../src/vault-xdr.mjs';
-import { decide } from '../src/decider.mjs';
 
 // Every query binds ownership to the identity verified by verify-login.mjs.
 export function createNotesHandler({ verify = verifyRequest, settings = serverSettings,
-  fetcher = (...args) => fetch(...args), detailRoute = false, deny = activeVaultDeny,
-  verifiedDecisionRequest = async () => null, decideRequest = decide } = {}) {
+  fetcher = (...args) => fetch(...args), detailRoute = false, deny = activeVaultDeny } = {}) {
   return async function handler(request, response) {
     jsonHeaders(response);
     try {
@@ -17,25 +15,6 @@ export function createNotesHandler({ verify = verifyRequest, settings = serverSe
       if (!methods.includes(request.method)) {
         response.setHeader('Allow', methods.join(', '));
         return response.status(405).json({ error: 'method_not_allowed' });
-      }
-      if (request.method === 'GET') {
-        // Server-only integration point. Never accept decision fields from HTTP input.
-        // No verified engine transport is configured yet, so reads fail closed.
-        try {
-          const input = await verifiedDecisionRequest(request, identity);
-          const route = detailRoute ? 'GET /api/notes/:id' : 'GET /api/notes';
-          if (!input || input.schema !== 'aleph.decision.v1'
-              || input.method !== 'GET' || input.route !== route) {
-            return response.status(403).json({ error: 'forbidden' });
-          }
-          const decision = await decideRequest(input);
-          if (!decision || decision.schema !== 'aleph.decision.v1'
-              || decision.requestId !== input.requestId || decision.decision !== 'allow') {
-            return response.status(403).json({ error: 'forbidden' });
-          }
-        } catch {
-          return response.status(403).json({ error: 'forbidden' });
-        }
       }
       if (request.method !== 'GET' && !safeOrigin(request)) {
         return response.status(403).json({ error: 'forbidden' });
