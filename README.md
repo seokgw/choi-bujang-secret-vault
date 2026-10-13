@@ -17,6 +17,26 @@
 - 시험 저장소의 `restoreOne`은 단일 ID와 소유자를 원자적으로 제한하고, 다른 메모·감사 기록은 변경하지 않아야 한다. 현재 로컬 모의 시험에서 이 계약을 검증하며 실제 계정 B 자료 복원 실측은 미완료다.
 - 재현 명령: `node --test test/restore-note-api.test.mjs`. 정상 가상 B의 지정 메모 복원은 200, 잘못된 해시·A 계정·사본 미연결은 거부가 기대값이다. 배포와 심판 검증은 별도다.
 
+## 10단계 · 복구 후 1~9단계 회귀 점검 순서 (전부 미실행)
+
+이 표는 **실행 순서와 기대 결과**이며 완료 기록이 아니다. 정책 사본이나 메모 사본이 검증되지 않았거나 실제 복원이 수행되지 않았다면, 복원 후 실측으로 표시하지 않는다. 가상 모의 시험과 배포 HTTP/운영 심판 시험을 별도로 기록한다. 모든 검사는 승인된 시험 환경·가상 계정 A/B에서만 수행하며 토큰·실명·메모 본문·기기 개인키는 증거에 넣지 않는다.
+
+| 순서/대상 단계 | 실행 절차·명령 (npm 불필요) | 정상·금지 요청 / 확인할 증거 | 현재 상태 |
+| --- | --- | --- | --- |
+| 0. 기준점·복원 전 | 침해 이전에 **별도 보관한** SHA-256으로 정책 사본 검증 후 `node scripts/preview-policy-restore.mjs --snapshot <검증된_사본> --trial <시험_정책> --trusted-sha256 <사전_신뢰_해시>` 실행 | 복원할 버전과 변경 경로 표시; 사본 없음·해시 불일치 시 중단. 사전 신뢰 해시를 사본에서 즉석 생성해 승인 근거로 삼지 않음 | **미실행** |
+| 1. 시험 정책 선택 복원 | `node scripts/restore-trial-policy.mjs --snapshot <검증된_사본> --trial artifacts/stage10-trial/<시험_정책>.json --trusted-sha256 <사전_신뢰_해시> --service notes` 미리보기 후, 명시된 `approval`로 `--apply --confirm <approval>` 재실행 | `notes` 소유자 제한 정책만 정상화; 다른 서비스 정책·감사 항목은 전후 비교로 동일해야 함 | **미실행** |
+| 2. B 가상 메모 단건 복원 | `node --test test/restore-note-api.test.mjs`로 로컬 모의 검사 후, 검증 사본 공급자·격리 시험 저장소가 **별도로 연결된 경우에만** 시험 B 인증으로 `POST /api/restore-note`에 `{"id":<대상_ID>}` 전송 | 응답·복원된 한 건의 ID, 검증된 B 소유자 UUID, 내용 SHA-256이 사본과 일치해야 함; 다른 메모·감사 기록의 건수와 해시 불변 | **미실행** · 실환경 공급자 미연결(기본 503) |
+| 3. 1~2단계 공개 자료 노출 | 배포 전후 `/`, `/data.json`, `/aleph.json`을 브라우저 Network에서 확인 | 첫 화면 정상, 공개 메모 파일은 404 또는 내용 없는 빈 자료, 복원된 비공개 본문·비밀값 유출 없음; X-Content-Type-Options: nosniff | **미실행** |
+| 4. 3~5단계 로그인·메모 소유권·원본 API | `node --test test/stage3.test.mjs test/stage4.test.mjs test/r5.test.mjs test/note-owner-precheck.test.mjs` (로컬); 배포에서 시험 계정 A/B의 본인 메모 GET/수정, B→A ID 직접 GET/PUT/PATCH/DELETE, 비로그인 GET을 분리 확인 | 본인 요청은 정상 처리, 타인 ID는 404, 비로그인은 401, 클라이언트의 owner_id/role 위조는 권한 불변, 원본 DB 직접 권한 회수 유지 | **미실행** |
+| 5. 6단계 기기 판정 | `node scripts/decider-test.mjs`, `node --test test/decider-portable.test.mjs` | 등록·허용 범위의 정상 **단건** 메모 요청은 allow, 미등록/누락 기기 또는 알 수 없는 경로는 deny. 이전 목록 GET 허용을 기대하는 구형 테스트와 현재 계약은 구분 | **미실행** |
+| 6. 7단계 복합 위험 재확인 | `node scripts/fixture-7.mjs` | 정상 사건 allow, 가상 복합 이상 사건 step_up, 엔진 검증 재확인 사건 allow; 실제 재로그인/심판 동작은 별도 확인 | **미실행** |
+| 7. 8단계 구역·공지 통제 | `node --test test/notices-api.test.mjs test/resources.test.mjs`; 판정기 `decide` 계약 및 API 실제 소유권 검사는 각각 구분해 확인 | 타인 메모 거부, 일반 학생 공지 수정 거부, 정확한 단건 메모 경로만 허용 대상, 잘못된 경로·export 거부. 판정기 단독으로 DB 소유권을 검증했다고 기록하지 않음 | **미실행** |
+| 8. 9단계 탐지·회수 제안 | `node scripts/detect-test.mjs`, `node --test test/revocation-proposal.test.mjs` | 정상 30건·경계 120건 및 서로 다른 사용자 100건씩은 observe; 같은 사용자 10분 내 121건 이상은 `propose_revocation / burst_read`; 미검증 기기에는 제안하지 않음 | **미실행** |
+| 9. 복원 무결성·감사 최종 대조 | 검증된 사본의 복원 대상 ID·소유자·본문 SHA-256을 **본문 출력 없이** 재대조하고, 다른 메모·서비스 정책·감사 기록의 사전/사후 건수·해시를 비교 | 복원 대상만 일치하고 그 외 상태 불변. 한 항목이라도 실패하면 전체 통과로 표시하지 않고 첫 실패부터 조사 | **미실행** |
+
+**현재 제약:** `api/restore-note.js`의 기본 제공자는 사본과 시험 저장소가 미연결이어서 실제 POST 복구는 기본 503이다. 위의 정책 파일 복원도 격리된 `artifacts/stage10-trial/`에만 적용된다. 따라서 이 절차만 작성한 것으로 운영 DB·운영 정책이 복구되었다고 볼 수 없다. 모의 시험을 수행했다면 명령·시각·커밋 SHA·통과/실패·가상 시험 여부를 기록하고, 배포 HTTP 실측과 심판 평가는 각각 별도 상태로 남긴다.
+
+
 ## 이전 단계 기록 (당시 상태이며 현재 코드와 다를 수 있음)
 
 ## 현재 기준 (2026-10-13 · 9단계 시작 전)
