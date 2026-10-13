@@ -11,12 +11,10 @@ export function createOperationsHandler({ verify = verifyRequest, deviceCheck = 
     try {
       const identity = await verify(req);
       if (!identity?.userId) return res.status(401).json({ error: 'unauthorized' });
-      let deviceStatus = 'not_run';
-      let approved = false;
-      try {
-        approved = await deviceCheck(req, identity) === true;
-        deviceStatus = 'api_verified';
-      } catch { /* No evidence is not approval. */ }
+      // Approval lookup is not a persisted, request-ID-correlated test log.
+      // Do not count it as verified operational evidence.
+      const deviceStatus = 'not_run';
+      const approved = false;
       return res.status(200).json({
         schema: 'aleph.operations.summary.v1',
         policy: { status: 'code_inventory', count: null, rules: [...RULE_IDS], verifiedCount: null },
