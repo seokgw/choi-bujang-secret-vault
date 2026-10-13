@@ -1,5 +1,7 @@
 # BYTE BACK 자료실 · 8단계 저장점
 
+8단계 배포 후속 확인: GitHub main 반영과 공개 aleph.json의 step 8·저장점 커밋·17개 경로를 확인했다. 첫 화면 200, data.json 404, 메모·공지 목록/상세 비로그인 GET 및 공지 PATCH는 401/unauthorized다. role=instructor 위조에도 자료가 없고 자원 ID·login_required 헤더를 확인했다. 아래 미배포 문장은 배포 전 이력이며 실제 계정의 강사 수정·타인 구역 API 실측과 판정기 구역 규칙은 여전히 미실행/미구현이다.
+
 현재 8단계: 메모·공지 자원 ID를 notes/notes:숫자, notices/notices:숫자로 구분한다. 메모 API는 검증된 사용자와 저장된 owner_id를 다시 대조하고 타인 자료를 반환하지 않는다. 공지 API는 GET /api/notices, GET·PUT·PATCH /api/notices/:id를 제공하며 수정은 DB의 앱·발급자·사용자에 묶인 instructor 권한으로 확인한다. 클라이언트 role·메뉴는 권한 근거로 쓰지 않고 쿼리는 공지 자료 ID만 선택한다. export 기능 경로·화면 메뉴는 추가하지 않았다. 짧은 거부 사유는 X-Aleph-Denial-Reason 응답 헤더로 남긴다.
 
 DB의 resource_roles·training_notices와 권한 검사 함수는 실제 적용했다. 가상 DB 롤백 시험은 학생·다른 앱·다른 발급자 거부와 강사 허용을 확인했다. 실제 강사 지정·공지는 0건, 기존 메모는 5건이다. 8단계 코드 배포와 실제 계정 HTTP 구역 권한 시험은 미실행이다. 판정기의 device_registered·step_up_required 두 규칙은 유지하며 소유자·강사 권한 전달 계약이 없어 판정기 구역 규칙은 아직 구현하지 않았다. 7단계는 사용자 통과 확인 및 배포 완료이며 아래 미배포 문장은 당시 저장점 이력이다.

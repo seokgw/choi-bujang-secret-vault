@@ -92,7 +92,7 @@ export async function runAttackChecks(config) {
     }
     if (config.step >= 8) {
       results.push({ attackId: 'resource_zone_live', expected: '자기 메모 허용·타인 메모 거부·학생 공지 수정 거부',
-        observed: '미실행; 8단계 API는 미배포이며 실제 계정·저장 강사 권한을 사용한 HTTP 실측 없음. API 모의 시험과 DB 롤백 시험은 별도 확인' });
+        observed: '미실행; 실제 계정·저장 강사 권한을 사용한 HTTP 실측 없음. 비로그인 HTTP 점검·API 모의 시험·DB 롤백 시험과 구분' });
     }
     return results;
   }
