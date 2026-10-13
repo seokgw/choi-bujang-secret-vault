@@ -28,8 +28,10 @@ export async function observePublicChecks(config, { fetcher = fetch,
           && body && Object.keys(body).length === 1 && ['unauthorized','forbidden'].includes(body.error)
         : response.status === 200 && body?.schema === 'aleph.defense.deployment.v1'
           && body.step === config.step && /^[a-f0-9]{40}$/u.test(body.commit ?? '');
-      observed = JSON.stringify({ source:'direct_http', requestId, checkedAt,
-        httpStatus:response.status, responseValid:Boolean(responseValid), judgeCorrelated:false });
+      // A direct response has no matching persisted server/judge record.
+      // Do not promote it to a submitted observed result.
+      // The request remains an uncorrelated probe, not an executed attack check.
+      observed = 'not_run';
     } catch { /* No response means not_run, not an inferred denial or pass. */ }
     results.push({attackId, expected, observed});
   }
