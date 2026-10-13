@@ -27,7 +27,10 @@
     "GET /api/session",
     "POST /api/session",
     "DELETE /api/session",
-    "POST /api/restore-note"
+    "POST /api/restore-note",
+    "GET /api/device-approval",
+    "POST /api/device-approval",
+    "GET /api/device-status"
   ],
   "originalApiUrl": "https://icvjlbkcyrqquoqhabdy.supabase.co/rest/v1/training_notes",
   "restoreRoute": "POST /api/restore-note"
