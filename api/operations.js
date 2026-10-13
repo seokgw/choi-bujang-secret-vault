@@ -70,20 +70,30 @@ export function createOperationsHandler({ verify = verifyRequest, evidenceSource
       // Storage failures never produce fabricated counts.
       let decisionAudits = null;
       try { decisionAudits = await readDecisionAudit(); } catch { decisionAudits = null; }
-      const policyAudit = decisionAudits === null ? {status:'not_run',total:null,records:[]} :
+      const policyAudit = decisionAudits === null ? {status:'not_run',total:missing,records:[]} :
         {status:'server_audit',total:decisionAudits.length,records:decisionAudits};
       const httpObserved = rows.filter(x => x.status === 'http_unverified' && Number.isInteger(x.httpStatus)).length;
       const serverCorrelated = rows.filter(x => x.status === 'api_observed' && x.judgeCorrelated === true).length;
+      // Render a non-null, explicit status for every unavailable value.
+      // No missing outcome is counted as success, zero incidents, or a judge pass.
+      const missing = 'not_run';
+      const presentRows = rows.map(row => ({
+        ...row,
+        requestId: row.requestId ?? missing,
+        checkedAt: row.checkedAt ?? missing,
+        httpStatus: row.httpStatus ?? missing,
+        matched: row.matched ?? missing
+      }));
       return res.status(200).json({
         schema: 'aleph.operations.summary.v1',
-        policy: { status: 'code_inventory', count: null, rules: [...RULE_IDS], verifiedCount: null, audit: policyAudit },
+        policy: { status: 'code_inventory', count: missing, rules: [...RULE_IDS], verifiedCount: missing, audit: policyAudit },
         http: { status: httpObserved > 0 ? 'http_unverified' : 'not_run',
-          observed: httpObserved, serverCorrelated, records: rows },
-        detection: { status: 'not_run', count: null },
-        revocation: { status: 'not_run', count: null },
-        recovery: { status: 'not_run', version: null, count: null },
+          observed: httpObserved, serverCorrelated, records: presentRows },
+        detection: { status: 'not_run', count: missing },
+        revocation: { status: 'not_run', count: missing },
+        recovery: { status: 'not_run', version: missing, count: missing },
         device: { status: 'not_run', approved: false },
-        assault: { status: 'not_run', total: 41, defended: null }
+        assault: { status: 'not_run', total: 41, defended: missing }
       });
     } catch { return res.status(503).json({ error: 'evidence_unavailable' }); }
   };
