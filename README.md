@@ -1,5 +1,29 @@
 # BYTE BACK 자료실 · 11단계 저장점
 
+## 재현 운영 안내 · 기준 커밋 2bd3933 (12단계 문서 작업)
+
+### 출처와 책임 범위
+
+- **제공 엔진:** 판정 요청을 검증해 전달하는 **ALEPH SDP 엔진**은 교육 운영 측의 제공 구성요소다. 엔진 자체나 운영 심판, 실제 기기 등록 엔진을 학생이 제작한 것으로 표시하지 않는다.
+- **학생 구현:** `src/decider.mjs`의 판정 규칙 5개와 `src/detect.mjs`의 가상 사건 탐지, `src/revocation-proposal.mjs`의 회수 **제안**, `public/index.html`·`public/app.js`·`public/manifest.webmanifest`의 접속 PWA, `api/`의 자료실 접근·소유권 검사 및 10단계 시험 복원 코드.
+- **검증 한계:** 회수 실제 집행, 운영 탐지 로그 공급자, 검증된 복구 저장소, 기기 등록·증명 제공자는 현재 미연결이다. 41종 총공세와 복구 후 운영 회귀 시험을 통과했다고 주장하지 않는다. 서버 기기 검증은 기본적으로 미승인이므로 정상 사용도 차단될 수 있다.
+
+### 설치와 실행 순서
+
+1. 검증 기준 확인: `git log -1 --oneline` 및 `git status --short`. 이 문서의 최초 확인 기준은 `2bd393393da87385893d93c29dba68764775f9cb`이며, 이후 문서 커밋은 별도다.
+2. Node.js **22 이상**에서 프로젝트 루트의 `npm ci`로 의존성을 설치한다. npm을 사용할 수 없다면 이미 설치된 의존성 범위에서만 아래 `node` 명령을 실행한다. 비밀번호·API 비밀키는 Git·README·제출 JSON에 넣지 않고 승인된 배포 환경의 비밀 설정에서만 관리한다.
+3. 로컬 확인: `node --test test/device-status.test.mjs test/device-approval.test.mjs`, `node scripts/decider-test.mjs`, `node scripts/detect-test.mjs`. 이 명령은 학생 코드/가상 자료 시험이지 **ALEPH SDP 운영 엔진 통과 증명은 아니다**.
+4. 공개 정적 파일 생성: `node scripts/build-public.mjs --local`. 배포 빌드는 `vercel.json`의 `npm run build`를 통해 서버 환경 변수와 배포 메타데이터가 유효할 때 수행한다. 배포 확인은 `aleph.config.json`의 `publicAppUrl`에서 하며, 배포되었다고 가정하지 않는다.
+5. HTTPS 화면에서 로그인 → 기기 승인 요청 → 서버 승인 상태 재확인. 미승인 기기의 메모·공지 API는 **403 거부가 기대값**이다. 등록 기기 제공자가 연결되고 서버가 증명한 후에만 정상 자료실 열림과 소유자별 허용을 실측한다. 요청 ID·HTTP 상태·확인 시각을 기록하고 응답 본문·토큰은 증거에서 제외한다.
+
+### 중지 및 복구
+
+- 로컬 실행 프로세스는 실행한 터미널에서 `Ctrl+C`로 중지한다. Vercel 운영 배포는 별도 로컬 프로세스가 아니므로 제공자 콘솔에서 배포/프로젝트 관리 절차를 따른다. 앱을 끄는 것과 서버 측 세션·기기를 회수하는 것은 별개다.
+- 복구 전에 `git status --short`, `git diff`, `git log -1 --oneline`을 확인하고 영향을 받는 파일을 기록한다. `git reset --hard`는 사용하지 않고 검증된 커밋에서 필요한 파일만 선택 복원한다. 다른 작업과 운영 DB는 보존한다.
+- 정책 복구 연습: 별도 보관된 **사전 신뢰 SHA-256**이 있을 때에만 `node scripts/preview-policy-restore.mjs --snapshot <사본경로> --trial <시험정책경로> --trusted-sha256 <사전기록해시>`로 미리보기한다. 불일치 시 중단하며 현재 복구 코드는 운영 정책·실제 DB를 자동 복원하지 않는다.
+- 복구 후 정상 허용·금지 거부·타인 소유 메모·감사 기록을 **실제 HTTP/서버 근거**로 재검증한다. 확인 전에는 `미실행`으로 유지한다.
+- 저장점 제출은 Git 작업 상태가 깨끗하고 로컬 비추적 `bundle-notes.json`이 준비된 환경에서 `node scripts/bundle.mjs`을 실행한다. `bundle-notes.json`, `artifacts/submission.json`, 실제 메모 본문, 키·토큰은 커밋하지 않는다.
+
 ## 11단계 현재 상태 (2026-10-13)
 
 - `aleph.config.json`은 step 11이며 기존 배포 주소·로그인/심판 발급자·원본 API 주소·10단계 복원 경로를 유지한다. 허용 경로 21개에는 기기 상태/승인 요청 경로 3개가 포함된다.
