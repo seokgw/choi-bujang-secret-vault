@@ -1,4 +1,17 @@
-# BYTE BACK 자료실 · 5단계 저장점
+# BYTE BACK 자료실 · 6단계 저장점
+
+## 6단계 등록 기기 판정 · 로컬 확인 순서
+
+1. 자료실 폴더의 터미널에서 `npm run decider:test`를 실행한다. 별도로 설치할 접속 프로그램은 없다.
+2. 출력의 `통과 · 등록 기기의 정상 요청`을 확인한다. 등록 값이 정확히 true인 정상 자료실 읽기 요청의 기대 결과는 allow / approved다.
+3. 출력의 `통과 · 미등록 기기의 가상 요청`을 확인한다. 이 시험은 deny / device_not_registered인지 함께 검사한다. 등록 값이 없거나 true가 아니어도 같은 이유로 거부한다.
+4. 화면 확인은 기존 자료실에서 로그인 후 자기 자료 목록을 연다. 로컬 판정 시험과 실제 접속 확인은 구분한다. 실제 미등록 기기 공격은 심판이 담당한다.
+
+2026-10-13 실제 로컬 확인: 현재 셸의 npm 실행 명령이 인식되지 않아 기존 임시 폴더의 npm을 사용했다. npm.cmd는 내부 모듈 경로 오류로 실패했고 같은 npm-cli.js를 Node로 직접 실행해 run decider:test를 완료했다. 두 가상 요청 모두 통과했으며 별도 함수 호출에서도 등록 요청 allow / approved, 미등록 요청 deny / device_not_registered를 확인했다. 새 프로그램이나 인증서·CA·서명 키를 설치·생성하지 않았다. 이 결과는 가상 요청 연습이며 실제 심판 판정·배포·운영 접속 성공의 증거가 아니다. 기존 XDR 거부는 유지하며 이전의 전부 거부를 기대하는 XDR 시험 두 항목은 새 허용 동작과 충돌하는 상태다.
+
+6단계 저장점에서는 step을 6으로 기록하고 빌드·배포 증명 생성기·자기 점검의 6단계 지원을 추가한다. 로그인·자기 메모 CRUD·정적 메모 제거·서버 API 집중과 XDR 보너스는 보존한다. RULE_IDS의 starter.deny, xdr.brute-force.deny, device_registered는 각각 나머지 요청 거부, 유효 XDR 거부, 등록 기기 읽기 분기에 대응한다. 기존 실제 배포 주소·로그인 issuer/audience/JWKS·12개 허용 경로·원본 API·judgeIssuer는 유지한다. 아래 1~5단계 및 보너스 기록은 당시의 이력이며 6단계 배포·심판 통과 기록이 아니다. 다시 실행은 `npm run decider:test`, 제출 JSON 생성은 저장점 커밋 후 `npm run bundle`이다. bundle의 로컬 가상 요청은 실제 HTTP 자기 점검과 구분하고 실제 기기 접속·미등록 공격은 미실행으로 남긴다.
+
+이번 저장점 준비 중 실제 실행: npm CLI의 run decider:test 두 가상 요청 통과, `node --test test/r5.test.mjs test/package-starter.test.mjs` 19건 통과, `node scripts/build-public.mjs --local` 성공. 정적 파일 준비만 확인했으며 서버 함수 실행·실제 배포 성공으로 기록하지 않는다. 커밋 대상 6개 파일의 비밀값·연락처 패턴 및 기존 전체 메모 본문 검색은 0건이었다. 배포 증명 요청은 응답을 확인하지 못했다. bundle-notes.json과 artifacts/submission.json은 Git에서 제외한다.
 
 ## 보너스 xdr-02 저장점
 

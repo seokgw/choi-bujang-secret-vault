@@ -1,7 +1,10 @@
 // The student changes this check as each stage adds an attack to the same app.
 // Never return tokens, private keys, real names, or note bodies.
+import { decide } from './decider.mjs';
+import { fixtureRequests } from '../scripts/fixture-7.mjs';
+
 export async function runAttackChecks(config) {
-  if (![1, 2, 3, 4, 5].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
+  if (![1, 2, 3, 4, 5, 6].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
   let app;
   try {
     app = new URL(config.publicAppUrl);
@@ -50,6 +53,26 @@ export async function runAttackChecks(config) {
         observed = '요청 시도했으나 응답을 확인하지 못함; 사용자 확인 필요';
       }
       results.push({ attackId, expected, observed });
+    }
+    if (config.step === 6) {
+      const { normal } = fixtureRequests();
+      const missing = { ...normal };
+      delete missing.deviceRegistered;
+      for (const [attackId, request, decision, reasonCode] of [
+        ['registered_device_local', normal, 'allow', 'approved'],
+        ['unregistered_device_local', { ...normal, deviceRegistered: false }, 'deny', 'device_not_registered'],
+        ['missing_device_registration_local', missing, 'deny', 'device_not_registered'],
+      ]) {
+        const result = await decide(request);
+        results.push({ attackId, expected: `가상 요청 연습: ${decision} / ${reasonCode}`,
+          observed: `로컬 decide 호출: ${result.decision} / ${result.reasonCode}; ${result.decision === decision && result.reasonCode === reasonCode ? '일치' : '불일치'}; 실제 심판 판정 아님` });
+      }
+      results.push({ attackId: 'unregistered_device_judge',
+        expected: '실제 미등록 기기 공격은 심판이 담당',
+        observed: '미실행; 학생의 실제 미등록 기기 공격·심판 판정은 확인하지 않음' });
+      results.push({ attackId: 'registered_device_live',
+        expected: '등록 기기로 로그인 후 자기 자료실 읽기',
+        observed: '미실행; 6단계 실제 등록 기기 접속·운영 연결은 확인하지 않음' });
     }
     return results;
   }
