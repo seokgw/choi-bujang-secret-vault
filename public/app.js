@@ -3,6 +3,35 @@ const workspace = document.querySelector('#workspace');
 const editor = document.querySelector('#editor');
 const list = document.querySelector('#notes');
 const status = document.querySelector('#status');
+const deviceApproval = document.querySelector('#device-approval');
+const offlineNotice = document.querySelector('#offline-notice');
+function updateConnectivity() {
+  offlineNotice.hidden = navigator.onLine;
+}
+window.addEventListener('online', updateConnectivity);
+window.addEventListener('offline', updateConnectivity);
+updateConnectivity();
+async function updateDeviceApproval() {
+  deviceApproval.textContent = '서버 승인 상태 확인 중';
+  try {
+    const response = await fetch('/api/device-status', {
+      credentials: 'same-origin', cache: 'no-store',
+      headers: { Accept: 'application/json' }
+    });
+    if (response.status === 401) {
+      deviceApproval.textContent = '로그인 필요 · 기기 승인되지 않음';
+      return;
+    }
+    if (!response.ok) throw new Error('status unavailable');
+    const data = await response.json();
+    // Trust a true approval only when a future server-side enrollment
+    // integration returns an explicitly verified state.
+    deviceApproval.textContent = data.deviceApproval === 'approved' && data.trusted === true
+      ? '서버에서 승인한 기기' : '서버 승인 미확인 · 기기 신뢰 불가';
+  } catch {
+    deviceApproval.textContent = '서버 확인 불가 · 기기 신뢰 불가';
+  }
+}
 let generation = 0;
 let editingId = null;
 function resetEditor() {
@@ -11,6 +40,7 @@ function resetEditor() {
   document.querySelector('#editor-heading').textContent = '메모 추가';
 }
 function loggedOut() {
+  deviceApproval.textContent = '로그인 필요 · 기기 승인되지 않음';
   generation++;
   workspace.hidden = true;
   login.hidden = false;
@@ -70,7 +100,7 @@ login.addEventListener('submit', async event => {
       email: login.elements.email.value.trim(), password: login.elements.password.value,
     }) });
     generation++; login.hidden = true; workspace.hidden = false;
-    await loadNotes(); status.textContent = '로그인했습니다.';
+    await loadNotes(); await updateDeviceApproval(); status.textContent = '로그인했습니다.';
   } catch (error) { status.textContent = error.message; }
   finally { login.elements.password.value = ''; button.disabled = false; }
 });
@@ -97,5 +127,5 @@ loggedOut();
 try {
   await request('/api/session');
   generation++; login.hidden = true; workspace.hidden = false;
-  await loadNotes(); status.textContent = '로그인 상태입니다.';
+  await loadNotes(); await updateDeviceApproval(); status.textContent = '로그인 상태입니다.';
 } catch (error) { status.textContent = error.message; }
