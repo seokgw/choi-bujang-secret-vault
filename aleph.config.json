@@ -30,7 +30,8 @@
     "POST /api/restore-note",
     "GET /api/device-approval",
     "POST /api/device-approval",
-    "GET /api/device-status"
+    "GET /api/device-status",
+    "GET /api/operations"
   ],
   "originalApiUrl": "https://icvjlbkcyrqquoqhabdy.supabase.co/rest/v1/training_notes",
   "restoreRoute": "POST /api/restore-note"
