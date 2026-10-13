@@ -1,5 +1,15 @@
 # BYTE BACK 자료실 · 12단계 저장점
 
+## 12단계 운영 판정 API 감사 기록 (DB 적용 필요)
+
+- 서버측 `POST /api/decider` 및 `POST /api/notes`의 `aleph.decision.v1` 판정 요청이 실행되면, 유효한 판정 결과만 `vault_api.decision_audit`에 기록하도록 구현했다. 요청 본문·메모·사용자/기기 식별자·인증 정보·IP는 저장하지 않으며 `request_id`, `evaluated_at`, `decision`, `reason_code`, `rule_ids`, 고정 출처만 저장한다.
+- 먼저 **실제 배포의 SUPABASE_URL에 연결된 Supabase 프로젝트**에서 `sql/decision-audit.sql`을 검토·실행한다. 다른 프로젝트에 임의 적용하면 안 된다. PostgREST가 `vault_api` 스키마를 노출하도록 기존 설정이 되어 있어야 한다.
+- DB 테이블·권한 점검 후 Vercel Production 환경변수 `DECISION_AUDIT_ENABLED=true`를 추가하고 **재배포**해야 기록이 켜진다. 기존 `SUPABASE_URL`·`SUPABASE_SECRET_KEY`를 브라우저나 GitHub에 공개하지 않는다.
+- 설정 전에는 응답 헤더 `X-Decision-Audit: not_configured`이고 저장되지 않는다. 켠 뒤 저장 성공 시 `X-Decision-Audit: persisted`; DB 오류가 나면 **503**으로 처리해 저장 실패를 정상 기록으로 둔갑시키지 않는다. 부하·권한·중복 요청 정책을 운영에 맞게 검토한다.
+- `GET /api/operations`은 인증된 요청에서 최근 최대 100건의 **가린 판정 감사 기록**을 추가 제공하고 `/operations.html`은 규칙별 감사 건수와 최근 요청 ID·시각·판정을 표시한다. 이 수치는 **최근 100건 기준**이며 전체 누적 건수가 아니다. DB 미연결 시 `not_run`.
+- **중요:** 이 두 판정 요청 경로는 가상/평가 입력용이며 실제 보호 API 접근 허가로 사용되지 않는다. 감사 DB 기록은 학생 판정기 API의 실제 응답 증거일 뿐, 검증된 기기 승인·메모 소유권·ALEPH 심판 41종 방어를 입증하지 않는다. `node --test test/decision-audit.test.mjs`은 모의 DB 테스트로 운영 실측이 아니다.
+
+
 ## 자동 Vercel 대조 (로컬 읽기 전용)
 
 - `git pull origin main` 이후 프로젝트 폴더에서 `node scripts/auto-compare-vercel.mjs` 실행. 연결된 Vercel CLI의 운영 요청 로그를 자동 조회하고 공개·비로그인 HTTP 세 경로만 점검한다. 원본 로그와 응답 본문·키·토큰을 파일에 저장하지 않는다.
