@@ -6,7 +6,7 @@ import { checkDetection } from '../scripts/detect-test.mjs';
 import { fixtureRequests } from '../scripts/fixture-7.mjs';
 
 export async function runAttackChecks(config) {
-  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
+  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
   let app;
   try {
     app = new URL(config.publicAppUrl);
@@ -120,6 +120,11 @@ export async function runAttackChecks(config) {
       results.push({ attackId: 'stage1_to_9_after_restore_live',
         expected: '복구 후 정상 요청 유지, 타인 메모·미등록 기기·학생 공지 변경 거부',
         observed: '미실행; 복구 후 실제 HTTP 및 운영 심판 회귀 시험 미수행' });
+    }
+    if (config.step >= 11) {
+      results.push({ attackId: 'pwa_device_approval_live',
+        expected: '승인 전 보호 자료 거부, 승인된 기기만 기존 정책 통과',
+        observed: '미실행; 등록·기기 증명 제공자가 미연결이어서 기본 미승인 처리' });
     }
     return results;
   }
