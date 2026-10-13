@@ -19,40 +19,13 @@ export async function runAttackChecks(config) {
   }
   if (typeof config.sampleMarker !== 'string' || !config.sampleMarker) throw new Error('가상 메모의 확인 표시를 넣어 주세요.');
   if (config.step >= 2) {
-    const checks = [
-      ['/data.json', 'static_note_removal', '공개 가상 메모 원본 제거'],
-      ['/api/notes', 'anonymous_note_rejection', '비로그인 메모 거부'],
-      ['/aleph.json', 'deployment_identity', '배포 식별 JSON 확인']
+    // A successful fetch does not prove a matching server-side attackId log.
+    // Without a server-correlated request record, report not_run.
+    const results = [
+      { attackId: 'static_note_removal', expected: '공개 가상 메모 원본 제거', observed: 'not_run' },
+      { attackId: 'anonymous_note_rejection', expected: '비로그인 메모 거부', observed: 'not_run' },
+      { attackId: 'deployment_identity', expected: '배포 식별 JSON 확인', observed: 'not_run' }
     ];
-    const results = [];
-    for (const [path, attackId, expected] of checks) {
-      let observed;
-      try {
-        const res = await fetch(new URL(path, app), {
-          redirect: 'error', signal: AbortSignal.timeout(10000),
-        });
-        if (path === '/') {
-          observed = `HTTP ${res.status}; nosniff ${res.headers.get('x-content-type-options') === 'nosniff' ? '확인' : '미확인'}`;
-        } else if (path === '/data.json' && res.status === 404) {
-          observed = 'HTTP 404 확인';
-        } else {
-          let data;
-          try { data = await res.json(); } catch { /* Only report shape/status. */ }
-          if (path === '/data.json') {
-            observed = `HTTP ${res.status}; 빈 notes 배열 ${Array.isArray(data?.notes) && data.notes.length === 0 ? '확인' : '미확인'}`;
-          } else if (path.startsWith('/api/notes') || path.startsWith('/api/notices')) {
-            observed = config.step >= 3
-              ? `비로그인 HTTP ${res.status}; JSON 오류 ${[401, 403].includes(res.status) && res.headers.get('content-type')?.includes('application/json') && data && Object.keys(data).length === 1 && ['unauthorized', 'forbidden'].includes(data.error) ? '확인' : '미확인'}`
-              : `인증 없는 직접 요청 HTTP ${res.status}; 메모 건수 ${Array.isArray(data?.notes) ? data.notes.length : '미확인'}`;
-          } else {
-            observed = `HTTP ${res.status}; ${config.step}단계 증명 ${data?.schema === 'aleph.defense.deployment.v1' && data.step === config.step ? '확인' : '미확인'}${config.step >= 5 ? `; 원본 주소 ${data?.originalApiUrl === config.originalApiUrl ? '확인' : '미확인'}` : ''}`;
-          }
-        }
-      } catch {
-        observed = '요청 시도했으나 응답을 확인하지 못함; 사용자 확인 필요';
-      }
-      results.push({ attackId, expected, observed });
-    }
     // The judge correlates every submitted attackId with a real request log.
     // Local fixtures and planned exercises are not HTTP evidence.
     const planned = [
