@@ -1,4 +1,15 @@
-# BYTE BACK 자료실 · 9단계 저장점
+# BYTE BACK 자료실 · 10단계 저장점
+
+## 10단계 현재 상태
+
+- 설정 단계: 10. 기존 공개 주소·발급자·원본 API·심판 접수 주소는 변경하지 않았다. `POST /api/restore-note`를 포함한 허용 경로는 18개다.
+- 검증된 정책 사본과 시험 정책의 차이 미리보기, 승인 후 notes 시험 정책만 복원하는 도구가 있다. 실제 운영 정책은 변경하지 않는다.
+- 단건 가상 메모 복원 경로는 사본 ID·소유자·내용 SHA-256 대조를 요구한다. 사본 공급자와 시험 저장소가 미연결이라 기본 503으로 거부한다.
+- 실제 사본을 사용한 복원, 복원 후 1~9단계 운영 HTTP 회귀 검사, 감사 로그 최종 대조, 심판 평가는 **미실행**이다. 아래에 작성된 실행 순서와 기대 결과를 성공 기록으로 간주하지 않는다.
+- 재실행: `node --test test/policy-restore-preview.test.mjs test/trial-policy-restore.test.mjs test/restore-note-api.test.mjs`, `node scripts/decider-test.mjs`, `node scripts/detect-test.mjs`.
+- 제출 생성: Git 저장점에서 `bundle-notes.json`을 비추적 파일로 준비한 뒤 `node scripts/bundle.mjs`; 결과 `artifacts/submission.json`은 커밋하지 않는다.
+
+## 기존 9단계 및 진행 이력 (작성 당시 상태)
 
 ## 현재 구현 (2026-10-13 · 9단계)
 
