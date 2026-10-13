@@ -19,7 +19,7 @@ export function createOperationsHandler({ verify = verifyRequest, deviceCheck = 
       } catch { /* No evidence is not approval. */ }
       return res.status(200).json({
         schema: 'aleph.operations.summary.v1',
-        policy: { status: 'code_inventory', count: RULE_IDS.length, rules: [...RULE_IDS] },
+        policy: { status: 'code_inventory', count: null, rules: [...RULE_IDS], verifiedCount: null },
         detection: { status: 'not_run', count: null },
         revocation: { status: 'not_run', count: null },
         recovery: { status: 'not_run', version: null, count: null },
