@@ -5,14 +5,18 @@ import { activeDeny, XDR_RULE_ID } from './xdr-policy.mjs';
 export const RULE_IDS = Object.freeze(['starter.deny', XDR_RULE_ID, 'device_registered']);
 
 export async function decide(request) {
-  const xdr = await activeDeny(request);
+  // 함수만 전달받는 실행 환경에는 서버의 파일 기반 XDR 조회가 없습니다.
+  // 모듈 실행에서는 기존 조회를 그대로 사용하고, 응답 상수는 함수 안에 둡니다.
+  const xdrRuleId = 'xdr.brute-force.deny';
+  const starterRuleId = 'starter.deny';
+  const xdr = typeof activeDeny === 'function' ? await activeDeny(request) : null;
   if (request.deviceRegistered !== true) {
     return {
       schema: 'aleph.decision.v1',
       requestId: request.requestId,
       decision: 'deny',
       reasonCode: 'device_not_registered',
-      ruleIds: xdr ? ['device_registered', XDR_RULE_ID] : ['device_registered'],
+      ruleIds: xdr ? ['device_registered', xdrRuleId] : ['device_registered'],
     };
   }
   if (!xdr && request.service === 'notes' && request.method === 'GET'
@@ -30,6 +34,6 @@ export async function decide(request) {
     requestId: request.requestId,
     decision: 'deny',
     reasonCode: 'starter_not_ready',
-    ruleIds: xdr ? [RULE_IDS[0], XDR_RULE_ID] : [RULE_IDS[0]],
+    ruleIds: xdr ? [starterRuleId, xdrRuleId] : [starterRuleId],
   };
 }
