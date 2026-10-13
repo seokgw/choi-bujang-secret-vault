@@ -28,10 +28,12 @@ export async function observePublicChecks(config, { fetcher = fetch,
           && body && Object.keys(body).length === 1 && ['unauthorized','forbidden'].includes(body.error)
         : response.status === 200 && body?.schema === 'aleph.defense.deployment.v1'
           && body.step === config.step && /^[a-f0-9]{40}$/u.test(body.commit ?? '');
-      // A direct response has no matching persisted server/judge record.
-      // Do not promote it to a submitted observed result.
-      // The request remains an uncorrelated probe, not an executed attack check.
-      observed = 'not_run';
+      // Describe only a real HTTP response, including failures, without asserting judge correlation.
+      // The checker only permits an attackId/expected/observed triplet in the submission.
+      observed = 'HTTP ' + response.status + ' · 응답 검증 ' +
+        (responseValid ? '일치' : '불일치') +
+        ' · 직접 HTTP 관측 · 서버 로그/심판 대조 미확인' +
+        ' · 요청 ID ' + requestId + ' · 확인 시각 ' + checkedAt;
     } catch { /* No response means not_run, not an inferred denial or pass. */ }
     results.push({attackId, expected, observed});
   }
