@@ -10,7 +10,7 @@ export function auditRecord(input, decision, { now = () => new Date().toISOStrin
       decision.ruleIds.some(id => !RULE_IDS.includes(id))) throw Error('invalid_decision_audit');
   return {request_id:input.requestId.toLowerCase(),evaluated_at:now(),
     decision:decision.decision,reason_code:decision.reasonCode,
-    rule_ids:decision.ruleIds,source:'api_decider_fixture'};
+    rule_ids:decision.ruleIds,source:'decision_fixture_api'};
 }
 export async function persistDecisionAudit(input, decision, {
   fetcher=fetch, settings=serverSettings, now=()=>new Date().toISOString()
