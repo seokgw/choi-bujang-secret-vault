@@ -28,12 +28,10 @@ export async function observePublicChecks(config, { fetcher = fetch,
           && body && Object.keys(body).length === 1 && ['unauthorized','forbidden'].includes(body.error)
         : response.status === 200 && body?.schema === 'aleph.defense.deployment.v1'
           && body.step === config.step && /^[a-f0-9]{40}$/u.test(body.commit ?? '');
-      // Describe only a real HTTP response, including failures, without asserting judge correlation.
-      // The checker only permits an attackId/expected/observed triplet in the submission.
-      observed = JSON.stringify({
-        httpStatus: response.status, responseValid: Boolean(responseValid),
-        requestId, checkedAt, judgeCorrelated: false
-      });
+      // Local HTTP response is not a judge-correlated attack execution.
+      // Do not place client-generated request IDs/statuses in submission.observed.
+      // Independent diagnostics belong in the operations/log comparison tools.
+      observed = 'not_run';
     } catch { /* No response means not_run, not an inferred denial or pass. */ }
     results.push({attackId, expected, observed});
   }
