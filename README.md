@@ -1,5 +1,13 @@
 # BYTE BACK 자료실 · 10단계 저장점
 
+## 11단계 진행 중 · 설치형 접속 화면과 기기 승인 상태
+
+- `public/manifest.webmanifest` 및 `public/icon.svg`로 BYTE BACK 설치형 접속 화면 정보를 제공한다. 브라우저 설치 메뉴 사용 외에 별도 프로그램은 설치하지 않는다.
+- `public/index.html`은 네트워크 오프라인 안내와 서버 확인 기반 기기 승인 상태를 표시한다. 비공개 자료의 서비스 워커/오프라인 캐시는 만들지 않았다.
+- `GET /api/device-status`는 인증된 사용자에게도 현재 `{ "deviceApproval": "unverified", "trusted": false }`만 반환한다. 비로그인은 401, 다른 HTTP 메서드는 405. **기기 승인 시스템은 아직 미구현이며 앱 설치만으로 승인되지 않는다.**
+- 기존 `/api/session`, `/api/notes`, `/api/notices`, `/api/decider`의 서버 권한 정책은 그대로이며, 상태 표시가 접근 허용 근거로 쓰이지 않는다.
+- 재현: `node --test test/device-status.test.mjs`; 브라우저에서 설치 안내와 온라인/오프라인 상태 및 로그인 전후 기기 상태를 확인. 실제 배포·기존 보호 API 정상/거부 HTTP 회귀 검사는 **미실행**.
+
 ## 10단계 현재 상태
 
 - 설정 단계: 10. 기존 공개 주소·발급자·원본 API·심판 접수 주소는 변경하지 않았다. `POST /api/restore-note`를 포함한 허용 경로는 18개다.
