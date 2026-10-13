@@ -2,6 +2,8 @@
 
 ## 6단계 등록 기기 판정 · 로컬 확인 순서
 
+2026-10-13 공개 배포 증명 보완: /aleph.json에 decider 항목을 추가한다. 빌드 시 실제 decide 함수를 true·false 가상 요청으로 호출해 규칙 목록, decision, reasonCode, ruleIds, 각 passed 및 실행 시각을 기록한다. sourcePath와 POST 호출 경로도 표시한다. 계정·기기 ID·메모·토큰·키는 출력하지 않는다. 기존 배포 증명 항목과 judgeIssuer는 유지한다. 배포 후 /aleph.json을 열어 decider.checks의 true → allow / approved, false → deny / device_not_registered와 decider.passed=true를 확인한다. 이는 사용자 요청으로 추가한 공개 실행 결과이며 심판이 이 추가 항목을 사용하는지 및 평가 통과는 평가 결과로 확인한다.
+
 HTTP 호출 첫 오류 보완: 로컬 시각이 운영 HTTP Date보다 약 14초 빨라 5초 제한으로 400이 발생함을 확인했다. 호출 스크립트가 서버 공개 Date 헤더를 기준으로 at을 생성하도록 수정했다. API의 시각 제한은 유지한다.
 
 2026-10-13 판정 HTTP 호출 추가: POST /api/notes에 schema=aleph.decision.v1의 계약 18개 항목을 보내면 서버가 실제 decide를 호출해 응답 5개 항목을 반환한다. true인 메모 읽기는 allow / approved, false는 deny / device_not_registered다. 등록 문자열·추가 항목·5초 넘은 시각은 400이다. 판정 응답은 DB 자료·토큰을 포함하지 않고 기존 메모 CRUD의 로그인·소유권 권한으로 사용하지 않는다. 기존 화면과 GET 조회는 유지한다. 실행 명령은 `node scripts/decider-http.mjs`다. 배포 주소로 두 HTTP POST를 실제 보내 결과와 응답 형식을 검사한다. 실제 등록 확인이나 운영 엔진의 출처 검증을 제공하는 API는 아니며 평가 통과는 평가 결과로만 확인한다.
