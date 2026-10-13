@@ -5,9 +5,9 @@ import { randomUUID } from 'node:crypto';
 import config from '../aleph.config.json' with { type: 'json' };
 
 const PROBES = [
-  {attackId:'static_note_removal',path:'/data.json',expected:[404]},
-  {attackId:'anonymous_note_rejection',path:'/api/notes',expected:[401,403]},
-  {attackId:'deployment_identity',path:'/aleph.json',expected:[200]}
+  {attackId:'static_note_removal',displayName:'공개 메모 파일 제거 확인',path:'/data.json',expected:[404]},
+  {attackId:'anonymous_note_rejection',displayName:'비로그인 메모 접근 차단',path:'/api/notes',expected:[401,403]},
+  {attackId:'deployment_identity',displayName:'배포 식별 정보 확인',path:'/aleph.json',expected:[200]}
 ];
 export function parseLogs(raw, host) {
   const rows=[];
@@ -27,7 +27,7 @@ export function reconcile(probes,logs) {
     const exact=logs.find(l=>l.id===p.vercelId && l.path===p.path
       && l.method==='GET' && l.status===p.httpStatus);
     // A URL/time/status similarity is not enough to establish request identity.
-    return {attackId:p.attackId,path:p.path,expected:p.expected,
+    return {attackId:p.attackId,displayName:p.displayName??p.attackId,path:p.path,expected:p.expected,
       httpStatus:p.httpStatus,observedAt:p.observedAt,
       evidence:exact?'vercel_id_matched':p.httpStatus===null?'not_run':'http_unverified',
       requestId:exact?.id??null,serverAt:exact?.at??null,
