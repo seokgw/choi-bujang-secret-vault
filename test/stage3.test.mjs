@@ -44,9 +44,11 @@ test('CRUD assigns verified owner and exposes only allowed fields', async () => 
     assert.deepEqual(res.body, method === 'DELETE' ? { deleted: true }
       : { notes: [{ id: 5, title: row.title, content: row.content }] });
   }
-  assert.deepEqual(JSON.parse(calls[1].init.body), { title: row.title, content: row.content, owner_id: userId });
-  assert.deepEqual(JSON.parse(calls[2].init.body), { title: row.title, content: row.content });
-  assert.equal(calls[2].url.searchParams.get('id'), 'eq.5');
+  const created = calls.find(call => call.init.method === 'POST');
+  const updated = calls.find(call => call.init.method === 'PATCH');
+  assert.deepEqual(JSON.parse(created.init.body), { title: row.title, content: row.content, owner_id: userId });
+  assert.deepEqual(JSON.parse(updated.init.body), { title: row.title, content: row.content });
+  assert.equal(updated.url.searchParams.get('id'), 'eq.5');
   assert.equal(calls[0].init.headers['Accept-Profile'], 'vault_api');
 });
 test('reject unsafe origin, invalid id/body, and hide upstream details', async () => {

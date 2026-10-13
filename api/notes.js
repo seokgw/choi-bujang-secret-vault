@@ -57,6 +57,22 @@ export function createNotesHandler({ verify = verifyRequest, settings = serverSe
         }
         endpoint.searchParams.set('id', `eq.${id}`);
       }
+      if (request.method === 'GET' && hasId) {
+        // Read only the stored owner before requesting any title/content.
+        // Keep the owner filter on the subsequent data query as a second check.
+        const ownerEndpoint = new URL(endpoint);
+        ownerEndpoint.searchParams.set('select', 'id,owner_id');
+        ownerEndpoint.searchParams.delete('owner_id');
+        const ownerResponse = await fetcher(ownerEndpoint, { method: 'GET', headers,
+          redirect: 'error', signal: AbortSignal.timeout(10000) });
+        if (!ownerResponse.ok) throw new Error();
+        const stored = await ownerResponse.json();
+        if (!Array.isArray(stored) || stored.length > 1) throw new Error();
+        if (!stored.length || stored[0]?.id !== Number(id)
+            || stored[0].owner_id !== identity.userId) {
+          return rejectApi(response, 404, 'not_found', 'resource_unavailable');
+        }
+      }
       if (['POST', 'PUT', 'PATCH'].includes(request.method)) {
         const body = bodyObject(request);
         if (!body || typeof body.title !== 'string' || !body.title.trim() || body.title.length > 200

@@ -14,8 +14,15 @@ function fixture(detailRoute = false) {
     settings: () => ({ key: 'test-only-placeholder', url: new URL('https://test.supabase.co') }),
     fetcher: async (url, init) => {
       const owner = url.searchParams.get('owner_id');
-      assert.ok([`eq.${a}`, `eq.${b}`].includes(owner));
       const id = url.searchParams.get('id');
+      if (owner === null) {
+        assert.equal(init.method, 'GET');
+        assert.equal(url.searchParams.get('select'), 'id,owner_id');
+        assert.ok(id);
+        return Response.json(rows.filter(row => `eq.${row.id}` === id)
+          .map(({ id, owner_id }) => ({ id, owner_id })));
+      }
+      assert.ok([`eq.${a}`, `eq.${b}`].includes(owner));
       const matches = rows.filter(row => `eq.${row.owner_id}` === owner && (!id || `eq.${row.id}` === id));
       if (init.method === 'POST') {
         const note = { id: nextId++, ...JSON.parse(init.body) }; rows.push(note); return Response.json([note]);
