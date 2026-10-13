@@ -1,5 +1,13 @@
 # BYTE BACK 자료실 · 12단계 저장점
 
+## 자동 Vercel 대조 (로컬 읽기 전용)
+
+- `git pull origin main` 이후 프로젝트 폴더에서 `node scripts/auto-compare-vercel.mjs` 실행. 연결된 Vercel CLI의 운영 요청 로그를 자동 조회하고 공개·비로그인 HTTP 세 경로만 점검한다. 원본 로그와 응답 본문·키·토큰을 파일에 저장하지 않는다.
+- `stage12-auto-compare.local.json`에 응답 상태와 가린 로그 ID·시각을 기록한다. 기존 파일이 있으면 덮어쓰지 않으니 보관 후 파일명을 변경해야 재실행할 수 있다. `node --test test/auto-compare-vercel.test.mjs`은 모의 입력 테스트다.
+- Vercel 로그의 `id`와 응답 헤더의 `x-vercel-id`는 보통 서로 다른 식별자일 수 있다. **경로·시간·상태만 비슷하다고 대조 완료 처리하지 않으며**, 실제 연결이 없으면 `http_unverified`이다. 별도 ALEPH 심판 로그와 41종 시험의 통과를 의미하지 않는다.
+- 이 도구는 운영 작전실의 서버 로그 자동 조회가 아니라 **PC에서 자동 실행하는 읽기 전용 대조**이다. 브라우저 보호 자료·로그인 요청을 대신 실행하거나 기기를 승인하지 않는다.
+
+
 ## 12단계 Vercel 서버 기록 수동 대조 (2026-10-13)
 
 - **학생 소스:** `scripts/compare-vercel-evidence.mjs`는 Vercel CLI로 내보낸 JSON Lines와, 브라우저 Network 탭에서 저장한 `GET /api/operations` JSON을 로컬에서 비교한다. Vercel의 실제 `id`가 작전실 `requestId`와 **완전히 같고**, 경로·메서드·HTTP 상태도 같을 때만 `vercel_id_matched`로 표시한다. **시각·경로가 가까운 기록은 결합하지 않는다.**
