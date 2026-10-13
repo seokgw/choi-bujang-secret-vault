@@ -6,7 +6,7 @@ create table if not exists vault_api.decision_audit (
   decision text not null check (decision in ('allow','deny','step_up')),
   reason_code text not null check (reason_code ~ '^[a-z][a-z0-9_]{0,63}$'),
   rule_ids jsonb not null check (jsonb_typeof(rule_ids) = 'array'),
-  source text not null check (source = 'api_decider_fixture')
+  source text not null check (source = 'decision_fixture_api')
 );
 revoke all on table vault_api.decision_audit from public, anon, authenticated;
 grant usage on schema vault_api to service_role;
