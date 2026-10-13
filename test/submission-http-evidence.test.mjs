@@ -17,9 +17,9 @@ test('submitted public checks retain real HTTP statuses and request IDs without 
     now:()=> '2026-10-13T09:00:00.000Z'
   });
   assert.deepEqual(results.map(r=>r.attackId),['static_note_removal','anonymous_note_rejection','deployment_identity']);
-  assert.deepEqual(results.map(r=>r.observed.includes('응답 검증 일치')),[true,true,true]);
-  assert.deepEqual(results.map(r=>r.observed.includes('심판 대조 미확인')),[true,true,true]);
-  assert.equal(results.every(r=>r.observed.includes('요청 ID')&&r.observed.includes('확인 시각')),true);
+  assert.deepEqual(results.map(r=>JSON.parse(r.observed).responseValid),[true,true,true]);
+  assert.deepEqual(results.map(r=>JSON.parse(r.observed).judgeCorrelated===false),[true,true,true]);
+  assert.equal(results.every(r=>JSON.parse(r.observed).requestId&&JSON.parse(r.observed).checkedAt),true);
   assert.equal(results.every(r=>Object.keys(r).sort().join(',')==='attackId,expected,observed'),true);
 });
 test('unexpected API response is recorded as mismatch rather than not_run or pass',async()=>{
@@ -28,5 +28,5 @@ test('unexpected API response is recorded as mismatch rather than not_run or pas
    makeId:()=> '44444444-4444-4444-8444-444444444444',
    now:()=> '2026-10-13T09:00:00.000Z'
  });
- assert.equal(results.every(r=>r.observed.includes('응답 검증 불일치')),true);
+ assert.equal(results.every(r=>JSON.parse(r.observed).responseValid===false),true);
 });
