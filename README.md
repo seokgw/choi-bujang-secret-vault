@@ -2,6 +2,8 @@
 
 ## 6단계 등록 기기 판정 · 로컬 확인 순서
 
+2026-10-13 사용자 승인 후 API 읽기 연결: api/notes.js의 공통 핸들러에 DB 조회 전 판정기 검사를 추가했다. verifiedDecisionRequest는 서버 코드에서만 주입하는 검증된 엔진 요청 제공 함수이며 HTTP 본문·헤더·쿼리의 기기 정보는 받지 않는다. 현재 운영 전달 계약은 없어 기본 제공 함수가 null을 반환한다. 따라서 로그인한 사용자와 심판 로그인 모두 목록·상세 GET에서 403 forbidden으로 차단된다. 검증된 요청이 없으면 decide를 호출하지 않으며, 완전한 신뢰 연결이 구현됐다는 뜻이 아니다. 등록 읽기 허용은 검증된 요청 제공 함수를 주입한 로컬 모의 시험에서만 확인했다. 기존 비로그인 401·XDR·소유권·쓰기·로그인 화면은 보존하며 정상 읽기 차단은 사용자가 명시적으로 승인한 임시 상태다. `node --test test/notes-decision.test.mjs test/decider-portable.test.mjs` 및 `npm run decider:test`로 확인한다. 배포 화면에서는 로그인 후 새로고침하면 읽기 거부가 나와야 한다. 이전의 정상 읽기 200을 기대하는 시험은 이 임시 정책과 충돌하며 심판 통과는 별도 평가가 필요하다.
+
 2026-10-13 경로 불일치 후속 수정: 현재 설정의 GET /api/notes 및 GET /api/notes/:id를 등록 기기 요청으로 보내도 기존 판정은 starter_not_ready로 거부됨을 재현했다. 허용 범위에 실제 메모 읽기 두 경로를 추가하고 계약에 고정값이 명시되지 않은 service='notes' 조건을 제거했다. 엔진이 확인한 route와 GET, 정확한 deviceRegistered=true 및 기존 XDR 거부 우선은 유지한다. 로컬 연습 경로도 보존한다. npm CLI의 run decider:test 2건과 `node --test test/decider-portable.test.mjs` 3건이 통과했다. 정상 실제 경로 읽기 허용, 미등록·누락·쓰기·세션·다른 경로 거부를 확인했다. 심판의 실제 요청 경로와 실패 원인 일치는 재시험이 필요하다.
 
 2026-10-13 첫 오류 S06_DEVICE_RULE_MISSING 후속 수정: 함수만 분리하면 외부 activeDeny 참조로 등록·미등록 모두 ReferenceError가 나는 것을 로컬에서 재현했다. src/decider.mjs는 XDR 조회가 제공될 때 기존 조회를 유지하고 함수 내부 응답 상수를 사용하도록 바꿨다. 함수만 실행하는 환경에는 서버 파일의 XDR 규칙 조회가 없으므로 해당 조회는 적용되지 않는다. 실제 모듈 실행의 XDR 거부는 보존했다. npm CLI의 run decider:test 2건과 `node --test test/decider-portable.test.mjs` 2건이 통과했다. 등록 읽기 허용, 미등록·누락·잘못된 값·쓰기 거부, XDR 조회가 제공된 경우 거부 우선을 확인했다. 심판의 실제 실행 방식과 오류 원인 일치는 재시험이 필요하며 심판 통과로 기록하지 않는다.
