@@ -5,7 +5,7 @@ import { decide, RULE_IDS } from '../src/decider.mjs';
 import { fixtureRequests } from '../scripts/fixture-7.mjs';
 
 test('module and function-only execution require exact true registration', async () => {
-  assert.deepEqual(RULE_IDS, ['device_registered']);
+  assert.deepEqual(RULE_IDS, ['device_registered', 'step_up_required']);
   for (const run of [decide, vm.runInNewContext(`(${decide.toString()})`)]) {
     const normal = fixtureRequests().normal;
     for (const value of [true, false, undefined, null, 'true', 1]) {

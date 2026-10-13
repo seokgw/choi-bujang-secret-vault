@@ -6,7 +6,7 @@ import { RULE_IDS } from '../src/decider.mjs';
 const root = resolve(import.meta.dirname, '..');
 const output = resolve(root, 'public', 'data.json');
 const config = JSON.parse(await readFile(resolve(root, 'aleph.config.json'), 'utf8'));
-if (![2, 3, 4, 5, 6].includes(config.step)) throw new Error('현재 빌드는 2·3·4·5·6단계 설정이 필요합니다.');
+if (![2, 3, 4, 5, 6, 7].includes(config.step)) throw new Error('현재 빌드는 2~7단계 설정이 필요합니다.');
 if (config.step >= 5) {
   const original = new URL(config.originalApiUrl);
   const issuer = new URL(config.identityProvider.issuer);

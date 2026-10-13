@@ -4,7 +4,7 @@ import { decide } from './decider.mjs';
 import { fixtureRequests } from '../scripts/fixture-7.mjs';
 
 export async function runAttackChecks(config) {
-  if (![1, 2, 3, 4, 5, 6].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
+  if (![1, 2, 3, 4, 5, 6, 7].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
   let app;
   try {
     app = new URL(config.publicAppUrl);
@@ -54,7 +54,7 @@ export async function runAttackChecks(config) {
       }
       results.push({ attackId, expected, observed });
     }
-    if (config.step === 6) {
+    if (config.step >= 6) {
       const { normal } = fixtureRequests();
       const missing = { ...normal };
       delete missing.deviceRegistered;
@@ -73,6 +73,20 @@ export async function runAttackChecks(config) {
       results.push({ attackId: 'registered_device_live',
         expected: '등록 기기로 로그인 후 자기 자료실 읽기',
         observed: '미실행; 6단계 실제 등록 기기 접속·운영 연결은 확인하지 않음' });
+    }
+    if (config.step === 7) {
+      const { normal, suspicious } = fixtureRequests();
+      for (const [attackId, request, expected] of [
+        ['normal_access_local', normal, 'allow'],
+        ['combined_risk_local', suspicious, 'step_up'],
+        ['verified_step_up_local', { ...suspicious, stepUp: { verified: true, authAgeSeconds: 60 } }, 'allow'],
+      ]) {
+        const result = await decide(request);
+        results.push({ attackId, expected: `가상 요청 연습: ${expected}`,
+          observed: `로컬 decide: ${result.decision} / ${result.reasonCode}; ${result.decision === expected ? '일치' : '불일치'}; 실제 재로그인·심판 판정 아님` });
+      }
+      results.push({ attackId: 'relogin_gate_live', expected: '같은 주체의 새 로그인 검증 후 요청 재판정',
+        observed: '미실행; 제공 엔진의 동일 주체·새 로그인 시각 전달 연결 미확인으로 실제 자료 차단·재허용을 시험하지 않음' });
     }
     return results;
   }

@@ -5,6 +5,17 @@ const decisionKeys = ['schema', 'requestId', 'classId', 'projectId', 'subjectId'
 export function decisionInput(body) {
   const keys = value => value && typeof value === 'object' && !Array.isArray(value)
     ? Object.keys(value).sort().join(',') : '';
+  // Validate contract provenance labels, not the HTTP caller's identity.
+  // judge_fixture is virtual evidence; none carries no region/network evidence.
+  // Never derive or fill these fields from client headers, IPs or local time.
+  const signals = body?.signals;
+  const validSignals = keys(signals) === 'hour,network,region,source'
+    && ['none', 'judge_fixture'].includes(signals.source)
+    && ['region', 'network'].every(key => typeof signals[key] === 'string'
+      && signals[key].trim().length > 0 && signals[key].length <= 512)
+    && (signals.source !== 'none'
+      || signals.region === 'unknown' && signals.network === 'unknown')
+    && Number.isInteger(signals.hour) && signals.hour >= 0 && signals.hour <= 23;
   return keys(body) === decisionKeys && body.schema === 'aleph.decision.v1'
     && ['requestId', 'classId', 'projectId', 'subjectId', 'service', 'method', 'path', 'route']
       .every(key => typeof body[key] === 'string' && body[key].length > 0 && body[key].length <= 512)
@@ -21,10 +32,9 @@ export function decisionInput(body) {
         && body.stepUp.authAgeSeconds >= 0 && body.stepUp.authAgeSeconds <= 900)
     && Array.isArray(body.recentEvents) && body.recentEvents.length <= 12
     && body.recentEvents.every(event => keys(event) === 'ageSeconds,count,kind'
-      && typeof event.kind === 'string' && Number.isFinite(event.ageSeconds) && event.ageSeconds >= 0
+      && typeof event.kind === 'string' && event.kind.trim().length > 0 && event.kind.length <= 512
+      && Number.isFinite(event.ageSeconds) && event.ageSeconds >= 0
       && Number.isSafeInteger(event.count) && event.count >= 0)
-    && keys(body.signals) === 'hour,network,region,source'
-    && ['source', 'region', 'network'].every(key => typeof body.signals[key] === 'string')
-    && Number.isInteger(body.signals.hour) && body.signals.hour >= 0 && body.signals.hour <= 23;
+    && validSignals;
 }
 

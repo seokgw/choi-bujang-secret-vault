@@ -37,7 +37,7 @@ test('existing decide contract and baseline remain intact with empty active rule
   assert.equal(result.reasonCode, 'approved');
   assert.deepEqual(Object.keys(result).sort(), ['decision', 'reasonCode', 'requestId', 'ruleIds', 'schema']);
   assert.deepEqual(result.ruleIds, ['device_registered']);
-  assert.deepEqual(RULE_IDS, ['device_registered']);
+  assert.deepEqual(RULE_IDS, ['device_registered', 'step_up_required']);
 });
 
 test('standalone XDR lookup still reads bound rules independently of the device-only decider', async () => {

@@ -1,6 +1,12 @@
-# BYTE BACK 자료실 · 6단계 저장점
+# BYTE BACK 자료실 · 7단계 저장점
+
+현재 7단계: 기존 로그인·자기 메모 CRUD·원본 직접 접근 제한과 XDR 보너스를 보존한다. 판정기의 실제 규칙은 `device_registered`, `step_up_required` 두 개다. 등록 기기의 정상 사건은 allow, 가상 출처의 새벽 0~5시·unusual 네트워크·최근 300초 안 risk_signal 20건 이상 복합 사건은 step_up / step_up_required다. 지역 하나만으로 차단하지 않는다. 출처 불명·필수 신호 누락을 정상값으로 보충하지 않으며 헤더를 신뢰 정보로 승격하지 않는다. 엔진 확인 결과를 넣은 가상 새 요청은 재판정하지만 실제 동일 주체의 재로그인 전 차단·새 로그인 후 허용은 운영 연결 미확인으로 미실행이다.
+
+다시 실행: `npm run decider:test`, `npm run fixture:7`, 저장점 커밋 뒤 `npm run bundle`. 화면에서는 기존 자료실의 **로그인**을 사용한다. 실제 재확인 화면과 자료 차단은 연결하지 않았으므로 가상 시험을 실제 화면 성공으로 취급하지 않는다. 설정은 step 7, 기존 배포 주소·발급자·13개 허용 경로·원본 API·judgeIssuer를 유지한다. 이번 저장점은 아직 배포하지 않았으며 아래 6단계와 이전 기록은 이력이다.
 
 ## 6단계 등록 기기 판정 · 로컬 확인 순서
+
+7단계 재로그인 계약 확인(로컬 작업 중): `docs/DECIDER_REQUEST.md`에는 `stepUp: {verified, authAgeSeconds}`가 있지만 같은 주체의 로그인과 추가 확인 요청 이후의 새 로그인 시각을 검증해 현재 자료 API에 전달하는 운영 연결은 제공되지 않았다. `at`는 요청 시각, 토큰 `iat`는 발급 시각이므로 새 로그인 증거로 대체하지 않는다. 실제 다시 로그인 전 자료 차단·새 로그인 후 새 요청 허용 실측은 **미실행**으로 남긴다. 자료 API의 기존 로그인·소유권 검사는 유지한다. `node scripts/fixture-7.mjs`, `node scripts/decider-test.mjs`, `node --test test/step-up.test.mjs`로 가상 정상 allow·복합 이상 step_up·엔진 확인 결과를 흉내 낸 새 요청 allow만 시험했다. 이것은 실제 재로그인이나 운영 심판 판정이 아니다. 토큰 원문·계정 정보·자료 본문은 기록하지 않는다.
 
 현재 판정기: 비교 사례의 6단계 구현처럼 `RULE_IDS = ['device_registered']` 하나만 사용한다. 엔진이 확인해 넘긴 요청의 `deviceRegistered`가 정확히 true이면 allow / approved, false·누락·다른 값이면 deny / device_not_registered다. 함수 내부의 GET·경로·파일 기반 XDR 조건은 제거했다. 따라서 등록된 기기의 확인된 요청은 동작 종류와 관계없이 허용한다. 자료실 API의 로그인·소유권 검사와 별도 XDR 검사 코드는 유지한다. 아래 복합 판정기 기록은 이전 구현 이력이다. 재실행은 `npm run decider:test`, 배포 가상 요청 점검은 `node scripts/decider-http.mjs`이며 실제 미등록 기기 공격은 심판이 담당한다.
 
