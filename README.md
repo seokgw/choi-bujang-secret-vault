@@ -1,5 +1,15 @@
 # BYTE BACK 자료실 · 12단계 저장점
 
+## 12단계 Vercel 서버 기록 수동 대조 (2026-10-13)
+
+- **학생 소스:** `scripts/compare-vercel-evidence.mjs`는 Vercel CLI로 내보낸 JSON Lines와, 브라우저 Network 탭에서 저장한 `GET /api/operations` JSON을 로컬에서 비교한다. Vercel의 실제 `id`가 작전실 `requestId`와 **완전히 같고**, 경로·메서드·HTTP 상태도 같을 때만 `vercel_id_matched`로 표시한다. **시각·경로가 가까운 기록은 결합하지 않는다.**
+- 서버 로그에 Vercel ID가 있어도 현재 `/api/operations` 응답의 `requestId`는 클라이언트에서 생성한 UUID이므로 서로 다를 가능성이 높다. 이때 결과가 `not_run`인 것은 오류를 숨기는 것이 아니라 **대조 근거 미확보**를 의미한다. ALEPH 심판 판정도 별도다.
+- 프로젝트의 PowerShell 작업 폴더에서 `npx.cmd vercel@latest logs --environment production --since 1h --json > vercel-logs.local.jsonl`로 수집하고, 개발자 도구 Network의 `/api/operations` Response JSON을 `operations-response.local.json`에 저장한다. 쿠키·토큰·개인정보를 포함하지 않는다.
+- `node scripts/compare-vercel-evidence.mjs vercel-logs.local.jsonl operations-response.local.json comparison-redacted.local.json`으로 **가린 비교 결과**를 만든다. 같은 출력 파일이 이미 있으면 덮어쓰지 않고 실패한다.
+- `node --test test/compare-vercel-evidence.test.mjs`로 일치·미일치의 모의 사례를 검사한다. 원본 Vercel 로그·응답 파일은 **Git에 추가하거나 제출물에 포함하지 않는다**. 이 도구는 자동 운영 로그 수집이나 성공 판정을 구현하지 않는다.
+- 서버 로그의 `id`를 앱 요청 ID와 신뢰성 있게 연결하는 공급자가 없는 동안, 운영 화면은 미대조 HTTP 요청을 검증 성공 건수에 포함하지 않는다. 실제 정상 허용·금지 거부와 41종 시험은 별도 실측이 필요하다.
+
+
 현재 2번 평가 오류 보완: 묶음 자기 점검은 실제 공개 HTTP 요청 세 개를 보내고 상태 코드·요청 ID·확인 시각·응답 형식 일치 여부만 기록한다. 정상 공개 배포 식별 JSON은 200, 금지된 비로그인 메모 요청은 401/403 오류가 기대값이다. 응답이 없으면 `not_run`이며 성공 문구나 심판 통과로 대체하지 않는다. `judgeCorrelated:false`는 심판 서버 기록 대조가 확인되지 않았다는 뜻이다. 보호 자료의 승인 기기 정상 허용·41종 총공세는 여전히 미실행이다. 이전 기록의 실제 기기 상태 설명은 과거 상태이며, 작전실의 현재 기기 항목은 운영 실측이 아닌 미실행 표시다.
 
 재실행: `node --test test/http-checks.test.mjs`, 저장점 커밋 후 `node scripts/bundle.mjs`. 제출 화면에서 새 `artifacts/submission.json`을 선택하고 첫 세 항목의 `observed`를 확인한다. 응답이 없는 시험은 `not_run`, HTML 로그인 화면이나 잘못된 JSON 응답은 `responseValid:false`여야 한다. 아래 기록은 이전 작업 이력이다.
