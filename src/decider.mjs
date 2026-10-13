@@ -28,7 +28,11 @@ export async function decide(request) {
   }
   const item = path !== base;
   const suffix = item ? path.slice(base.length + 1) : '';
-  const validItem = /^[1-9][0-9]{0,9}$/u.test(suffix) && Number(suffix) <= 2147483647;
+  // Engine resource IDs are opaque: do not impose the database's integer ID format.
+  const functionNames = ['export', 'import', 'search', 'share', 'bulk', 'all', 'admin',
+    'download', 'publish', 'new', 'list', 'count', 'stats', 'backup', 'restore', 'archive'];
+  const validItem = /^[A-Za-z0-9_-]{1,128}$/u.test(suffix)
+    && !functionNames.includes(suffix.toLowerCase());
   if ((item && !validItem) || (!item && method !== 'GET')
       || route !== `${method} ${base}${item ? '/:id' : ''}`) {
     return denyZone('zone_known_resource');
