@@ -8,6 +8,7 @@ import {
 } from '../src/vault-server.mjs';
 
 import { activeVaultDeny } from '../src/vault-xdr.mjs';
+import { isApprovedDevice } from './device-approval.js';
 import { decide } from '../src/decider.mjs';
 import { decisionInput } from '../src/decision-input.mjs';
 import { resourceIdForPath } from '../src/resources.mjs';
@@ -28,7 +29,8 @@ export function createNotesHandler({
   settings = serverSettings,
   fetcher = (...args) => fetch(...args),
   detailRoute = false,
-  deny = activeVaultDeny
+  deny = activeVaultDeny,
+  deviceApproved = isApprovedDevice
 } = {}) {
 
   return async function handler(request, response) {
@@ -85,6 +87,12 @@ export function createNotesHandler({
           'unauthorized',
           'login_required'
         );
+      }
+
+      // Never trust an installed PWA or client-declared device ID.
+      // The existing decision-fixture POST above does not grant note access.
+      if (await deviceApproved(request, identity) !== true) {
+        return rejectApi(response, 403, 'forbidden', 'device_not_approved');
       }
 
       // 2. 기존 XDR 거부 규칙 유지
