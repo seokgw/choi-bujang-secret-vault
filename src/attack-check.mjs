@@ -1,10 +1,12 @@
 // The student changes this check as each stage adds an attack to the same app.
 // Never return tokens, private keys, real names, or note bodies.
 import { decide } from './decider.mjs';
+import { detect } from './detect.mjs';
+import { checkDetection } from '../scripts/detect-test.mjs';
 import { fixtureRequests } from '../scripts/fixture-7.mjs';
 
 export async function runAttackChecks(config) {
-  if (![1, 2, 3, 4, 5, 6, 7, 8].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
+  if (![1, 2, 3, 4, 5, 6, 7, 8, 9].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
   let app;
   try {
     app = new URL(config.publicAppUrl);
@@ -93,6 +95,20 @@ export async function runAttackChecks(config) {
     if (config.step >= 8) {
       results.push({ attackId: 'resource_zone_live', expected: '자기 메모 허용·타인 메모 거부·학생 공지 수정 거부',
         observed: '미실행; 실제 계정·저장 강사 권한을 사용한 HTTP 실측 없음. 비로그인 HTTP 점검·API 모의 시험·DB 롤백 시험과 구분' });
+    }
+    if (config.step >= 9) {
+      const checks = await checkDetection(detect);
+      const passed = checks.filter(item => item.passed).length;
+      results.push({
+        attackId: 'burst_read_detection_local',
+        expected: '가상 사건 6개: 정상·경계값·분리·분산 observe, 폭주 121·200건 propose_revocation',
+        observed: `탐지 연습 ${passed}/${checks.length}개 통과; 실제 회수·심판 판정 아님`
+      });
+      results.push({
+        attackId: 'verified_device_revocation_live',
+        expected: '확인된 가상 기기 1개에만 회수 제안, 정상 기기는 유지',
+        observed: '미실행; 엔진 검증 기기 바인딩 및 실제 회수·시간 측정 연결 없음'
+      });
     }
     return results;
   }
