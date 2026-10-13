@@ -1,5 +1,12 @@
 import { createDeviceApprovalHandler } from './device-approval.js';
-// Compatibility endpoint: same server-confirmed state as the approval API.
-export const createDeviceStatusHandler = ({ verify, approved } = {}) =>
-  createDeviceApprovalHandler({ verify, approved });
+export function createDeviceStatusHandler({ verify, approved } = {}) {
+  const handler = createDeviceApprovalHandler({ verify, approved });
+  return (request, response) => {
+    if (request.method !== 'GET') {
+      response.setHeader('Allow', 'GET');
+      return response.status(405).json({ error: 'method_not_allowed' });
+    }
+    return handler(request, response);
+  };
+}
 export default createDeviceStatusHandler();
