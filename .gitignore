@@ -5,3 +5,8 @@ bundle-notes.json
 node_modules/
 public/aleph.json
 public/xdr/brute-force/result.json
+
+# Local-only stage 12 log evidence; never commit raw runtime logs
+vercel-logs.local.jsonl
+operations-response.local.json
+comparison-redacted.local.json
