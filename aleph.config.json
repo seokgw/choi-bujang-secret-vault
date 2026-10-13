@@ -26,8 +26,9 @@
     "DELETE /api/notes/:id",
     "GET /api/session",
     "POST /api/session",
-    "DELETE /api/session"
+    "DELETE /api/session",
+    "POST /api/restore-note"
   ],
   "originalApiUrl": "https://icvjlbkcyrqquoqhabdy.supabase.co/rest/v1/training_notes",
-  "restoreRoute": null
+  "restoreRoute": "POST /api/restore-note"
 }
