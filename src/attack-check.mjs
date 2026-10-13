@@ -6,7 +6,7 @@ import { checkDetection } from '../scripts/detect-test.mjs';
 import { fixtureRequests } from '../scripts/fixture-7.mjs';
 
 export async function runAttackChecks(config) {
-  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
+  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
   let app;
   try {
     app = new URL(config.publicAppUrl);
@@ -126,6 +126,11 @@ export async function runAttackChecks(config) {
         expected: '승인 전 보호 자료 거부, 승인된 기기만 기존 정책 통과',
         observed: '미실행; 등록·기기 증명 제공자가 미연결이어서 기본 미승인 처리' });
     }
+    if (config.step >= 12) results.push({
+      attackId: 'total_assault_41_live',
+      expected: '41종 공격 방어와 정상 요청 허용을 실제 서버 기록으로 검증',
+      observed: '미실행; 41종 총공세 실제 결과와 서버 요청 ID 기록 없음'
+    });
     return results;
   }
   const response = await fetch(new URL('/data.json', app), {
