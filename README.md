@@ -1,4 +1,15 @@
-# BYTE BACK 자료실 · 8단계 저장점
+# BYTE BACK 자료실 · 9단계 저장점
+
+## 현재 구현 (2026-10-13 · 9단계)
+
+- `aleph.config.json`은 step 9이며 기존 배포 주소·발급자·judgeIssuer·원본 HTTPS API 주소·허용 경로 17개를 유지한다.
+- `src/detect.mjs`는 공식 가상 사건의 시각·메서드·가명 사용자만 검사한다. 사용자별 임의 10분 구간 GET 121건 이상에서만 `{ action: 'propose_revocation', reasonCode: 'burst_read', subject }` 제안, 정상 30건·경계값 120건·서로 다른 사용자·시간 분산은 `observe`.
+- `src/revocation-proposal.mjs`는 신뢰된 서버 측 조회가 해당 가명 사용자와 **검증된 기기 하나**를 결합해 줄 때만 기기 ID를 포함한 별도 제안을 만든다. 확인되지 않으면 `observe`이며 실제 기기 회수·시간 측정·회수 API는 구현하지 않았다.
+- 8단계 `src/decider.mjs`의 규칙 5개, 메모 소유권, 공지 권한 검사, XDR 정책은 변경하지 않는다. S08은 사용자 보고상 통과이며 이번 단계에서 재검증하지 않았다.
+- 재실행: `npm run detect:test`, `node --test test/revocation-proposal.test.mjs`, `npm run bundle`. 제출 도구는 로컬 Git 상태가 깨끗해야 하고 Git에서 제외한 `bundle-notes.json`의 설명(최소 10자)을 요구한다. 출력 `artifacts/submission.json`은 Git에 커밋하지 않는다.
+- 기존 로컬 연습과 실제 엔진 검증, 실제 회수·경과 시간, 운영 심판 판정은 구분한다.
+
+## 이전 단계 기록 (당시 상태이며 현재 코드와 다를 수 있음)
 
 ## 현재 기준 (2026-10-13 · 9단계 시작 전)
 
