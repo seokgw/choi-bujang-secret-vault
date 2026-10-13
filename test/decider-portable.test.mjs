@@ -41,3 +41,26 @@ test('existing XDR lookup still takes precedence when available', async () => {
   assert.equal(unregistered.reasonCode, 'device_not_registered');
   assert.equal(unregistered.ruleIds.join(','), 'device_registered,xdr.brute-force.deny');
 });
+
+test('configured note read routes work in module and function-only execution', async () => {
+  const { normal } = fixtureRequests();
+  for (const run of [decide, isolatedDecider()]) {
+    for (const route of ['GET /api/notes', 'GET /api/notes/:id']) {
+      const request = { ...normal, service: 'vault', route,
+        path: route.endsWith(':id') ? '/api/notes/demo' : '/api/notes' };
+      assert.equal((await run(request)).decision, 'allow');
+      const denied = await run({ ...request, deviceRegistered: false });
+      assert.equal(denied.decision, 'deny');
+      assert.equal(denied.reasonCode, 'device_not_registered');
+      const missing = { ...request };
+      delete missing.deviceRegistered;
+      assert.equal((await run(missing)).reasonCode, 'device_not_registered');
+    }
+    for (const [method, route] of [['POST', 'POST /api/notes'], ['GET', 'GET /api/session'],
+      ['GET', 'GET /api/notes/other']]) {
+      assert.equal((await run({ ...normal, method, route })).decision, 'deny');
+    }
+  }
+  const xdr = isolatedDecider({ activeDeny: async () => ({ action: 'block' }) });
+  assert.equal((await xdr({ ...normal, route: 'GET /api/notes' })).decision, 'deny');
+});

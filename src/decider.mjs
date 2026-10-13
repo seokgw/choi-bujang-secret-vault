@@ -19,8 +19,8 @@ export async function decide(request) {
       ruleIds: xdr ? ['device_registered', xdrRuleId] : ['device_registered'],
     };
   }
-  if (!xdr && request.service === 'notes' && request.method === 'GET'
-      && ['GET /notes', 'GET /notes/:id'].includes(request.route)) {
+  if (!xdr && request.method === 'GET'
+      && ['GET /notes', 'GET /notes/:id', 'GET /api/notes', 'GET /api/notes/:id'].includes(request.route)) {
     return {
       schema: 'aleph.decision.v1',
       requestId: request.requestId,
