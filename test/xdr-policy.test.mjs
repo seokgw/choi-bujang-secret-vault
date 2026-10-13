@@ -33,14 +33,14 @@ test('alert/record, ungrounded or malformed candidates never become active block
 });
 test('existing decide contract and baseline remain intact with empty active rules', async () => {
   const result = await decide(request);
-  assert.equal(result.decision, 'deny');
-  assert.equal(result.reasonCode, 'starter_not_ready');
+  assert.equal(result.decision, 'allow');
+  assert.equal(result.reasonCode, 'approved');
   assert.deepEqual(Object.keys(result).sort(), ['decision', 'reasonCode', 'requestId', 'ruleIds', 'schema']);
-  assert.deepEqual(result.ruleIds, ['starter.deny']);
-  assert(RULE_IDS.includes('xdr.brute-force.deny'));
+  assert.deepEqual(result.ruleIds, ['device_registered']);
+  assert.deepEqual(RULE_IDS, ['device_registered']);
 });
 
-test('existing decide actually reads and applies the bound rules file', async () => {
+test('standalone XDR lookup still reads bound rules independently of the device-only decider', async () => {
   const folder = await mkdtemp(join(tmpdir(), 'aleph-xdr-policy-'));
   try {
     await mkdir(join(folder, 'src'));
@@ -51,9 +51,9 @@ test('existing decide actually reads and applies the bound rules file', async ()
     const start = Date.now() - 1000;
     const active = { ...rule, issuedAt: new Date(start).toISOString(), expiresAt: new Date(start + 900000).toISOString() };
     await writeFile(join(folder, 'xdr', 'brute-force', 'active-rules.json'), JSON.stringify(document([active])));
-    const loaded = await import(pathToFileURL(join(folder, 'src', 'decider.mjs')).href);
-    assert.deepEqual((await loaded.decide(request)).ruleIds, ['starter.deny', 'xdr.brute-force.deny']);
-    assert.deepEqual((await loaded.decide({ ...request, subjectId: 'other' })).ruleIds, ['starter.deny']);
+    const loaded = await import(pathToFileURL(join(folder, 'src', 'xdr-policy.mjs')).href);
+    assert.equal((await loaded.activeDeny(request)).alertId, rule.alertId);
+    assert.equal(await loaded.activeDeny({ ...request, subjectId: 'other' }), null);
   } finally {
     const target = resolve(folder), base = resolve(tmpdir());
     assert(target.startsWith(base + sep) && target.slice(base.length + 1).startsWith('aleph-xdr-policy-'));

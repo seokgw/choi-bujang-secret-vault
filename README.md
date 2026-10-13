@@ -2,6 +2,8 @@
 
 ## 6단계 등록 기기 판정 · 로컬 확인 순서
 
+현재 판정기: 비교 사례의 6단계 구현처럼 `RULE_IDS = ['device_registered']` 하나만 사용한다. 엔진이 확인해 넘긴 요청의 `deviceRegistered`가 정확히 true이면 allow / approved, false·누락·다른 값이면 deny / device_not_registered다. 함수 내부의 GET·경로·파일 기반 XDR 조건은 제거했다. 따라서 등록된 기기의 확인된 요청은 동작 종류와 관계없이 허용한다. 자료실 API의 로그인·소유권 검사와 별도 XDR 검사 코드는 유지한다. 아래 복합 판정기 기록은 이전 구현 이력이다. 재실행은 `npm run decider:test`, 배포 가상 요청 점검은 `node scripts/decider-http.mjs`이며 실제 미등록 기기 공격은 심판이 담당한다.
+
 운영 심판 호출 방식에 대한 가설 구현: `GET /aleph.json`에서 단계·커밋·`allowedRoutes`·`policyRules`를 확인한 뒤 `POST /api/decider`에 계약 형식의 가상 요청을 보내는 흐름으로 구성했다. `policyRules`는 기존 제출 묶음과 같은 이름이며 빌드 시 `src/decider.mjs`의 실제 `RULE_IDS`를 복사한다. 삭제한 `decider` 결과 블록은 생성하지 않는다. `node scripts/decider-http.mjs`로 배포 기록 확인 → 등록 allow / approved → 미등록 deny / device_not_registered를 점검한다. 이는 학생 측 가설 검증이며 운영 심판이 이 항목·경로를 사용한다는 증거가 아니다. 기기와 사용자의 연결을 검증하는 운영 엔진을 대신하지 않는다.
 
 2026-10-13 판정기 전용 경로: `POST /api/decider`를 `allowedRoutes`에 추가했다. 계약의 18개 항목을 받아 `src/decider.mjs`를 호출하고 응답 다섯 항목을 반환한다. `aleph.json`의 `decider` 블록과 그 블록을 읽는 자기 점검은 제거했다. 배포 후 `node scripts/decider-http.mjs`로 새 경로에 등록·미등록 가상 요청을 보낸다. 정상은 allow / approved, 미등록은 deny / device_not_registered다. 브라우저에서 배포 주소의 /aleph.json을 열어 allowedRoutes의 POST /api/decider와 decider 블록 제거를 확인한다. 주소창으로 /api/decider를 열면 GET이므로 405가 정상이다. 경로 등록만으로 심판의 자동 호출을 보장하지 않으며 실제 미등록 기기 공격은 심판이 담당한다.
