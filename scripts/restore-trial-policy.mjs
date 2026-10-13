@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, realpathSync, lstatSync } from 'node:fs';
 import { resolve, relative, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { previewPolicyRestore, policyDiff } from './preview-policy-restore.mjs';
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -24,8 +25,7 @@ export function planTestPolicyRestore({ snapshotPath, trialPath, trustedSha256, 
       || !own(snapshot.services, service) || !isObject(snapshot.services[service])
       || !own(trial.services, service) || !isObject(trial.services[service])) abort('service_policy_missing');
   if (!isObject(snapshot.services[service].notesAccess)
-      || !isObject(snapshot.services[service].notesAccess.ownerOnly)
-      && typeof snapshot.services[service].notesAccess.ownerOnly !== 'boolean') abort('invalid_notes_access_policy');
+      || typeof snapshot.services[service].notesAccess.ownerOnly !== 'boolean') abort('invalid_notes_access_policy');
   if (service !== 'notes' || snapshot.services.notes.notesAccess.ownerOnly !== true) abort('unsafe_notes_policy');
   const changes = policyDiff(snapshot.services[service], trial.services[service])
     .map(c => ({ ...c, path: '/services/' + service + (c.path === '/' ? '' : c.path) }));
@@ -54,4 +54,21 @@ export function restoreTestPolicy(options) {
   // Audit and all other services are copied from trial unchanged.
   writeFileSync(options.trialPath, JSON.stringify(updated, null, 2) + '\n', { flag: 'w' });
   return result;
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try {
+    const args = process.argv.slice(2);
+    const get = flag => { const i = args.indexOf(flag); return i >= 0 ? args[i + 1] : undefined; };
+    const apply = args.includes('--apply');
+    const result = restoreTestPolicy({
+      snapshotPath: get('--snapshot'), trialPath: get('--trial'),
+      trustedSha256: get('--trusted-sha256'), service: get('--service'),
+      apply, confirm: get('--confirm')
+    });
+    process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+  } catch (err) {
+    process.stderr.write('trial_restore_aborted: ' + (err.code === 'ENOENT' ? 'missing_verified_snapshot_or_trial' : err.message) + '\n');
+    process.exitCode = 1;
+  }
 }
