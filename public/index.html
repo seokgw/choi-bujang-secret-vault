@@ -45,6 +45,14 @@
       <label>비밀번호<input name="password" type="password" autocomplete="current-password" required maxlength="1024"></label>
       <button type="submit">로그인</button>
     </form>
+    <section id="device-request-panel" hidden aria-labelledby="device-request-heading">
+      <h2 id="device-request-heading">기기 승인 요청</h2>
+      <p>로그인 후 서버에 기기 승인을 요청할 수 있습니다. 요청만으로 승인되지는 않습니다.</p>
+      <button id="request-device" type="button">기기 승인 요청</button>
+      <button id="recheck-device" type="button">승인 상태 다시 확인</button>
+      <button id="pending-logout" type="button">로그아웃</button>
+      <p id="device-request-result" role="status" aria-live="polite"></p>
+    </section>
     <section id="workspace" hidden>
       <button id="logout" type="button">로그아웃</button>
       <form id="editor">
