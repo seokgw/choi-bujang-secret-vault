@@ -7,7 +7,7 @@ function reply() { return {
   status(n){ this.statusCode=n; return this; }, json(x){this.payload=x;return this;}
 }; }
 test('server summary redacts user and never invents evidence', async () => {
-  const handler=createOperationsHandler({verify:async()=>({userId:'fixture-private-id'}),deviceCheck:async()=>false});
+  const handler=createOperationsHandler({verify:async()=>({userId:'fixture-private-id'}),evidenceSource:async()=>[]});
   const res=reply();await handler({method:'GET'},res);
   assert.equal(res.statusCode,200);
   assert.equal(res.payload.policy.status,'code_inventory');
@@ -25,4 +25,20 @@ test('server summary redacts user and never invents evidence', async () => {
 test('unauthenticated access rejected', async () => {
   const res=reply();await createOperationsHandler({verify:async()=>null})({method:'GET'},res);
   assert.equal(res.statusCode,401);
+});
+
+test('dashboard HTTP totals equal the exact redacted evidence rows', async () => {
+  const evidenceSource=async()=>[
+    {attackId:'static_note_removal',requestId:'req-1',checkedAt:'2026-10-13T00:00:00.000Z',httpStatus:404,source:'direct_http',judgeCorrelated:false},
+    {attackId:'anonymous_note_rejection',requestId:'req-2',checkedAt:'2026-10-13T00:00:01.000Z',httpStatus:401,source:'direct_http',judgeCorrelated:false}
+  ];
+  const handler=createOperationsHandler({verify:async()=>({userId:'fixture-private-id'}),evidenceSource});
+  const response=reply();await handler({method:'GET'},response);
+  assert.equal(response.statusCode,200);
+  assert.equal(response.payload.http.observed,2);
+  assert.equal(response.payload.http.records.length,3);
+  assert.deepEqual(response.payload.http.records.map(x=>x.httpStatus),[404,401,null]);
+  assert.equal(response.payload.http.records[2].status,'not_run');
+  assert.equal(response.payload.http.records.every(x=>x.judgeCorrelated===false),true);
+  assert.equal(JSON.stringify(response.payload).includes('fixture-private-id'),false);
 });
