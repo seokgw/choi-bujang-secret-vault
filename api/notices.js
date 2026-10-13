@@ -1,11 +1,12 @@
 import config from '../aleph.config.json' with { type: 'json' };
 import { serverSettings, verifyRequest, safeOrigin, bodyObject, jsonHeaders } from '../src/vault-server.mjs';
 import { activeVaultDeny } from '../src/vault-xdr.mjs';
+import { isApprovedDevice } from './device-approval.js';
 import { rejectApi } from '../src/api-denial.mjs';
 import { resourceIdForPath } from '../src/resources.mjs';
 
 export function createNoticesHandler({ verify = verifyRequest, settings = serverSettings,
-  fetcher = (...args) => fetch(...args), deny = activeVaultDeny, detailRoute = false } = {}) {
+  fetcher = (...args) => fetch(...args), deny = activeVaultDeny, deviceApproved = isApprovedDevice, detailRoute = false } = {}) {
   return async function handler(request, response) {
     jsonHeaders(response);
     const id = request.query?.id;
@@ -18,6 +19,7 @@ export function createNoticesHandler({ verify = verifyRequest, settings = server
           || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu.test(identity.userId)) {
         return rejectApi(response, 401, 'unauthorized', 'login_required');
       }
+      if (await deviceApproved(request, identity) !== true) return rejectApi(response, 403, 'forbidden', 'device_not_approved');
       if (await deny(identity)) return rejectApi(response, 403, 'forbidden', 'xdr_denied');
       // 일반 학생의 공지 수정 차단
       if (
