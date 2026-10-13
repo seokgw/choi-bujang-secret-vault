@@ -59,7 +59,7 @@ export function createOperationsHandler({ verify = verifyRequest, evidenceSource
         return item ? { attackId: p.attackId, requestId: item.requestId,
           checkedAt: item.checkedAt, httpStatus: item.httpStatus,
           expected: [...p.expected], matched: item.httpStatus === null ? null : p.expected.includes(item.httpStatus),
-          status: item.httpStatus === null ? 'not_run' : 'api_observed',
+          status: item.httpStatus === null ? 'not_run' : 'http_unverified',
           judgeCorrelated: false } :
           { attackId: p.attackId, requestId: null, checkedAt: null,
             httpStatus: null, expected: [...p.expected], matched: null,
@@ -68,8 +68,8 @@ export function createOperationsHandler({ verify = verifyRequest, evidenceSource
       return res.status(200).json({
         schema: 'aleph.operations.summary.v1',
         policy: { status: 'code_inventory', count: null, rules: [...RULE_IDS], verifiedCount: null },
-        http: { status: rows.some(x => x.status === 'api_observed') ? 'api_observed' : 'not_run',
-          observed: rows.filter(x => x.status === 'api_observed').length, records: rows },
+        http: { status: 'not_run',
+          observed: 0, records: rows },
         detection: { status: 'not_run', count: null },
         revocation: { status: 'not_run', count: null },
         recovery: { status: 'not_run', version: null, count: null },
