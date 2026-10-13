@@ -42,8 +42,11 @@ async function refresh(){root.replaceChildren();state.textContent='서버 확인
 if(http && Array.isArray(http.records)){
   const records=http.records;
   const actual=records.filter(x=>x.status==='api_observed'&&Number.isInteger(x.httpStatus));
-  row('서버 기록과 대조 완료',String(actual.length)+'/'+String(records.length)+'건',
-    '이 응답의 가린 요청 기록과 동일한 행에서 계산 · 심판 로그 대조는 별도');
+  const observed=records.filter(x=>x.status==='http_unverified'&&Number.isInteger(x.httpStatus));
+  row('실제 HTTP 응답 관측',String(observed.length)+'/'+String(records.length)+'건',
+    '상태 코드를 받은 요청만 집계 · Vercel 로그 ID 검증과 별도');
+  row('서버 요청 ID 대조 완료',String(actual.length)+'/'+String(records.length)+'건',
+    '검증된 로그 연결이 없는 항목은 성공 건수에 포함하지 않음 · ALEPH 심판 판정은 별도');
   evidenceTable(records);
 }
 row('판정 규칙',d.policy.status==='code_inventory'?'코드 목록 · 실측 미확인':'미확인',d.policy.status==='code_inventory'?d.policy.rules.join(', '):'기준 기록 없음');row('탐지 사건',d.detection.status==='api_verified'?String(d.detection.count)+'건':'미실행','실제 서버 사건 기록');row('기기 회수',d.revocation.status==='api_verified'?String(d.revocation.count)+'건':'미실행','실제 서버 회수 기록');row('복구 버전',d.recovery.status==='api_verified'&&d.recovery.version?d.recovery.version:'미실행','검증된 서버 복원 기록');row('기기 승인',d.device.status==='api_verified'?(d.device.approved?'서버 승인 확인':'서버 미승인 확인'):'미실행','이번 요청 서버 검증');row('41종 총공세',d.assault.status==='api_verified'&&Number.isInteger(d.assault.defended)?String(d.assault.defended)+'/41':'미실행','실제 API 검증 없이 통과 처리하지 않음');}catch{state.textContent='서버 기록 확인 불가 · 미실행';}}
