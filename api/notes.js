@@ -10,6 +10,7 @@ import {
 import { activeVaultDeny } from '../src/vault-xdr.mjs';
 import { isApprovedDevice } from './device-approval.js';
 import { decide } from '../src/decider.mjs';
+import { persistDecisionAudit } from '../src/decision-audit.mjs';
 import { decisionInput } from '../src/decision-input.mjs';
 import { resourceIdForPath } from '../src/resources.mjs';
 import { rejectApi } from '../src/api-denial.mjs';
@@ -67,9 +68,10 @@ export function createNotesHandler({
             });
           }
 
-          return response.status(200).json(
-            await decide(body)
-          );
+          const decision = await decide(body);
+          const audit = await persistDecisionAudit(body,decision);
+          response.setHeader('X-Decision-Audit',audit.state);
+          return response.status(200).json(decision);
         }
       }
 
