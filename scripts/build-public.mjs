@@ -1,7 +1,6 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { deploymentIdentity } from './deployment-identity.mjs';
-import { deciderReport } from './decider-report.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const output = resolve(root, 'public', 'data.json');
@@ -36,7 +35,6 @@ await writeFile(resolve(root, 'public/xdr/brute-force/result.json'), `${JSON.str
 }, null, 2)}\n`, 'utf8');
 if (!process.argv.includes('--local')) {
   const identity = deploymentIdentity(process.env, config);
-  identity.decider = await deciderReport();
   await writeFile(resolve(root, 'public', 'aleph.json'),
     `${JSON.stringify(identity, null, 2)}\n`, 'utf8');
   console.log('배포 저장소·커밋·주소를 public/aleph.json에 기록했습니다.');

@@ -2,7 +2,7 @@
 
 ## 6단계 등록 기기 판정 · 로컬 확인 순서
 
-2026-10-13 공개 배포 증명 보완: /aleph.json에 decider 항목을 추가한다. 빌드 시 실제 decide 함수를 true·false 가상 요청으로 호출해 규칙 목록, decision, reasonCode, ruleIds, 각 passed 및 실행 시각을 기록한다. sourcePath와 POST 호출 경로도 표시한다. 계정·기기 ID·메모·토큰·키는 출력하지 않는다. 기존 배포 증명 항목과 judgeIssuer는 유지한다. 배포 후 /aleph.json을 열어 decider.checks의 true → allow / approved, false → deny / device_not_registered와 decider.passed=true를 확인한다. 이는 사용자 요청으로 추가한 공개 실행 결과이며 심판이 이 추가 항목을 사용하는지 및 평가 통과는 평가 결과로 확인한다.
+2026-10-13 판정기 전용 경로: `POST /api/decider`를 `allowedRoutes`에 추가했다. 계약의 18개 항목을 받아 `src/decider.mjs`를 호출하고 응답 다섯 항목을 반환한다. `aleph.json`의 `decider` 블록과 그 블록을 읽는 자기 점검은 제거했다. 배포 후 `node scripts/decider-http.mjs`로 새 경로에 등록·미등록 가상 요청을 보낸다. 정상은 allow / approved, 미등록은 deny / device_not_registered다. 브라우저에서 배포 주소의 /aleph.json을 열어 allowedRoutes의 POST /api/decider와 decider 블록 제거를 확인한다. 주소창으로 /api/decider를 열면 GET이므로 405가 정상이다. 경로 등록만으로 심판의 자동 호출을 보장하지 않으며 실제 미등록 기기 공격은 심판이 담당한다.
 
 HTTP 호출 첫 오류 보완: 로컬 시각이 운영 HTTP Date보다 약 14초 빨라 5초 제한으로 400이 발생함을 확인했다. 호출 스크립트가 서버 공개 Date 헤더를 기준으로 at을 생성하도록 수정했다. API의 시각 제한은 유지한다.
 
@@ -17,9 +17,11 @@ HTTP 호출 첫 오류 보완: 로컬 시각이 운영 HTTP Date보다 약 14초
 2026-10-13 첫 오류 S06_DEVICE_RULE_MISSING 후속 수정: 함수만 분리하면 외부 activeDeny 참조로 등록·미등록 모두 ReferenceError가 나는 것을 로컬에서 재현했다. src/decider.mjs는 XDR 조회가 제공될 때 기존 조회를 유지하고 함수 내부 응답 상수를 사용하도록 바꿨다. 함수만 실행하는 환경에는 서버 파일의 XDR 규칙 조회가 없으므로 해당 조회는 적용되지 않는다. 실제 모듈 실행의 XDR 거부는 보존했다. npm CLI의 run decider:test 2건과 `node --test test/decider-portable.test.mjs` 2건이 통과했다. 등록 읽기 허용, 미등록·누락·잘못된 값·쓰기 거부, XDR 조회가 제공된 경우 거부 우선을 확인했다. 심판의 실제 실행 방식과 오류 원인 일치는 재시험이 필요하며 심판 통과로 기록하지 않는다.
 
 1. 자료실 폴더의 터미널에서 `npm run decider:test`를 실행한다. 별도로 설치할 접속 프로그램은 없다.
-2. 출력의 `통과 · 등록 기기의 정상 요청`을 확인한다. 등록 값이 정확히 true인 정상 자료실 읽기 요청의 기대 결과는 allow / approved다.
-3. 출력의 `통과 · 미등록 기기의 가상 요청`을 확인한다. 이 시험은 deny / device_not_registered인지 함께 검사한다. 등록 값이 없거나 true가 아니어도 같은 이유로 거부한다.
+2. 출력의 `통과 · 등록 기기의 정상 요청 · allow · approved`를 확인한다. 등록 값이 정확히 true인 정상 자료실 읽기 요청의 실제 응답을 표시한다.
+3. 출력의 `통과 · 미등록 기기의 가상 요청 · deny · device_not_registered`를 확인한다. 미등록 요청이 거부되어야 시험이 통과한다. 판정기는 등록 값이 없거나 true가 아니어도 같은 이유로 거부한다.
 4. 화면 확인은 기존 자료실에서 로그인 후 자기 자료 목록을 연다. 로컬 판정 시험과 실제 접속 확인은 구분한다. 실제 미등록 기기 공격은 심판이 담당한다.
+
+실행 흐름: `package.json`의 `decider:test` → `scripts/decider-test.mjs` → `src/decider.mjs`의 `decide(request)`. 가상 요청은 `scripts/fixture-7.mjs`에서 만든다. 시험 확인은 터미널 출력으로 하며 별도로 누를 시험 버튼은 없다. npm이 현재 셸에서 인식되지 않으면 설치 없이 `node scripts/decider-test.mjs`로 같은 실행 파일을 직접 실행할 수 있다.
 
 2026-10-13 실제 로컬 확인: 현재 셸의 npm 실행 명령이 인식되지 않아 기존 임시 폴더의 npm을 사용했다. npm.cmd는 내부 모듈 경로 오류로 실패했고 같은 npm-cli.js를 Node로 직접 실행해 run decider:test를 완료했다. 두 가상 요청 모두 통과했으며 별도 함수 호출에서도 등록 요청 allow / approved, 미등록 요청 deny / device_not_registered를 확인했다. 새 프로그램이나 인증서·CA·서명 키를 설치·생성하지 않았다. 이 결과는 가상 요청 연습이며 실제 심판 판정·배포·운영 접속 성공의 증거가 아니다. 기존 XDR 거부는 유지하며 이전의 전부 거부를 기대하는 XDR 시험 두 항목은 새 허용 동작과 충돌하는 상태다.
 
