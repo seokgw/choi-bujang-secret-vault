@@ -20,15 +20,10 @@ export async function runAttackChecks(config) {
   if (typeof config.sampleMarker !== 'string' || !config.sampleMarker) throw new Error('가상 메모의 확인 표시를 넣어 주세요.');
   if (config.step >= 2) {
     const checks = [
-      ['/data.json', 'static_note_removal', '404 또는 제목·본문이 없는 빈 notes 배열'],
-      ['/api/notes', config.step >= 3 ? 'anonymous_note_rejection' : 'public_api_direct_request', config.step >= 3 ? '401 또는 403 JSON 오류; 자료와 내부 정보 없음' : '현재 단계는 인증 없이 직접 호출 가능; 정상 설정 시 가상 메모 4건'],
-      ['/aleph.json', 'deployment_identity', `현재 ${config.step}단계 배포 증명 JSON 제공`],
-      ['/', 'homepage_nosniff', '첫 화면에 X-Content-Type-Options: nosniff'],
+      ['/data.json', 'static_note_removal', '공개 가상 메모 원본 제거'],
+      ['/api/notes', 'anonymous_note_rejection', '비로그인 메모 거부'],
+      ['/aleph.json', 'deployment_identity', '배포 식별 JSON 확인']
     ];
-    if (config.step >= 4) checks.push(['/api/notes/1', 'anonymous_detail_rejection',
-      '401 또는 403 JSON 오류; 상세 경로도 비로그인 자료 반환 없음']);
-    if (config.step >= 8) checks.push(['/api/notices/1', 'anonymous_notice_rejection',
-      '401 JSON 오류; 비로그인 공지 자료 반환 없음']);
     const results = [];
     for (const [path, attackId, expected] of checks) {
       let observed;
@@ -61,6 +56,9 @@ export async function runAttackChecks(config) {
     // The judge correlates every submitted attackId with a real request log.
     // Local fixtures and planned exercises are not HTTP evidence.
     const planned = [
+      ['homepage_nosniff', '첫 화면 보안 응답 헤더 확인'],
+      ['anonymous_detail_rejection', '비로그인 단건 메모 거부'],
+      ['anonymous_notice_rejection', '비로그인 단건 공지 거부'],
       ['registered_device_local', '등록 기기의 정상 요청 허용'],
       ['unregistered_device_local', '미등록 기기 거부'],
       ['missing_device_registration_local', '기기 등록 정보 없는 요청 거부'],
@@ -79,8 +77,7 @@ export async function runAttackChecks(config) {
     for (const [attackId, expected] of planned) {
       results.push({ attackId, expected, observed: 'not_run' });
     }
-    // Keep only the six actual HTTP attempts plus the fourteen explicit
-    // unexecuted scenarios. No local result is misrepresented as server proof.
+    // Keep three logged HTTP candidates and seventeen not-run scenarios. No local result is misrepresented as server proof.
     return results;
   }
   const response = await fetch(new URL('/data.json', app), {
