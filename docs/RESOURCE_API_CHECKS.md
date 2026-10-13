@@ -1,5 +1,7 @@
 # 8단계 API 자원 권한 검사 (로컬 작업 중)
 
+후속 판정기 거부 보완: zone_known_resource·zone_memo_own·zone_announcement_write를 추가했다. 확인된 경로 밖 요청은 거부하고 소유자·강사 권한 증거가 없는 메모 한 건·공지 요청도 거부한다. 이 안전한 기본 거부는 본인 메모와 타인 메모를 구별한 허용의 구현이 아니며 본인 메모 한 건도 거부될 수 있다. 기존 자료 API는 그대로 소유권·강사 권한을 검사한다. 판정기 쿼리 원문을 확인할 수 없어 쿼리가 있는 판정 요청은 닫았으며 기존 자료 API의 id 쿼리 주소는 변경하지 않았다.
+
 메모 API는 검증된 로그인 사용자 ID를 DB 조회·수정 조건의 owner_id에 결합하고, 반환된 모든 행의 저장 소유자가 같은지 다시 확인한다. 타인 자료와 없는 번호는 같은 404 오류로 처리한다. 본문·헤더·쿼리의 role, owner_id, resourceId로 다른 구역 권한을 얻을 수 없다. 소유자 검사 실패 시 자료를 반환하지 않는다.
 
 공지 API는 사용자 요청에 따라 새로 만들었다. `vault_api.resource_roles`의 app_origin·issuer·user_id·resource_id와 instructor 역할을 서버에서 대조한다. app_origin·issuer·user_id는 서버 설정과 검증된 로그인에서만 가져오고 클라이언트의 role을 쓰지 않는다. 수정 함수 `vault_api.update_training_notice`는 역할 행을 잠근 뒤 같은 트랜잭션에서 공지를 수정한다. 권한이 없으면 공지 존재 여부와 관계없이 403이다. 같은 깊이에 export 기능 경로를 만들지 않았고 공지 API 쿼리는 자료 id만 허용한다.
