@@ -19,6 +19,18 @@ export function createNoticesHandler({ verify = verifyRequest, settings = server
         return rejectApi(response, 401, 'unauthorized', 'login_required');
       }
       if (await deny(identity)) return rejectApi(response, 403, 'forbidden', 'xdr_denied');
+      // 일반 학생의 공지 수정 차단
+      if (
+        ['PUT', 'PATCH'].includes(request.method) &&
+        identity.kind !== 'judge'
+      ) {
+        return rejectApi(
+          response,
+          403,
+          'forbidden',
+          'instructor_required'
+        );
+      }
       const methods = detailRoute ? ['GET', 'PUT', 'PATCH'] : ['GET'];
       if (!methods.includes(request.method)) {
         response.setHeader('Allow', methods.join(', '));
