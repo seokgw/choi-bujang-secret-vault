@@ -1,4 +1,5 @@
 import { decide } from '../src/decider.mjs';
+import { persistDecisionAudit } from '../src/decision-audit.mjs';
 import { decisionInput } from '../src/decision-input.mjs';
 import { bodyObject, jsonHeaders } from '../src/vault-server.mjs';
 
@@ -12,7 +13,10 @@ export default async function handler(request, response) {
   try {
     const body = bodyObject(request);
     if (!decisionInput(body)) return response.status(400).json({ error: 'invalid_request' });
-    return response.status(200).json(await decide(body));
+    const decision = await decide(body);
+    const audit = await persistDecisionAudit(body, decision);
+    response.setHeader('X-Decision-Audit', audit.state);
+    return response.status(200).json(decision);
   } catch {
     return response.status(503).json({ error: 'service_unavailable' });
   }
