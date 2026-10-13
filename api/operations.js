@@ -1,6 +1,7 @@
 import config from '../aleph.config.json' with { type: 'json' };
 import { randomUUID } from 'node:crypto';
 import { verifyRequest, jsonHeaders } from '../src/vault-server.mjs';
+import { readDecisionAudit } from '../src/decision-audit.mjs';
 import { RULE_IDS } from '../src/decider.mjs';
 
 const PROBES = Object.freeze([
@@ -65,11 +66,17 @@ export function createOperationsHandler({ verify = verifyRequest, evidenceSource
             httpStatus: null, expected: [...p.expected], matched: null,
             status: 'not_run', judgeCorrelated: false };
       });
+      // Audits are real persisted API responses to fixture requests, not judge verdicts.
+      // Storage failures never produce fabricated counts.
+      let decisionAudits = null;
+      try { decisionAudits = await readDecisionAudit(); } catch { decisionAudits = null; }
+      const policyAudit = decisionAudits === null ? {status:'not_run',total:null,records:[]} :
+        {status:'server_audit',total:decisionAudits.length,records:decisionAudits};
       const httpObserved = rows.filter(x => x.status === 'http_unverified' && Number.isInteger(x.httpStatus)).length;
       const serverCorrelated = rows.filter(x => x.status === 'api_observed' && x.judgeCorrelated === true).length;
       return res.status(200).json({
         schema: 'aleph.operations.summary.v1',
-        policy: { status: 'code_inventory', count: null, rules: [...RULE_IDS], verifiedCount: null },
+        policy: { status: 'code_inventory', count: null, rules: [...RULE_IDS], verifiedCount: null, audit: policyAudit },
         http: { status: httpObserved > 0 ? 'http_unverified' : 'not_run',
           observed: httpObserved, serverCorrelated, records: rows },
         detection: { status: 'not_run', count: null },
