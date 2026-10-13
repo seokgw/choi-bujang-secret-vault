@@ -1,0 +1,19 @@
+{
+  "name": "BYTE BACK 비공개 자료실",
+  "short_name": "BYTE BACK",
+  "description": "서버가 로그인과 접근 권한을 검증하는 가상 자료실",
+  "lang": "ko",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#101a28",
+  "theme_color": "#101a28",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
