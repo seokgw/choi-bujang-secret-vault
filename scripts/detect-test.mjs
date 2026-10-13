@@ -1,6 +1,5 @@
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isDeepStrictEqual } from 'node:util';
 
 const START = Date.UTC(2026, 9, 1, 0, 0, 0);
 const subject = 'learner_fixture';
@@ -32,7 +31,10 @@ export async function checkDetection(detect) {
   const results = [];
   for (const item of cases) {
     const actual = await detect(item.events);
-    const passed = isDeepStrictEqual(actual, item.expected);
+    const expected = item.expected;
+    const passed = actual !== null && typeof actual === 'object' && !Array.isArray(actual)
+      && Object.keys(actual).length === Object.keys(expected).length
+      && Object.keys(expected).every(key => Object.hasOwn(actual, key) && actual[key] === expected[key]);
     results.push({ name: item.name, passed: Boolean(passed) });
   }
   return results;
