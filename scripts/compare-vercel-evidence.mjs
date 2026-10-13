@@ -1,6 +1,7 @@
 // Stage 12: offline comparison only. Never upload raw Vercel logs to GitHub.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 export function compareEvidence(jsonl, summary) {
   const events = [];
@@ -35,7 +36,7 @@ export function compareEvidence(jsonl, summary) {
     recordsRead: events.length, matched: rows.filter(r=>r.correlation==='vercel_id_matched').length,
     judgeVerified: null, records: rows };
 }
-if (process.argv[1] && import.meta.url === new URL('file://'+resolve(process.argv[1])).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const [logPath, summaryPath, outputPath] = process.argv.slice(2);
   if (!logPath || !summaryPath || !outputPath) {
     console.error('사용법: node scripts/compare-vercel-evidence.mjs <vercel.jsonl> <operations-response.json> <redacted-result.json>');
