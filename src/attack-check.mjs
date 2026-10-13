@@ -6,7 +6,7 @@ import { checkDetection } from '../scripts/detect-test.mjs';
 import { fixtureRequests } from '../scripts/fixture-7.mjs';
 
 export async function runAttackChecks(config) {
-  if (![1, 2, 3, 4, 5, 6, 7, 8, 9].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
+  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
   let app;
   try {
     app = new URL(config.publicAppUrl);
@@ -109,6 +109,17 @@ export async function runAttackChecks(config) {
         expected: '확인된 가상 기기 1개에만 회수 제안, 정상 기기는 유지',
         observed: '미실행; 엔진 검증 기기 바인딩 및 실제 회수·시간 측정 연결 없음'
       });
+    }
+    if (config.step >= 10) {
+      results.push({ attackId: 'verified_policy_restore_live',
+        expected: '검증된 사본으로 notes 정책만 복원; 다른 서비스 및 감사 기록 보존',
+        observed: '미실행; 시험 정책 사본·사전 신뢰 해시·실행 승인 확인 없음' });
+      results.push({ attackId: 'verified_single_note_restore_live',
+        expected: 'B 가상 메모 한 건의 ID·소유자·본문 SHA-256 일치',
+        observed: '미실행; 서버 검증 사본과 격리 시험 저장소 미연결; 기본 503' });
+      results.push({ attackId: 'stage1_to_9_after_restore_live',
+        expected: '복구 후 정상 요청 유지, 타인 메모·미등록 기기·학생 공지 변경 거부',
+        observed: '미실행; 복구 후 실제 HTTP 및 운영 심판 회귀 시험 미수행' });
     }
     return results;
   }
