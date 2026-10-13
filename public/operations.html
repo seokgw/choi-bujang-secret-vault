@@ -10,12 +10,14 @@ async function refresh(){root.replaceChildren();state.textContent='서버 확인
 if(http && Array.isArray(http.records)){
   const records=http.records;
   const actual=records.filter(x=>x.status==='api_observed'&&Number.isInteger(x.httpStatus));
-  row('실제 HTTP 응답',String(actual.length)+'/'+String(records.length)+'건',
+  row('서버 기록과 대조 완료',String(actual.length)+'/'+String(records.length)+'건',
     '이 응답의 가린 요청 기록과 동일한 행에서 계산 · 심판 로그 대조는 별도');
   for(const record of records){
     const detail=record.status==='api_observed'
-      ? 'HTTP '+record.httpStatus+' · 기대 '+record.expected.join('/')+' · '+(record.matched?'기대와 일치':'불일치')
-      : '미실행 · 응답 없음';
+      ? '서버 기록 대조 완료 · HTTP '+record.httpStatus
+      : record.status==='http_unverified'
+        ? 'HTTP '+record.httpStatus+' 관측 · 서버 기록 미대조 (통과 근거 아님)'
+        : '미실행 · 응답 없음';
     row(record.attackId,detail,'요청 ID: '+(record.requestId??'—')+' · 확인 시각: '+(record.checkedAt??'—')+
       ' · 심판 로그 대조: 미확인');
   }
