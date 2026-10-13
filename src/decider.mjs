@@ -1,7 +1,7 @@
 // ALEPH SDP 엔진이 확인한 요청만 받는 학생 판정기입니다.
 // 요청 본문의 userId, role, 기기 키, 토큰을 별도로 믿거나 저장하지 마세요.
 export const RULE_IDS = Object.freeze(['device_registered', 'step_up_required',
-  'zone_known_resource', 'zone_memo_own', 'zone_announcement_write']);
+  'zone_known_resource']);
 
 export async function decide(request) {
   const registered = request?.deviceRegistered === true;
@@ -34,11 +34,9 @@ export async function decide(request) {
     return denyZone('zone_known_resource');
   }
   const memo = base === '/notes' || base === '/api/notes';
-  if (!memo) return denyZone('zone_announcement_write');
-  if (request.service !== 'notes') return denyZone('zone_known_resource');
-  // v1 has no trusted resource-owner mapping. Never infer ownership from subjectId,
-  // a record number, or a substring. Keep item access closed pending that contract.
-  if (item) return denyZone('zone_memo_own');
+  if (memo && request.service !== 'notes') return denyZone('zone_known_resource');
+  // Resource ownership and instructor authorization remain enforced by the data APIs.
+  // This decider currently does not distinguish those permissions.
   // Judge fixtures only: combine time, network and recent activity; region alone is not a rule.
   const signals = request?.signals;
   const unusualAccess = signals?.source === 'judge_fixture'

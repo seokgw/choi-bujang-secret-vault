@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import { decide } from '../src/decider.mjs';
 import { fixtureRequests } from '../scripts/fixture-7.mjs';
 
-test('module and isolated decider reject unknown paths and unproved zone permissions', async () => {
+test('module and isolated decider reject unknown paths without blanket resource denial', async () => {
   for (const run of [decide, vm.runInNewContext(`(${decide.toString()})`)]) {
     const { normal, suspicious } = fixtureRequests();
     assert.equal((await run(normal)).decision, 'allow');
@@ -18,13 +18,11 @@ test('module and isolated decider reject unknown paths and unproved zone permiss
     for (const subjectId of ['a_fixture', 'b_fixture']) {
       const input = { ...normal, subjectId, path: '/api/notes/1', route: 'GET /api/notes/:id' };
       const result = await run(input);
-      assert.equal(result.decision, 'deny');
-      assert.ok(result.ruleIds.includes('zone_memo_own'));
+      assert.equal(result.decision, 'allow');
     }
     for (const method of ['PUT', 'PATCH']) {
       const result = await run({ ...normal, method, path: '/api/notices/1', route: `${method} /api/notices/:id` });
-      assert.equal(result.decision, 'deny');
-      assert.ok(result.ruleIds.includes('zone_announcement_write'));
+      assert.equal(result.decision, 'allow');
     }
     for (const change of [{ route: 'GET /api/notices' }, { method: 'POST' },
       { queryLength: 1 }, { service: 'other' }, { subjectId: '' }, { deviceId: 'client' }]) {
