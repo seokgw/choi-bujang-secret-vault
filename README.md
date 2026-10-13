@@ -2,6 +2,8 @@
 
 ## 6단계 등록 기기 판정 · 로컬 확인 순서
 
+운영 심판 호출 방식에 대한 가설 구현: `GET /aleph.json`에서 단계·커밋·`allowedRoutes`·`policyRules`를 확인한 뒤 `POST /api/decider`에 계약 형식의 가상 요청을 보내는 흐름으로 구성했다. `policyRules`는 기존 제출 묶음과 같은 이름이며 빌드 시 `src/decider.mjs`의 실제 `RULE_IDS`를 복사한다. 삭제한 `decider` 결과 블록은 생성하지 않는다. `node scripts/decider-http.mjs`로 배포 기록 확인 → 등록 allow / approved → 미등록 deny / device_not_registered를 점검한다. 이는 학생 측 가설 검증이며 운영 심판이 이 항목·경로를 사용한다는 증거가 아니다. 기기와 사용자의 연결을 검증하는 운영 엔진을 대신하지 않는다.
+
 2026-10-13 판정기 전용 경로: `POST /api/decider`를 `allowedRoutes`에 추가했다. 계약의 18개 항목을 받아 `src/decider.mjs`를 호출하고 응답 다섯 항목을 반환한다. `aleph.json`의 `decider` 블록과 그 블록을 읽는 자기 점검은 제거했다. 배포 후 `node scripts/decider-http.mjs`로 새 경로에 등록·미등록 가상 요청을 보낸다. 정상은 allow / approved, 미등록은 deny / device_not_registered다. 브라우저에서 배포 주소의 /aleph.json을 열어 allowedRoutes의 POST /api/decider와 decider 블록 제거를 확인한다. 주소창으로 /api/decider를 열면 GET이므로 405가 정상이다. 경로 등록만으로 심판의 자동 호출을 보장하지 않으며 실제 미등록 기기 공격은 심판이 담당한다.
 
 HTTP 호출 첫 오류 보완: 로컬 시각이 운영 HTTP Date보다 약 14초 빨라 5초 제한으로 400이 발생함을 확인했다. 호출 스크립트가 서버 공개 Date 헤더를 기준으로 at을 생성하도록 수정했다. API의 시각 제한은 유지한다.

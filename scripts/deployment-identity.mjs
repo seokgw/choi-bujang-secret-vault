@@ -3,7 +3,7 @@ const REPO = /^[A-Za-z0-9._-]{1,100}$/u;
 const SHA = /^[a-f0-9]{40}$/iu;
 const HOST = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.vercel\.app$/iu;
 
-export function deploymentIdentity(env, config) {
+export function deploymentIdentity(env, config, policyRules) {
   const owner = env.VERCEL_GIT_REPO_OWNER;
   const repo = env.VERCEL_GIT_REPO_SLUG;
   const commit = env.VERCEL_GIT_COMMIT_SHA;
@@ -28,6 +28,11 @@ export function deploymentIdentity(env, config) {
       throw new Error('배포 증명의 원본 주소에 자격증명·쿼리·fragment를 포함할 수 없습니다.');
     }
   }
+  if (config.step >= 6 && (!Array.isArray(policyRules) || policyRules.length === 0
+      || policyRules.length > 80 || new Set(policyRules).size !== policyRules.length
+      || policyRules.some(rule => typeof rule !== 'string' || !/^[a-z][a-z0-9_.-]{0,79}$/iu.test(rule)))) {
+    throw new Error('6단계 배포 증명에는 실제 RULE_IDS의 규칙 목록이 필요합니다.');
+  }
   return {
     schema: 'aleph.defense.deployment.v1',
     step: config.step,
@@ -38,5 +43,6 @@ export function deploymentIdentity(env, config) {
     sampleMarker: config.sampleMarker,
     ...(config.allowedRoutes !== undefined ? { allowedRoutes: config.allowedRoutes } : {}),
     ...(config.step >= 5 ? { originalApiUrl: config.originalApiUrl } : {}),
+    ...(config.step >= 6 ? { policyRules: [...policyRules] } : {}),
   };
 }

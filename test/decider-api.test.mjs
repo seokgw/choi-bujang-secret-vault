@@ -4,6 +4,7 @@ import handler from '../api/decider.js';
 import config from '../aleph.config.json' with { type: 'json' };
 import { fixtureRequests } from '../scripts/fixture-7.mjs';
 import { deploymentIdentity } from '../scripts/deployment-identity.mjs';
+import { RULE_IDS } from '../src/decider.mjs';
 
 async function call(method, body) {
   const response = { headers: {}, setHeader(key, value) { this.headers[key] = value; },
@@ -42,9 +43,20 @@ test('decider endpoint rejects unsupported methods and malformed contracts', asy
 test('deployment identity lists the dedicated route without a decider report', () => {
   const identity = deploymentIdentity({ VERCEL_GIT_PROVIDER: 'github',
     VERCEL_GIT_REPO_OWNER: 'fixture', VERCEL_GIT_REPO_SLUG: 'fixture',
-    VERCEL_GIT_COMMIT_SHA: 'a'.repeat(40), VERCEL_URL: 'fixture.vercel.app' }, config);
+    VERCEL_GIT_COMMIT_SHA: 'a'.repeat(40), VERCEL_URL: 'fixture.vercel.app' }, config, RULE_IDS);
   assert.ok(identity.allowedRoutes.includes('POST /api/decider'));
   assert.ok(identity.allowedRoutes.includes('POST /api/session'));
   assert.ok(identity.allowedRoutes.includes('GET /api/notes'));
   assert.equal(Object.hasOwn(identity, 'decider'), false);
+  assert.deepEqual(identity.policyRules, [...RULE_IDS]);
+});
+
+test('stage 6 requires actual rule metadata, while stage 5 keeps its previous shape', () => {
+  const env = { VERCEL_GIT_PROVIDER: 'github', VERCEL_GIT_REPO_OWNER: 'fixture',
+    VERCEL_GIT_REPO_SLUG: 'fixture', VERCEL_GIT_COMMIT_SHA: 'a'.repeat(40),
+    VERCEL_URL: 'fixture.vercel.app' };
+  for (const rules of [undefined, [], ['device_registered', 'device_registered'], ['invalid rule']]) {
+    assert.throws(() => deploymentIdentity(env, config, rules), /RULE_IDS/u);
+  }
+  assert.equal(Object.hasOwn(deploymentIdentity(env, { ...config, step: 5 }), 'policyRules'), false);
 });

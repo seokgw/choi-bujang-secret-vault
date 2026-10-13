@@ -1,6 +1,7 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { deploymentIdentity } from './deployment-identity.mjs';
+import { RULE_IDS } from '../src/decider.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const output = resolve(root, 'public', 'data.json');
@@ -34,7 +35,7 @@ await writeFile(resolve(root, 'public/xdr/brute-force/result.json'), `${JSON.str
   scope: '가상 경보 로컬 검증. 운영 ZTNA 차단은 연결되지 않았습니다.',
 }, null, 2)}\n`, 'utf8');
 if (!process.argv.includes('--local')) {
-  const identity = deploymentIdentity(process.env, config);
+  const identity = deploymentIdentity(process.env, config, RULE_IDS);
   await writeFile(resolve(root, 'public', 'aleph.json'),
     `${JSON.stringify(identity, null, 2)}\n`, 'utf8');
   console.log('배포 저장소·커밋·주소를 public/aleph.json에 기록했습니다.');
