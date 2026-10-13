@@ -65,11 +65,13 @@ export function createOperationsHandler({ verify = verifyRequest, evidenceSource
             httpStatus: null, expected: [...p.expected], matched: null,
             status: 'not_run', judgeCorrelated: false };
       });
+      const httpObserved = rows.filter(x => x.status === 'http_unverified' && Number.isInteger(x.httpStatus)).length;
+      const serverCorrelated = rows.filter(x => x.status === 'api_observed' && x.judgeCorrelated === true).length;
       return res.status(200).json({
         schema: 'aleph.operations.summary.v1',
         policy: { status: 'code_inventory', count: null, rules: [...RULE_IDS], verifiedCount: null },
-        http: { status: 'not_run',
-          observed: 0, records: rows },
+        http: { status: httpObserved > 0 ? 'http_unverified' : 'not_run',
+          observed: httpObserved, serverCorrelated, records: rows },
         detection: { status: 'not_run', count: null },
         revocation: { status: 'not_run', count: null },
         recovery: { status: 'not_run', version: null, count: null },
