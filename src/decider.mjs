@@ -1,7 +1,7 @@
 // ALEPH SDP 엔진이 확인한 요청만 받는 학생 판정기입니다.
 // 요청 본문의 userId, role, 기기 키, 토큰을 별도로 믿거나 저장하지 마세요.
 export const RULE_IDS = Object.freeze(['device_registered', 'step_up_required',
-  'zone_known_resource']);
+  'zone_known_resource', 'zone_announcement_write']);
 
 export async function decide(request) {
   const registered = request?.deviceRegistered === true;
@@ -38,6 +38,9 @@ export async function decide(request) {
     return denyZone('zone_known_resource');
   }
   const memo = base === '/notes' || base === '/api/notes';
+  // v1 does not supply verified instructor permission: notice reads remain open,
+  // but do not authorize notice edits without that evidence.
+  if (!memo && method !== 'GET') return denyZone('zone_announcement_write');
   if (memo && request.service !== 'notes') return denyZone('zone_known_resource');
   // Resource ownership and instructor authorization remain enforced by the data APIs.
   // This decider currently does not distinguish those permissions.

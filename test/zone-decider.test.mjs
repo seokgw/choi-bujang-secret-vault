@@ -27,8 +27,10 @@ test('module and isolated decider reject unknown paths without blanket resource 
     }
     for (const method of ['PUT', 'PATCH']) {
       const result = await run({ ...normal, method, path: '/api/notices/1', route: `${method} /api/notices/:id` });
-      assert.equal(result.decision, 'allow');
+      assert.equal(result.decision, 'deny');
+      assert.ok(result.ruleIds.includes('zone_announcement_write'));
     }
+    assert.equal((await run({ ...normal, path: '/api/notices/1', route: 'GET /api/notices/:id' })).decision, 'allow');
     for (const change of [{ route: 'GET /api/notices' }, { method: 'POST' },
       { queryLength: 1 }, { service: 'other' }, { subjectId: '' }, { deviceId: 'client' }]) {
       assert.equal((await run({ ...normal, ...change })).decision, 'deny');
