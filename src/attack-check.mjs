@@ -4,8 +4,9 @@ import { decide } from './decider.mjs';
 import { detect } from './detect.mjs';
 import { checkDetection } from '../scripts/detect-test.mjs';
 import { fixtureRequests } from '../scripts/fixture-7.mjs';
+import { observePublicChecks } from './http-checks.mjs';
 
-export async function runAttackChecks(config) {
+export async function runAttackChecks(config, options = {}) {
   if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
   let app;
   try {
@@ -19,13 +20,7 @@ export async function runAttackChecks(config) {
   }
   if (typeof config.sampleMarker !== 'string' || !config.sampleMarker) throw new Error('가상 메모의 확인 표시를 넣어 주세요.');
   if (config.step >= 2) {
-    // A successful fetch does not prove a matching server-side attackId log.
-    // Without a server-correlated request record, report not_run.
-    const results = [
-      { attackId: 'static_note_removal', expected: '공개 가상 메모 원본 제거', observed: 'not_run' },
-      { attackId: 'anonymous_note_rejection', expected: '비로그인 메모 거부', observed: 'not_run' },
-      { attackId: 'deployment_identity', expected: '배포 식별 JSON 확인', observed: 'not_run' }
-    ];
+    const results = await observePublicChecks(config, options);
     // The judge correlates every submitted attackId with a real request log.
     // Local fixtures and planned exercises are not HTTP evidence.
     const planned = [
@@ -50,7 +45,7 @@ export async function runAttackChecks(config) {
     for (const [attackId, expected] of planned) {
       results.push({ attackId, expected, observed: 'not_run' });
     }
-    // Keep three logged HTTP candidates and seventeen not-run scenarios. No local result is misrepresented as server proof.
+    // Three actual HTTP observations and seventeen unexecuted scenarios.
     return results;
   }
   const response = await fetch(new URL('/data.json', app), {
