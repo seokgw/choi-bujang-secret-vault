@@ -1,4 +1,10 @@
-# BYTE BACK 자료실 · 7단계 저장점
+# BYTE BACK 자료실 · 8단계 저장점
+
+현재 8단계: 메모·공지 자원 ID를 notes/notes:숫자, notices/notices:숫자로 구분한다. 메모 API는 검증된 사용자와 저장된 owner_id를 다시 대조하고 타인 자료를 반환하지 않는다. 공지 API는 GET /api/notices, GET·PUT·PATCH /api/notices/:id를 제공하며 수정은 DB의 앱·발급자·사용자에 묶인 instructor 권한으로 확인한다. 클라이언트 role·메뉴는 권한 근거로 쓰지 않고 쿼리는 공지 자료 ID만 선택한다. export 기능 경로·화면 메뉴는 추가하지 않았다. 짧은 거부 사유는 X-Aleph-Denial-Reason 응답 헤더로 남긴다.
+
+DB의 resource_roles·training_notices와 권한 검사 함수는 실제 적용했다. 가상 DB 롤백 시험은 학생·다른 앱·다른 발급자 거부와 강사 허용을 확인했다. 실제 강사 지정·공지는 0건, 기존 메모는 5건이다. 8단계 코드 배포와 실제 계정 HTTP 구역 권한 시험은 미실행이다. 판정기의 device_registered·step_up_required 두 규칙은 유지하며 소유자·강사 권한 전달 계약이 없어 판정기 구역 규칙은 아직 구현하지 않았다. 7단계는 사용자 통과 확인 및 배포 완료이며 아래 미배포 문장은 당시 저장점 이력이다.
+
+재실행: `node --test test/notices-api.test.mjs test/r5.test.mjs test/resources.test.mjs`, 커밋 후 `npm run bundle`. 배포 후 개발자 도구 Network에서 자원 ID·거부 사유 헤더를 확인한다. 자기 메모는 허용, 타인 메모는 404, 학생 공지 수정은 403/instructor_required여야 한다. 설정은 step 8, 기존 배포 주소·발급자·원본 API·judgeIssuer를 보존하고 허용 경로는 공지 4개를 포함한 17개다.
 
 현재 7단계: 기존 로그인·자기 메모 CRUD·원본 직접 접근 제한과 XDR 보너스를 보존한다. 판정기의 실제 규칙은 `device_registered`, `step_up_required` 두 개다. 등록 기기의 정상 사건은 allow, 가상 출처의 새벽 0~5시·unusual 네트워크·최근 300초 안 risk_signal 20건 이상 복합 사건은 step_up / step_up_required다. 지역 하나만으로 차단하지 않는다. 출처 불명·필수 신호 누락을 정상값으로 보충하지 않으며 헤더를 신뢰 정보로 승격하지 않는다. 엔진 확인 결과를 넣은 가상 새 요청은 재판정하지만 실제 동일 주체의 재로그인 전 차단·새 로그인 후 허용은 운영 연결 미확인으로 미실행이다.
 

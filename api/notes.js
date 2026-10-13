@@ -4,12 +4,21 @@ import { activeVaultDeny } from '../src/vault-xdr.mjs';
 import { decide } from '../src/decider.mjs';
 
 import { decisionInput } from '../src/decision-input.mjs';
+import { resourceIdForPath } from '../src/resources.mjs';
+import { rejectApi } from '../src/api-denial.mjs';
 
 // Every query binds ownership to the identity verified by verify-login.mjs.
 export function createNotesHandler({ verify = verifyRequest, settings = serverSettings,
   fetcher = (...args) => fetch(...args), detailRoute = false, deny = activeVaultDeny } = {}) {
   return async function handler(request, response) {
     jsonHeaders(response);
+    // The handler's route and validated record ID determine the resource.
+    // Browser headers/body cannot relabel a note as an instructor notice.
+    const id = request.query?.id;
+    const validId = typeof id === 'string' && /^[1-9][0-9]{0,9}$/u.test(id)
+      && Number(id) <= 2147483647;
+    const resourcePath = validId ? `/api/notes/${id}` : '/api/notes';
+    response.setHeader('X-Aleph-Resource-Id', resourceIdForPath(resourcePath));
     try {
       if (!detailRoute && request.method === 'POST') {
         const body = bodyObject(request);
@@ -20,8 +29,8 @@ export function createNotesHandler({ verify = verifyRequest, settings = serverSe
         }
       }
       const identity = await verify(request);
-      if (!identity) return response.status(401).json({ error: 'unauthorized' });
-      if (await deny(identity)) return response.status(403).json({ error: 'forbidden' });
+      if (!identity) return rejectApi(response, 401, 'unauthorized', 'login_required');
+      if (await deny(identity)) return rejectApi(response, 403, 'forbidden', 'xdr_denied');
       const methods = detailRoute ? ['GET', 'PUT', 'PATCH', 'DELETE'] : ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
       if (!methods.includes(request.method)) {
         response.setHeader('Allow', methods.join(', '));
@@ -63,11 +72,13 @@ export function createNotesHandler({ verify = verifyRequest, settings = serverSe
       if (!upstream.ok) throw new Error();
       const rows = await upstream.json();
       if (!Array.isArray(rows) || rows.some(row => !Number.isInteger(row.id)
-          || typeof row.title !== 'string' || typeof row.content !== 'string'
-          || row.owner_id !== identity.userId)) throw new Error();
+          || typeof row.title !== 'string' || typeof row.content !== 'string')) throw new Error();
+      if (rows.some(row => row.owner_id !== identity.userId)) {
+        return rejectApi(response, 503, 'service_unavailable', 'ownership_check_failed');
+      }
       // Missing and foreign IDs have the same response; no ownership disclosure.
       if (hasId && rows.length === 0) {
-        return response.status(404).json({ error: 'not_found' });
+        return rejectApi(response, 404, 'not_found', 'resource_unavailable');
       }
       if (request.method === 'DELETE') return response.status(200).json({ deleted: true });
       const notes = rows.map(({ id, title, content }) => ({ id, title, content }));

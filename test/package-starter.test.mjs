@@ -15,7 +15,7 @@ test('패키징 함수 기준표는 시작 틀의 실제 API와 일치한다', a
   assert.deepEqual(baseline.allowedNew, ['api/ai.js', 'api/threat-intel.js']);
   const details = await readdir(new URL('../api/notes/', import.meta.url));
   assert.deepEqual(details, ['[id].js']);
-  assert.deepEqual(actual, [...baseline.functions, ...baseline.allowedNew, 'api/decider.js', 'api/notes.js', 'api/session.js'].sort());
+  assert.deepEqual(actual, [...baseline.functions, ...baseline.allowedNew, 'api/decider.js', 'api/notes.js', 'api/notices.js', 'api/session.js'].sort());
 });
 
 test('미구현 서버 뼈대는 성공이나 로그인 통과로 가장하지 않는다', async () => {

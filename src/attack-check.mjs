@@ -4,7 +4,7 @@ import { decide } from './decider.mjs';
 import { fixtureRequests } from '../scripts/fixture-7.mjs';
 
 export async function runAttackChecks(config) {
-  if (![1, 2, 3, 4, 5, 6, 7].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
+  if (![1, 2, 3, 4, 5, 6, 7, 8].includes(config.step)) throw new Error('이 단계의 공격 점검을 src/attack-check.mjs에 구현해 주세요.');
   let app;
   try {
     app = new URL(config.publicAppUrl);
@@ -25,6 +25,8 @@ export async function runAttackChecks(config) {
     ];
     if (config.step >= 4) checks.push(['/api/notes/1', 'anonymous_detail_rejection',
       '401 또는 403 JSON 오류; 상세 경로도 비로그인 자료 반환 없음']);
+    if (config.step >= 8) checks.push(['/api/notices/1', 'anonymous_notice_rejection',
+      '401 JSON 오류; 비로그인 공지 자료 반환 없음']);
     const results = [];
     for (const [path, attackId, expected] of checks) {
       let observed;
@@ -41,7 +43,7 @@ export async function runAttackChecks(config) {
           try { data = await res.json(); } catch { /* Only report shape/status. */ }
           if (path === '/data.json') {
             observed = `HTTP ${res.status}; 빈 notes 배열 ${Array.isArray(data?.notes) && data.notes.length === 0 ? '확인' : '미확인'}`;
-          } else if (path.startsWith('/api/notes')) {
+          } else if (path.startsWith('/api/notes') || path.startsWith('/api/notices')) {
             observed = config.step >= 3
               ? `비로그인 HTTP ${res.status}; JSON 오류 ${[401, 403].includes(res.status) && res.headers.get('content-type')?.includes('application/json') && data && Object.keys(data).length === 1 && ['unauthorized', 'forbidden'].includes(data.error) ? '확인' : '미확인'}`
               : `인증 없는 직접 요청 HTTP ${res.status}; 메모 건수 ${Array.isArray(data?.notes) ? data.notes.length : '미확인'}`;
@@ -74,7 +76,7 @@ export async function runAttackChecks(config) {
         expected: '등록 기기로 로그인 후 자기 자료실 읽기',
         observed: '미실행; 6단계 실제 등록 기기 접속·운영 연결은 확인하지 않음' });
     }
-    if (config.step === 7) {
+    if (config.step >= 7) {
       const { normal, suspicious } = fixtureRequests();
       for (const [attackId, request, expected] of [
         ['normal_access_local', normal, 'allow'],
@@ -87,6 +89,10 @@ export async function runAttackChecks(config) {
       }
       results.push({ attackId: 'relogin_gate_live', expected: '같은 주체의 새 로그인 검증 후 요청 재판정',
         observed: '미실행; 제공 엔진의 동일 주체·새 로그인 시각 전달 연결 미확인으로 실제 자료 차단·재허용을 시험하지 않음' });
+    }
+    if (config.step >= 8) {
+      results.push({ attackId: 'resource_zone_live', expected: '자기 메모 허용·타인 메모 거부·학생 공지 수정 거부',
+        observed: '미실행; 8단계 API는 미배포이며 실제 계정·저장 강사 권한을 사용한 HTTP 실측 없음. API 모의 시험과 DB 롤백 시험은 별도 확인' });
     }
     return results;
   }
