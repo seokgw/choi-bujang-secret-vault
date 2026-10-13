@@ -131,7 +131,13 @@ export async function runAttackChecks(config) {
       expected: '41종 공격 방어와 정상 요청 허용을 실제 서버 기록으로 검증',
       observed: '미실행; 41종 총공세 실제 결과와 서버 요청 ID 기록 없음'
     });
-    return results;
+    // Bundle accepts at most 20 records. Omit only three redundant
+    // unexecuted legacy placeholders; never label them as successful.
+    return results.filter(item => ![
+      'unregistered_device_judge',
+      'relogin_gate_live',
+      'verified_device_revocation_live'
+    ].includes(item.attackId));
   }
   const response = await fetch(new URL('/data.json', app), {
     redirect: 'error', signal: AbortSignal.timeout(10000),
