@@ -6,7 +6,7 @@ import { fixtureRequests } from './fixture-7.mjs';
 
 const cases=[
   ['device_registered','미등록 기기 차단','deny',b=>({...b,deviceRegistered:false})],
-  ['step_up_required','위험 요청 추가 인증','step_up',(_,s)=>s],
+  ['step_up_required','위험 요청 추가 인증','step_up',(_,s)=>({...s,path:'/notes/fixture-item',route:'GET /notes/:id'})],
   ['zone_known_resource','금지 경로 차단','deny',b=>({...b,path:'/notes/export',route:'GET /notes/:id'})],
   ['zone_memo_own','정상 단건 메모 판정','allow',b=>({...b,path:'/notes/fixture-item',route:'GET /notes/:id'})],
   ['zone_announcement_write','공지 구역 접근 차단','deny',b=>({...b,path:'/notices/fixture-item',route:'GET /notices/:id'})]
