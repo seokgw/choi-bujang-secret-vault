@@ -31,11 +31,13 @@ export function createNotesHandler({ verify = verifyRequest, settings = serverSe
       const identity = await verify(request);
       if (!identity) return rejectApi(response, 401, 'unauthorized', 'login_required');
       if (await deny(identity)) return rejectApi(response, 403, 'forbidden', 'xdr_denied');
-      const methods = detailRoute ? ['GET', 'PUT', 'PATCH', 'DELETE'] : ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
+      const methods = detailRoute  ? ['GET', 'PUT', 'PATCH', 'DELETE']  : ['POST', 'PUT', 'PATCH', 'DELETE'];
       if (!methods.includes(request.method)) {
         response.setHeader('Allow', methods.join(', '));
-        return response.status(405).json({ error: 'method_not_allowed' });
-      }
+        return response.status(405).json({
+        error: 'method_not_allowed'
+        });
+      }  
       if (request.method !== 'GET' && !safeOrigin(request)) {
         return response.status(403).json({ error: 'forbidden' });
       }
