@@ -1,0 +1,35 @@
+[
+  {
+    "name": "log4shell-jndi-header",
+    "condition": {
+      "signal": "HTTP 요청 머리글의 JNDI 원격 조회 구문",
+      "scope": "Wazuh data.useragent 등 요청 머리글",
+      "match": "머리글 원문에 ${jndi:ldap://...}와 같은 완전한 JNDI 외부 참조 구문이 포함되거나, 경보 설명이 머리글의 해당 구문을 명확히 확인함.",
+      "exclude": "단순 jndi 단어, CVE 이름, 일반적인 중괄호 또는 스크립트 설명만으로 공격 확정 금지."
+    },
+    "finding": "Log4Shell 악용 형태의 헤더 입력 신호이며 취약한 서버에서 코드 실행에 성공했다는 증거는 아님.",
+    "evidence": "CVE-2021-44228은 공격자가 제어하는 로그 문자열을 통한 JNDI/LDAP 외부 참조 위험을 명시하고 MITRE T1190은 공개 앱 취약점 악용에 해당함: https://nvd.nist.gov/vuln/detail/CVE-2021-44228 ; https://attack.mitre.org/techniques/T1190/"
+  },
+  {
+    "name": "log4shell-jndi-query",
+    "condition": {
+      "signal": "HTTP 요청 인자의 JNDI 원격 조회 구문",
+      "scope": "Wazuh data.url의 쿼리 인자",
+      "match": "요청 인자에 ${jndi:ldap://...}와 같은 완전한 JNDI 외부 참조 구문이 포함되거나, 경보 설명이 주소 인자 내 해당 구문을 명확히 확인함.",
+      "exclude": "CVE 이름만 검색하거나 jndi라는 수업 단어만 포함된 인자는 공격으로 확정하지 않음."
+    },
+    "finding": "Log4Shell 악용 형태의 URL 인자 입력 신호이며 실제 취약 버전 여부나 코드 실행 여부는 별도 확인 대상.",
+    "evidence": "CVE-2021-44228은 로그 메시지 및 매개변수의 공격자 제어 JNDI 조회 문제를 설명하고 T1190은 웹앱 취약점 악용 기법임: https://nvd.nist.gov/vuln/detail/CVE-2021-44228 ; https://attack.mitre.org/techniques/T1190/"
+  },
+  {
+    "name": "known-cve-probe-indicator",
+    "condition": {
+      "signal": "알려진 취약점 점검 또는 탐색 흔적",
+      "scope": "Wazuh rule.description 및 data.url",
+      "match": "경보가 CVE-2021-44228 점검 흔적과 구체적인 JNDI 조회 구문을 함께 명시하면 연관 신호로 기록하고, 도구로 보이는 이름만 있으면 의심 신호로만 분류함.",
+      "exclude": "점검 도구와 비슷한 수업 프로그램 이름, 취약점 목록 문서 열람, CVE 문자열 검색만으로 차단하지 않음."
+    },
+    "finding": "탐색/점검의 보조 신호로만 취급하고 특정 도구의 사용 또는 악용 성공을 주장하지 않음.",
+    "evidence": "수업용 known-cve fixture의 kc-05는 점검 흔적과 JNDI 조회 구문을 함께 기록하고 kc-11·kc-13은 문서 열람/도구 유사 이름의 비공격 사례이며, MITRE T1190은 취약점 악용과 탐색 흔적을 구분할 근거를 제공함: https://attack.mitre.org/techniques/T1190/"
+  }
+]
