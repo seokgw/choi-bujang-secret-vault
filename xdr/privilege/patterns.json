@@ -1,0 +1,35 @@
+[
+  {
+    "name": "unexpected-admin-group-membership",
+    "condition": {
+      "signal": "평범한 계정의 관리자 그룹 추가 또는 빠른 재추가",
+      "scope": "Wazuh rule.description, rule.mitre, data.group, data.count",
+      "match": "T1078 관련 경보에서 관리자 그룹 편입이 확인되고, 일반 계정·여러 계정의 동시 추가·짧은 시간 내 재추가 또는 즉각적인 관리자 명령 등 이상 정황이 함께 나타남",
+      "exclude": "관리자 그룹이 아닌 과제·수업 그룹 추가, 그룹 목록 조회, 단순 설명 변경을 관리자 권한 획득으로 단정하지 않음"
+    },
+    "finding": "정상 계정을 이용한 비정상적 권한 확대 징후로 조사하며 그룹 변경만으로 계정 탈취를 확정하지 않음",
+    "evidence": "MITRE ATT&CK T1078은 유효한 계정 악용을 설명하며, 관리자 그룹 편입 자체는 Account Manipulation T1098의 세부 기법과도 관련된다: https://attack.mitre.org/techniques/T1078/ ; https://attack.mitre.org/techniques/T1098/"
+  },
+  {
+    "name": "unexpected-administrator-command",
+    "condition": {
+      "signal": "새로 상승한 계정 또는 다른 계정 권한의 관리자 명령",
+      "scope": "Wazuh rule.description, rule.mitre",
+      "match": "T1068 관련 경보에서 막 관리자 권한을 획득한 계정의 관리자 명령, 처음 보는 요청 주소와 함께 나타나는 권한 변동, 또는 다른 계정의 권한으로 실행한 명령이 확인됨",
+      "exclude": "한 번 실행된 평소 관리자 명령, 취소된 권한 창, 실패한 명령만으로 공격을 확정하지 않음"
+    },
+    "finding": "비정상 권한 사용을 포착하되 T1068의 실제 소프트웨어 취약점 악용 성공 여부는 별도 증거 필요",
+    "evidence": "MITRE ATT&CK T1068은 권한 상승을 위한 취약점 악용을 다루며, 이 연습의 관리자 명령 실행 경보는 취약점 악용을 확증하지 않는다: https://attack.mitre.org/techniques/T1068/"
+  },
+  {
+    "name": "off-hours-elevated-access",
+    "condition": {
+      "signal": "업무·수업 시간 밖 비정상적 관리자 권한 사용",
+      "scope": "Wazuh rule.description, rule.mitre",
+      "match": "T1068 또는 T1078 관련 경보에서 평소 시간 밖 관리자 명령 실행에 낯선 주소, 직전 관리자 그룹 편입 등 이상 행동이 결합됨",
+      "exclude": "시간대만 다르거나 승인된 관리자 작업인 경우에는 단독으로 공격 확정 금지"
+    },
+    "finding": "비정상 시간의 권한 사용을 부가 위험 신호로 조사하고 시간만으로 세션 회수하지 않음",
+    "evidence": "MITRE ATT&CK T1078은 유효 계정의 악용, T1068은 권한 상승 취약점 악용을 다루므로 비정상 시각은 이 과제에서 사용하는 보조 상관 신호이다: https://attack.mitre.org/techniques/T1078/ ; https://attack.mitre.org/techniques/T1068/"
+  }
+]
