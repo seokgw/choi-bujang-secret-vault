@@ -34,7 +34,7 @@ const PATTERNS = Object.freeze([
 
 const LOOKUP = new RegExp('\\$\\{jndi:(?:ldap|ldaps|rmi|dns|iiop|http|https):\\/\\/[^\\s{}]+\\}', 'i');
 const CVE = /CVE-2021-44228/i;
-const PROBE = /점검 흔적|취약점.*(?:점검|탐색)|원격 조회|조회 형태|jndi|lookup/i;
+const PROBE = /점검 흔적|점검 도구|취약점|CVE-2021-44228|원격 조회|조회 형태|jndi|lookup|중괄호|라이브러리 이름/i;
 const NEGATIVE = /구문은 없습니다|악용 구문은 없습니다|완전한 구문은 아닙니다/i;
 
 export function decide(alert) {
@@ -57,10 +57,11 @@ export function decide(alert) {
     return { action: 'block', confidence, reason: pattern.name };
   }
   // Without the raw lookup string, descriptions alone must not cause a block.
-  // Document searches and classroom program names are explicitly benign.
-  const clearlyDocumentation = /취약점 목록 문서|라이브러리 이름|수업용 프로그램 이름/i.test(description);
+  // These weak T1190-related signals merit review, never automatic denial.
+  // A document, a class tool name, or a library reference alone is ambiguous;
+  // ordinary access with no vulnerability signal stays record.
   const suspiciousText = PROBE.test(description) || CVE.test(query);
-  if (suspiciousText && !clearlyDocumentation) {
+  if (suspiciousText && mitre && Number.isFinite(level) && level >= 5) {
     const confidence = NEGATIVE.test(description) ? 0.55 : 0.65;
     return { action: 'alert', confidence, reason: PATTERNS[2].name };
   }
