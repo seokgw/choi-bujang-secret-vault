@@ -1,0 +1,155 @@
+{
+  "schema": "aleph.xdr.result.v1",
+  "moduleKey": "persistence",
+  "decisions": [
+    {
+      "alertId": "ps-01",
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "unsigned-new-service"
+    },
+    {
+      "alertId": "ps-02",
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "unfamiliar-scheduled-task"
+    },
+    {
+      "alertId": "ps-03",
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "unfamiliar-startup-folder"
+    },
+    {
+      "alertId": "ps-04",
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "unsigned-new-service"
+    },
+    {
+      "alertId": "ps-05",
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "unfamiliar-scheduled-task"
+    },
+    {
+      "alertId": "ps-06",
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "unsigned-new-service"
+    },
+    {
+      "alertId": "ps-07",
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "unfamiliar-scheduled-task"
+    },
+    {
+      "alertId": "ps-08",
+      "action": "block",
+      "confidence": 0.95,
+      "reason": "unsigned-new-service"
+    },
+    {
+      "alertId": "ps-09",
+      "action": "alert",
+      "confidence": 0.65,
+      "reason": "unfamiliar-scheduled-task"
+    },
+    {
+      "alertId": "ps-10",
+      "action": "alert",
+      "confidence": 0.65,
+      "reason": "unfamiliar-startup-folder"
+    },
+    {
+      "alertId": "ps-11",
+      "action": "alert",
+      "confidence": 0.65,
+      "reason": "unsigned-new-service"
+    },
+    {
+      "alertId": "ps-12",
+      "action": "alert",
+      "confidence": 0.65,
+      "reason": "unfamiliar-scheduled-task"
+    },
+    {
+      "alertId": "ps-13",
+      "action": "alert",
+      "confidence": 0.65,
+      "reason": "unsigned-new-service"
+    },
+    {
+      "alertId": "ps-14",
+      "action": "alert",
+      "confidence": 0.65,
+      "reason": "unfamiliar-startup-folder"
+    },
+    {
+      "alertId": "ps-15",
+      "action": "alert",
+      "confidence": 0.65,
+      "reason": "unfamiliar-scheduled-task"
+    },
+    {
+      "alertId": "ps-16",
+      "action": "alert",
+      "confidence": 0.65,
+      "reason": "unsigned-new-service"
+    },
+    {
+      "alertId": "ps-17",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "no-matching-pattern"
+    },
+    {
+      "alertId": "ps-18",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "no-matching-pattern"
+    },
+    {
+      "alertId": "ps-19",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "no-matching-pattern"
+    },
+    {
+      "alertId": "ps-20",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "no-matching-pattern"
+    },
+    {
+      "alertId": "ps-21",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "no-matching-pattern"
+    },
+    {
+      "alertId": "ps-22",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "no-matching-pattern"
+    },
+    {
+      "alertId": "ps-23",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "no-matching-pattern"
+    },
+    {
+      "alertId": "ps-24",
+      "action": "record",
+      "confidence": 0.1,
+      "reason": "no-matching-pattern"
+    }
+  ],
+  "counts": {
+    "block": 8,
+    "alert": 8,
+    "record": 8
+  }
+}
